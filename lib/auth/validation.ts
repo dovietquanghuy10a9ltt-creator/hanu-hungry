@@ -31,16 +31,17 @@ export function safeReturnPath(value: unknown, fallback = "/"): string {
   return value;
 }
 
-export function siteUrl(): URL {
-  const configured = process.env.APP_URL;
-  if (!configured && process.env.NODE_ENV === "production") {
-    throw new Error("APP_URL is required in production");
+export function siteUrl(env: NodeJS.ProcessEnv = process.env): URL {
+  const previewHost = env.VERCEL_ENV === "preview" ? env.VERCEL_URL : undefined;
+  const configured = previewHost ? `https://${previewHost}` : env.APP_URL;
+  if (!configured && env.NODE_ENV === "production") {
+    throw new Error("APP_URL is required in production outside Vercel Preview");
   }
   const url = new URL(configured || "http://localhost:3000");
   if (!['http:', 'https:'].includes(url.protocol)) {
     throw new Error("APP_URL must use HTTP or HTTPS");
   }
-  if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
+  if (env.NODE_ENV === "production" && url.protocol !== "https:") {
     throw new Error("APP_URL must use HTTPS in production");
   }
   return url;
