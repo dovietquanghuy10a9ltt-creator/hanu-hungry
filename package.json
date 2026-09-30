@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs tests/domain.test.mjs scripts/import-food-data.test.mjs",
+    "test:auth": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs",
+    "test:data": "node --experimental-strip-types --test scripts/import-food-data.test.mjs",
+    "test:domain": "node --experimental-strip-types --test tests/domain.test.mjs",
+    "test:security": "node --experimental-strip-types scripts/security-smoke.ts",
+    "data:check": "node --experimental-strip-types scripts/import-food-data.ts --dry-run",
+    "db:verify": "node --experimental-strip-types scripts/verify-database.ts",
+    "bootstrap:admins": "node --experimental-strip-types scripts/bootstrap-admins.ts",
+    "content:seed": "node --experimental-strip-types scripts/seed-blog-posts.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
