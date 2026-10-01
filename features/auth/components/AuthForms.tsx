@@ -13,7 +13,7 @@ import {
 } from "@/features/auth/actions";
 
 const initialState: AuthActionState = { status: "idle", message: "" };
-const inputClass = "mt-1.5 min-h-12 w-full rounded-xl border border-[#e5d7d2] bg-white px-4 text-base text-[#28201e] outline-none transition focus:border-[#d62737] focus:ring-2 focus:ring-[#d62737]/15";
+const inputClass = "field mt-2";
 const labelClass = "block text-sm font-semibold text-[#493c38]";
 
 function SubmitButton({ children }: { children: React.ReactNode }) {
@@ -59,12 +59,12 @@ export function LoginForm({ next, resetDone }: { next: string; resetDone: boolea
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Chào mừng trở lại</h2>
-      <p className="mt-2 text-sm leading-relaxed text-[#756561]">Đăng nhập để lưu trải nghiệm ăn uống của bạn.</p>
+      <p className="mt-2 text-sm leading-relaxed text-[#756561]">Dùng mã sinh viên để mở cuốn sổ ăn uống của bạn.</p>
       {resetDone && <p role="status" className="mt-5 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã đặt lại mật khẩu. Hãy đăng nhập bằng mật khẩu mới.</p>}
       <form action={action} className="mt-7 space-y-5">
         <input type="hidden" name="next" value={next} />
-        <label className={labelClass}>Email
-          <input name="email" type="email" autoComplete="email" inputMode="email" required className={inputClass} placeholder="tenban@email.com" />
+        <label className={labelClass}>Mã sinh viên (MSSV)
+          <input name="student_code" type="text" inputMode="numeric" autoComplete="username" pattern="[0-9]{10}" minLength={10} maxLength={10} title="MSSV gồm đúng 10 chữ số" required className={inputClass} placeholder="Nhập mã sinh viên 10 chữ số" />
         </label>
         <PasswordField name="password" label="Mật khẩu" autoComplete="current-password" />
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">

@@ -38,10 +38,8 @@ export default async function RestaurantPage({ params }: Props) {
   return (
     <div className="space-y-8">
       <div><Link href="/restaurants" className="text-sm font-bold text-[var(--color-red)]">← Tất cả quán</Link></div>
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,.85fr)]">
-        <div className="relative flex min-h-56 items-center justify-center overflow-hidden rounded-[1.5rem] bg-[var(--color-pale)] sm:min-h-80">
-          {restaurant.image_url ? <Image src={restaurant.image_url} alt={restaurant.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" unoptimized /> : <span className="text-8xl opacity-60" aria-hidden="true">🍽️</span>}
-        </div>
+      <section className={restaurant.image_url ? "grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,.85fr)]" : "max-w-4xl"}>
+        {restaurant.image_url && <div className="relative min-h-56 overflow-hidden rounded-xl sm:min-h-80"><Image src={restaurant.image_url} alt={`Không gian ${restaurant.name}`} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" unoptimized /></div>}
         <div className="card space-y-5 p-5 sm:p-7">
           <div className="flex flex-wrap gap-2">{(categories.length ? categories : ["Chưa phân loại"]).map((category) => <span key={category} className="rounded-full bg-[var(--color-pale)] px-3 py-1.5 text-xs font-bold text-[var(--color-red)]">{category}</span>)}</div>
           <div><p className="eyebrow">Khám phá quanh HANU</p><h1 className="mt-2 break-words text-3xl font-black leading-tight sm:text-4xl">{restaurant.name}</h1></div>

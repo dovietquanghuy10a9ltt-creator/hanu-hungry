@@ -30,7 +30,7 @@ Mở `http://localhost:3000`. Điền các biến cần thiết trong `.env.loca
 | `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase; được phép dùng trong browser. |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key; được phép dùng trong browser, RLS vẫn kiểm soát dữ liệu. |
 | `APP_URL` | Origin ứng dụng và redirect Auth, ví dụ `http://localhost:3000`; bắt buộc đặt đúng ở production. Vercel Preview tự dùng `VERCEL_URL` của từng deployment. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Chỉ server/runtime: bootstrap admin, import dữ liệu và đối chiếu email–MSSV khi khôi phục mật khẩu. Tuyệt đối không thêm `NEXT_PUBLIC_`. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Chỉ server/runtime: bootstrap admin, import dữ liệu, tra tài khoản khi đăng nhập bằng MSSV và đối chiếu email–MSSV khi khôi phục mật khẩu. Tuyệt đối không thêm `NEXT_PUBLIC_`. |
 | `BOOTSTRAP_ADMIN_1_PASSWORD`, `BOOTSTRAP_ADMIN_2_PASSWORD` | Chỉ runtime khi tạo hai admin ban đầu; script không đổi mật khẩu của account đã có. |
 
 Không commit `.env.local` hoặc in key/password ra log. Nếu dùng Supabase Auth qua email, cấu hình **Site URL** và redirect allow list cho `${APP_URL}/auth/callback` trong Supabase Dashboard. Với Vercel Preview, bật System Environment Variables và cho phép callback của preview domain trong Supabase Auth; ứng dụng lấy origin từ `VERCEL_URL`. Luồng reset password cần email delivery được cấu hình tại Supabase.

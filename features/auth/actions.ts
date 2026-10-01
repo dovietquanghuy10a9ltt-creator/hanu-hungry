@@ -66,22 +66,32 @@ export async function loginAction(
   _state: AuthActionState,
   form: FormData,
 ): Promise<AuthActionState> {
-  const email = normalizeEmail(field(form, "email"));
+  const studentCode = field(form, "student_code").trim();
   const password = field(form, "password");
-  if (!isValidEmail(email) || !password) return error("Vui lòng nhập email và mật khẩu hợp lệ.");
-
-  const cookieStore = await cookies();
-  const remember = form.get("remember") === "on";
-  cookieStore.set("hanu_remember", remember ? "1" : "0", {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    ...(remember ? { maxAge: 60 * 60 * 24 * 365 } : {}),
-  });
-
+  if (!isValidStudentCode(studentCode) || !password || password.length > 72) return error("Vui lòng nhập MSSV 10 chữ số và mật khẩu hợp lệ.");
+  let email: string | undefined;
+  try {
+    const admin = createAdminClient();
+    const { data: profile, error: profileError } = await admin.from("profiles").select("id").eq("student_code", studentCode).maybeSingle();
+    if (profileError) throw profileError;
+    if (profile) {
+      const { data, error: userError } = await admin.auth.admin.getUserById(profile.id);
+      if (userError) throw userError;
+      email = data.user.email;
+    }
+  } catch {
+    return error("Hiện chưa thể đăng nhập. Vui lòng thử lại sau.");
+  }
+  // Email stays on the server. Unknown student codes and wrong passwords share one response.
+  if (!email) return error("MSSV hoặc mật khẩu không đúng.");
   const supabase = await createClient();
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-  if (signInError) return error("Email hoặc mật khẩu không đúng.");
+  if (signInError) return error("MSSV hoặc mật khẩu không đúng.");
+  const remember = form.get("remember") === "on";
+  (await cookies()).set("hanu_remember", remember ? "1" : "0", {
+    secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/",
+    ...(remember ? { maxAge: 60 * 60 * 24 * 365 } : {}),
+  });
   redirect(safeReturnPath(field(form, "next")));
 }
 

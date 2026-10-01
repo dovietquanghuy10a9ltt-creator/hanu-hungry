@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs tests/domain.test.mjs scripts/import-food-data.test.mjs",
+    "test": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs tests/domain.test.mjs scripts/import-food-data.test.mjs tests/search.test.mjs",
     "test:auth": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs",
     "test:data": "node --experimental-strip-types --test scripts/import-food-data.test.mjs",
     "test:domain": "node --experimental-strip-types --test tests/domain.test.mjs",

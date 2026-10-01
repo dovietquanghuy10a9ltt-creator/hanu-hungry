@@ -9,7 +9,7 @@ Project Vercel `hanu-hungry` liên kết với repository GitHub hiện tại. B
 3. Thêm URL callback chính xác của deployment vào Supabase Auth redirect allow list: `https://<preview-host>/auth/callback`. Giữ `http://localhost:3000/auth/callback` cho local. Chỉ đặt Supabase Site URL thành domain production khi domain đó đã được chốt.
 4. Kiểm tra trang chủ, tìm kiếm, quán, món, Blog, Gacha, các route bảo vệ, đăng nhập ADMIN và quyền thao tác trên Preview; xem logs Vercel nếu có lỗi runtime.
 
-`SUPABASE_SERVICE_ROLE_KEY` không cần cho các luồng public và đăng nhập. Chỉ đưa key này vào runtime Vercel khi cần kiểm thử khôi phục mật khẩu với email–MSSV. Không thêm hai `BOOTSTRAP_ADMIN_*_PASSWORD` vào Vercel; các biến đó chỉ dùng cho script bootstrap ngoài deployment.
+`SUPABASE_SERVICE_ROLE_KEY` cần ở runtime server để đăng nhập bằng MSSV và đối chiếu email–MSSV khi khôi phục mật khẩu. Thêm key ở scope Preview khi kiểm thử; không thêm tiền tố `NEXT_PUBLIC_` và không đưa key vào client bundle. Không thêm hai `BOOTSTRAP_ADMIN_*_PASSWORD` vào Vercel; các biến đó chỉ dùng cho script bootstrap ngoài deployment.
 
 ## Trước production
 
