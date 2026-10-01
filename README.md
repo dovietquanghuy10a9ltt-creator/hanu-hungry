@@ -10,7 +10,7 @@ HANU Hungry là ứng dụng Next.js và Supabase giúp sinh viên Đại học 
 - `app/` định nghĩa route, `features/` chứa logic theo tính năng, `components/` chứa phần giao diện dùng lại, `lib/` chứa auth/Supabase, `config/site.ts` tập trung thông tin thương hiệu.
 - `supabase/migrations/` là nguồn schema/RLS/RPC; `scripts/import-food-data.ts` nhập CSV thật theo khóa nguồn ổn định.
 
-Xem [kiến trúc](docs/ARCHITECTURE.md), [database](docs/DATABASE.md), [dữ liệu nhập](docs/DATA_IMPORT.md), [bảo mật](docs/SECURITY.md) và [quyền admin](docs/ADMIN_PERMISSIONS.md).
+Xem [kiến trúc](docs/ARCHITECTURE.md), [database](docs/DATABASE.md), [dữ liệu nhập](docs/DATA_IMPORT.md), [bảo mật](docs/SECURITY.md), [quyền admin](docs/ADMIN_PERMISSIONS.md) và [triển khai](docs/DEPLOYMENT.md).
 
 ## Chạy local
 
