@@ -1,0 +1,544 @@
+{
+  "suite": "http",
+  "executedAt": "2026-10-04T16:49:36.586Z",
+  "cases": [
+    {
+      "id": "HTTP-PUBLIC-home",
+      "suite": "http",
+      "expected": "Anonymous GET / succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2711
+    },
+    {
+      "id": "HTTP-PUBLIC-restaurants",
+      "suite": "http",
+      "expected": "Anonymous GET /restaurants succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 555
+    },
+    {
+      "id": "HTTP-PUBLIC-gacha",
+      "suite": "http",
+      "expected": "Anonymous GET /gacha succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 477
+    },
+    {
+      "id": "HTTP-PUBLIC-blog",
+      "suite": "http",
+      "expected": "Anonymous GET /blog succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 346
+    },
+    {
+      "id": "HTTP-PUBLIC-about",
+      "suite": "http",
+      "expected": "Anonymous GET /about succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 53
+    },
+    {
+      "id": "HTTP-PUBLIC-contact",
+      "suite": "http",
+      "expected": "Anonymous GET /contact succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 44
+    },
+    {
+      "id": "HTTP-PUBLIC-login",
+      "suite": "http",
+      "expected": "Anonymous GET /login succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 62
+    },
+    {
+      "id": "HTTP-PUBLIC-register",
+      "suite": "http",
+      "expected": "Anonymous GET /register succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 40
+    },
+    {
+      "id": "HTTP-PUBLIC-forgot-password",
+      "suite": "http",
+      "expected": "Anonymous GET /forgot-password succeeds",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 56
+    },
+    {
+      "id": "HTTP-PRIVATE-profile",
+      "suite": "http",
+      "expected": "Anonymous GET /profile redirects to login with return path",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 16
+    },
+    {
+      "id": "HTTP-PRIVATE-history",
+      "suite": "http",
+      "expected": "Anonymous GET /history redirects to login with return path",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 6
+    },
+    {
+      "id": "HTTP-PRIVATE-notifications",
+      "suite": "http",
+      "expected": "Anonymous GET /notifications redirects to login with return path",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 19
+    },
+    {
+      "id": "HTTP-PRIVATE-settings-password",
+      "suite": "http",
+      "expected": "Anonymous GET /settings/password redirects to login with return path",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 15
+    },
+    {
+      "id": "HTTP-PRIVATE-admin",
+      "suite": "http",
+      "expected": "Anonymous GET /admin redirects to login with return path",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 15
+    },
+    {
+      "id": "HTTP-PRIVATE-admin-analytics",
+      "suite": "http",
+      "expected": "Anonymous GET /admin/analytics redirects to login with return path",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 4
+    },
+    {
+      "id": "HTTP01",
+      "suite": "http",
+      "expected": "Missing and malformed restaurant/blog URLs return 404",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 716
+    },
+    {
+      "id": "HTTP02",
+      "suite": "http",
+      "expected": "Invalid recovery callback redirects safely to expired link message",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 307
+    },
+    {
+      "id": "HTTP03",
+      "suite": "http",
+      "expected": "Registration rejects invalid input on the server",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 57
+    },
+    {
+      "id": "HTTP04",
+      "suite": "http",
+      "expected": "Registration rejects invalid input on the server",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 48
+    },
+    {
+      "id": "HTTP05",
+      "suite": "http",
+      "expected": "Registration rejects invalid input on the server",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 42
+    },
+    {
+      "id": "HTTP06",
+      "suite": "http",
+      "expected": "Registration rejects invalid input on the server",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 32
+    },
+    {
+      "id": "HTTP07",
+      "suite": "http",
+      "expected": "Malformed MSSV login rejected before authentication",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 47
+    },
+    {
+      "id": "HTTP08",
+      "suite": "http",
+      "expected": "Unknown MSSV and wrong password share generic error and create no auth cookies",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1706
+    },
+    {
+      "id": "HTTP09",
+      "suite": "http",
+      "expected": "MSSV USER login without Remember writes session-only auth cookies",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2159
+    },
+    {
+      "id": "HTTP10",
+      "suite": "http",
+      "expected": "Remember writes persistent auth cookies and external next is discarded",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 872
+    },
+    {
+      "id": "HTTP11",
+      "suite": "http",
+      "expected": "Configured ADMIN logs in by MSSV and can view analytics",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 3329
+    },
+    {
+      "id": "HTTP12",
+      "suite": "http",
+      "expected": "Regular USER cannot open ADMIN pages",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 8557
+    },
+    {
+      "id": "HTTP13",
+      "suite": "http",
+      "expected": "Display-name action trims text and leaves MSSV unchanged",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 6925
+    },
+    {
+      "id": "HTTP14",
+      "suite": "http",
+      "expected": "Viewing restaurant does not create check-in",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2142
+    },
+    {
+      "id": "HTTP15",
+      "suite": "http",
+      "expected": "Explicit check-in stores chosen active dish and appears in history",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 6627
+    },
+    {
+      "id": "HTTP16",
+      "suite": "http",
+      "expected": "Forged check-in dish and inactive restaurant create no additional rows",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 9153
+    },
+    {
+      "id": "HTTP17",
+      "suite": "http",
+      "expected": "Forged delete cannot remove another USER check-in",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2774
+    },
+    {
+      "id": "HTTP18",
+      "suite": "http",
+      "expected": "Check-in without dish stores SQL NULL",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2113
+    },
+    {
+      "id": "HTTP19",
+      "suite": "http",
+      "expected": "Invalid review rating/comment is rejected by direct POST",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1675
+    },
+    {
+      "id": "HTTP20",
+      "suite": "http",
+      "expected": "Create review persists rating and escapes script text in public HTML",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2295
+    },
+    {
+      "id": "HTTP21",
+      "suite": "http",
+      "expected": "Review update and delete enforce ownership even with captured action payload",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 5123
+    },
+    {
+      "id": "HTTP22",
+      "suite": "http",
+      "expected": "Contact honeypot creates no message",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2067
+    },
+    {
+      "id": "HTTP23",
+      "suite": "http",
+      "expected": "Contact rejects invalid email and stores valid message for current USER",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1205
+    },
+    {
+      "id": "HTTP-ADMIN-GUARD-restaurant",
+      "suite": "http",
+      "expected": "ADMIN restaurant action rejects USER and anonymous POST to public route",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 334
+    },
+    {
+      "id": "HTTP-ADMIN-GUARD-category",
+      "suite": "http",
+      "expected": "ADMIN category action rejects USER and anonymous POST to public route",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 364
+    },
+    {
+      "id": "HTTP-ADMIN-GUARD-dish",
+      "suite": "http",
+      "expected": "ADMIN dish action rejects USER and anonymous POST to public route",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 365
+    },
+    {
+      "id": "HTTP-ADMIN-GUARD-blog",
+      "suite": "http",
+      "expected": "ADMIN blog action rejects USER and anonymous POST to public route",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 349
+    },
+    {
+      "id": "HTTP24",
+      "suite": "http",
+      "expected": "Cross-origin ADMIN POST is rejected before content write",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 226
+    },
+    {
+      "id": "HTTP25",
+      "suite": "http",
+      "expected": "ADMIN invalid restaurant inputs return validation message",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1078
+    },
+    {
+      "id": "HTTP26",
+      "suite": "http",
+      "expected": "ADMIN creates restaurant and links selected category through form",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1068
+    },
+    {
+      "id": "HTTP27",
+      "suite": "http",
+      "expected": "ADMIN edits restaurant and removes classification",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2105
+    },
+    {
+      "id": "HTTP28",
+      "suite": "http",
+      "expected": "ADMIN deactivates/reactivates restaurant through form",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 3123
+    },
+    {
+      "id": "HTTP29",
+      "suite": "http",
+      "expected": "ADMIN creates category, edits it and deletes it through form",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 3548
+    },
+    {
+      "id": "HTTP30",
+      "suite": "http",
+      "expected": "ADMIN creates dish at exactly 70000 then edits and toggles visibility",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 4626
+    },
+    {
+      "id": "HTTP31",
+      "suite": "http",
+      "expected": "ADMIN creates draft Blog, publishes it and notification is created once",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1857
+    },
+    {
+      "id": "HTTP32",
+      "suite": "http",
+      "expected": "Mark-one and mark-all notification forms are idempotent and private",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 6005
+    },
+    {
+      "id": "HTTP33",
+      "suite": "http",
+      "expected": "Unpublished Blog removes notification link and deletion works",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 3942
+    },
+    {
+      "id": "HTTP34",
+      "suite": "http",
+      "expected": "Forgot-password rejects malformed email/MSSV and mismatches return generic success",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 412
+    },
+    {
+      "id": "HTTP35",
+      "suite": "http",
+      "expected": "Password change rejects wrong current password, mismatch and unchanged value",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2085
+    },
+    {
+      "id": "HTTP36",
+      "suite": "http",
+      "expected": "Password change succeeds and new MSSV credentials authenticate",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1722
+    },
+    {
+      "id": "HTTP37",
+      "suite": "http",
+      "expected": "Reset form without verified recovery session rejects new password",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 52
+    },
+    {
+      "id": "HTTP38",
+      "suite": "http",
+      "expected": "Verified recovery token allows password reset once and clears session",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1899
+    },
+    {
+      "id": "HTTP39",
+      "suite": "http",
+      "expected": "Logout clears USER session and protected pages redirect again",
+      "method": "HTTP: real Next.js pages and Server Actions",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 782
+    },
+    {
+      "id": "MAIL01",
+      "suite": "http",
+      "expected": "Signup confirmation email reaches inbox",
+      "method": "External configuration",
+      "status": "BLOCKED",
+      "evidence": "Custom SMTP is not configured; no delivered email can be asserted."
+    },
+    {
+      "id": "MAIL02",
+      "suite": "http",
+      "expected": "Matching email + MSSV sends a usable reset email to inbox",
+      "method": "External configuration",
+      "status": "BLOCKED",
+      "evidence": "Recovery callback/reset was tested with a server-generated QA token; actual SMTP delivery remains unverified."
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Local Supabase CLI state must not be included in deployments.
+supabase/.temp/
+
+# Generated TypeScript cache is not needed for a remote build.
+*.tsbuildinfo

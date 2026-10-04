@@ -1,0 +1,526 @@
+{
+  "suite": "browser",
+  "executedAt": "2026-10-04T17:03:31.953Z",
+  "cases": [
+    {
+      "id": "UI-LAYOUT-320-home",
+      "suite": "browser",
+      "expected": "No horizontal overflow on / at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-restaurants",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /restaurants at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-gacha",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /gacha at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-login",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /login at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-register",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /register at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-forgot-password",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /forgot-password at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-about",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /about at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-contact",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /contact at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-320-blog",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /blog at 320px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-home",
+      "suite": "browser",
+      "expected": "No horizontal overflow on / at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-restaurants",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /restaurants at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-gacha",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /gacha at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-login",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /login at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-register",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /register at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-forgot-password",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /forgot-password at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-about",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /about at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-contact",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /contact at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-360-blog",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /blog at 360px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-home",
+      "suite": "browser",
+      "expected": "No horizontal overflow on / at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-restaurants",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /restaurants at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-gacha",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /gacha at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-login",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /login at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-register",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /register at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-forgot-password",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /forgot-password at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-about",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /about at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-contact",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /contact at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-390-blog",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /blog at 390px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-home",
+      "suite": "browser",
+      "expected": "No horizontal overflow on / at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-restaurants",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /restaurants at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-gacha",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /gacha at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-login",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /login at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-register",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /register at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-forgot-password",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /forgot-password at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-about",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /about at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-contact",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /contact at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-430-blog",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /blog at 430px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-home",
+      "suite": "browser",
+      "expected": "No horizontal overflow on / at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-restaurants",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /restaurants at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-gacha",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /gacha at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-login",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /login at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-register",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /register at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-forgot-password",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /forgot-password at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-about",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /about at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-contact",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /contact at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-768-blog",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /blog at 768px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-home",
+      "suite": "browser",
+      "expected": "No horizontal overflow on / at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-restaurants",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /restaurants at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-gacha",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /gacha at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-login",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /login at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-register",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /register at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-forgot-password",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /forgot-password at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-about",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /about at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-contact",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /contact at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI-LAYOUT-1280-blog",
+      "suite": "browser",
+      "expected": "No horizontal overflow on /blog at 1280px viewport width.",
+      "method": "Codex Browser viewport + DOM measurements",
+      "status": "PASS",
+      "evidence": "documentElement.scrollWidth did not exceed clientWidth."
+    },
+    {
+      "id": "UI01",
+      "suite": "browser",
+      "expected": "A one-character b query immediately filters restaurants and shows matching dish suggestions.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "The live result count changed, and up to six matching dish suggestions appeared."
+    },
+    {
+      "id": "UI02",
+      "suite": "browser",
+      "expected": "Accent-free bun and accented bún queries return equal result counts.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "Both searches returned 16 restaurants and six suggestions."
+    },
+    {
+      "id": "UI03",
+      "suite": "browser",
+      "expected": "An exact maximum price of 70000 is accepted without being raised to 70001.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "The input retained 70000 and reported aria-invalid=false."
+    },
+    {
+      "id": "UI04",
+      "suite": "browser",
+      "expected": "Clear filters resets query, category, maximum price and result count.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "Search and budget were empty, category was all, and 60 restaurants were shown."
+    },
+    {
+      "id": "UI05",
+      "suite": "browser",
+      "expected": "Gacha restaurant mode spins before revealing a result from the catalog.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "At 900ms it was still busy with no reveal; after the animation it showed a restaurant and visit link."
+    },
+    {
+      "id": "UI06",
+      "suite": "browser",
+      "expected": "Gacha dish mode spins before revealing a dish and its restaurant.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "The result included a real dish, restaurant name and visit link."
+    },
+    {
+      "id": "UI07",
+      "suite": "browser",
+      "expected": "The Gacha action is disabled while a spin is in progress.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "During the spin aria-busy was true and the action button was disabled."
+    },
+    {
+      "id": "UI08",
+      "suite": "browser",
+      "expected": "The current navigation item has the active background on desktop and mobile.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "Home, Explore, Gacha and Blog each displayed the red active background."
+    },
+    {
+      "id": "UI09",
+      "suite": "browser",
+      "expected": "Body, title and Gacha caption use the requested local fonts.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "Computed families were Hermeneus One, Calistoga and Henny Penny."
+    },
+    {
+      "id": "UI10",
+      "suite": "browser",
+      "expected": "Restaurant pages do not show food images or food emoji placeholders.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "No food image elements or food emoji placeholders appeared in tested routes."
+    },
+    {
+      "id": "UI11",
+      "suite": "browser",
+      "expected": "Login identifies student code (MSSV), not email, as the username field.",
+      "method": "Codex Browser interaction + rendered DOM",
+      "status": "PASS",
+      "evidence": "The labeled text input was MSSV; password and remember controls were present."
+    }
+  ]
+}

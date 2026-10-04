@@ -1,69 +1,16 @@
-import Image from "next/image";
+import Link from "next/link";
+import { RestaurantCard } from "@/components/shared/restaurant-card";
+import { listCategories } from "@/features/restaurants/data";
+import { listCatalog } from "@/features/restaurants/catalog";
+import { QuickSearch } from "@/features/restaurants/components/QuickSearch";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+export default async function HomePage() {
+  const [catalog, categories] = await Promise.all([listCatalog(), listCategories()]);
+  const restaurants = catalog.slice(0, 6);
+  return <div className="home-page">
+    <section className="home-hero"><div className="hero-copy"><p className="eyebrow">Chiếc bụng đói · Một vòng HANU</p><h1>Quanh trường.<br />Quanh bàn.<br /><span>Quanh một bữa ngon.</span></h1><p className="hero-description">Những quán quen, những món chưa thử. Một cuốn sổ nhỏ giúp bạn tìm chỗ ăn hợp gu, vừa túi tiền.</p><QuickSearch catalog={catalog} /><div className="hero-meta"><span>{catalog.length} quán trong sổ</span><span>Đại học Hà Nội & vùng lân cận</span></div></div><div className="hero-poster"><div className="poster-top"><span>HÀ NỘI</span><span>ĂN GÌ / 01</span></div><div className="poster-word">đói<br /><span>chưa?</span></div><div className="poster-orbit" aria-hidden="true">✳</div><div className="poster-note">Đi một vòng nhỏ.<br />Gặp một quán ngon.</div><Link href="/gacha" className="poster-link">Để vũ trụ chọn giúp <span>↗</span></Link></div></section>
+    <section className="home-categories"><p className="eyebrow">Bạn đang thèm gì?</p><div className="category-strip">{categories.map((category) => <Link key={category.id} href={`/restaurants?category=${encodeURIComponent(category.slug)}`}>{category.name}<span aria-hidden="true">↗</span></Link>)}</div></section>
+    <section className="space-y-6"><div className="section-heading"><div><p className="eyebrow">Địa điểm trong sổ</p><h2 className="section-title mt-3">Hẹn nhau ở quán.</h2></div><Link href="/restaurants" className="text-link">Khám phá tất cả ↗</Link></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{restaurants.map((restaurant) => <RestaurantCard key={restaurant.id} restaurant={restaurant} />)}</div></section>
+    <section className="home-bottom"><Link href="/gacha" className="gacha-invitation"><span className="cosmic-heading">Tín hiệu từ vũ trụ</span><h2>Không biết ăn gì?<br />Quay một vòng xem sao.</h2><span className="button button-primary mt-5">Thử Gacha ↗</span><span className="invitation-star" aria-hidden="true">✦</span></Link><Link href="/history" className="history-invitation"><span className="eyebrow">Nhật ký của bạn</span><h2>Bữa ngon thì<br />nhớ lâu một chút.</h2><p>Lưu quán đã ghé, món đã thử. Lần tới rủ bạn bè đi cùng.</p><span className="text-link mt-5">Mở nhật ký ↗</span></Link></section>
+  </div>;
 }

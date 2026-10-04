@@ -1,0 +1,483 @@
+{
+  "suite": "database",
+  "executedAt": "2026-10-04T16:49:50.545Z",
+  "cases": [
+    {
+      "id": "DB01",
+      "suite": "database",
+      "expected": "Exactly two configured ADMIN profiles exist",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 303
+    },
+    {
+      "id": "DB02",
+      "suite": "database",
+      "expected": "Second configured ADMIN can authenticate",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 340
+    },
+    {
+      "id": "DB03",
+      "suite": "database",
+      "expected": "Signup trigger ignores user supplied ADMIN role and uses email local part",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 387
+    },
+    {
+      "id": "DB04",
+      "suite": "database",
+      "expected": "Invalid MSSV is rejected by the database signup trigger",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 402
+    },
+    {
+      "id": "DB05",
+      "suite": "database",
+      "expected": "Duplicate MSSV is rejected during account creation",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 519
+    },
+    {
+      "id": "DB-ANON-profiles",
+      "suite": "database",
+      "expected": "Anonymous cannot read profiles",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 312
+    },
+    {
+      "id": "DB-ANON-check_ins",
+      "suite": "database",
+      "expected": "Anonymous cannot read check_ins",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 506
+    },
+    {
+      "id": "DB-ANON-notifications",
+      "suite": "database",
+      "expected": "Anonymous cannot read notifications",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 357
+    },
+    {
+      "id": "DB-ANON-notification_reads",
+      "suite": "database",
+      "expected": "Anonymous cannot read notification_reads",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 273
+    },
+    {
+      "id": "DB-ANON-contact_messages",
+      "suite": "database",
+      "expected": "Anonymous cannot read contact_messages",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 336
+    },
+    {
+      "id": "DB-ANON-admin_audit_logs",
+      "suite": "database",
+      "expected": "Anonymous cannot read admin_audit_logs",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 138
+    },
+    {
+      "id": "DB06",
+      "suite": "database",
+      "expected": "USER sees only own private profile",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 238
+    },
+    {
+      "id": "DB07",
+      "suite": "database",
+      "expected": "USER can update own display name",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 482
+    },
+    {
+      "id": "DB-IDENTITY-role",
+      "suite": "database",
+      "expected": "USER cannot update identity field role",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 278
+    },
+    {
+      "id": "DB-IDENTITY-student_code",
+      "suite": "database",
+      "expected": "USER cannot update identity field student_code",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 305
+    },
+    {
+      "id": "DB-IDENTITY-id",
+      "suite": "database",
+      "expected": "USER cannot update identity field id",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 399
+    },
+    {
+      "id": "DB08",
+      "suite": "database",
+      "expected": "USER cannot update another profile",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 323
+    },
+    {
+      "id": "DB09",
+      "suite": "database",
+      "expected": "ADMIN cannot read or update another private profile",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 754
+    },
+    {
+      "id": "DB10",
+      "suite": "database",
+      "expected": "USER and ADMIN JWTs cannot use Supabase Auth Admin management",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 739
+    },
+    {
+      "id": "DB11",
+      "suite": "database",
+      "expected": "ADMIN can create and link restaurant, category and dishes",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1200
+    },
+    {
+      "id": "DB-WRITE-restaurants",
+      "suite": "database",
+      "expected": "USER cannot create restaurants",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 433
+    },
+    {
+      "id": "DB-WRITE-categories",
+      "suite": "database",
+      "expected": "USER cannot create categories",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 139
+    },
+    {
+      "id": "DB-WRITE-dishes",
+      "suite": "database",
+      "expected": "USER cannot create dishes",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 290
+    },
+    {
+      "id": "DB-WRITE-blog_posts",
+      "suite": "database",
+      "expected": "USER cannot create blog_posts",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 221
+    },
+    {
+      "id": "DB-WRITE-site_settings",
+      "suite": "database",
+      "expected": "USER cannot create site_settings",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 657
+    },
+    {
+      "id": "DB12",
+      "suite": "database",
+      "expected": "USER cannot update or delete restaurant content",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 4602
+    },
+    {
+      "id": "DB13",
+      "suite": "database",
+      "expected": "Anonymous sees active restaurant, hides inactive restaurant and dishes",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2537
+    },
+    {
+      "id": "DB14",
+      "suite": "database",
+      "expected": "ADMIN can update content and deactivate/reactivate a restaurant",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1450
+    },
+    {
+      "id": "DB15",
+      "suite": "database",
+      "expected": "Database enforces valid coordinates and paired values",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 332
+    },
+    {
+      "id": "DB16",
+      "suite": "database",
+      "expected": "Database enforces dish price range and restaurant foreign key",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 330
+    },
+    {
+      "id": "DB17",
+      "suite": "database",
+      "expected": "Search RPC is accent insensitive and honors exact price 70000",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 312
+    },
+    {
+      "id": "DB18",
+      "suite": "database",
+      "expected": "ADMIN content writes create audit records without credential metadata",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 133
+    },
+    {
+      "id": "DB19",
+      "suite": "database",
+      "expected": "USER cannot read audit log or run analytics",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 260
+    },
+    {
+      "id": "DB20",
+      "suite": "database",
+      "expected": "USER can create own check-in with a valid active dish",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 203
+    },
+    {
+      "id": "DB21",
+      "suite": "database",
+      "expected": "Check-in rejects mismatched and inactive dishes",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 309
+    },
+    {
+      "id": "DB22",
+      "suite": "database",
+      "expected": "Check-in rejects inactive restaurants and spoofed user IDs",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 268
+    },
+    {
+      "id": "DB23",
+      "suite": "database",
+      "expected": "USER can read and update own check-in",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 215
+    },
+    {
+      "id": "DB24",
+      "suite": "database",
+      "expected": "Another USER and ADMIN cannot read, update or delete private check-in",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1097
+    },
+    {
+      "id": "DB25",
+      "suite": "database",
+      "expected": "Existing visit remains readable after its dish is deactivated",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 868
+    },
+    {
+      "id": "DB26",
+      "suite": "database",
+      "expected": "USER can create review; rating constraints and uniqueness are enforced",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1510
+    },
+    {
+      "id": "DB27",
+      "suite": "database",
+      "expected": "Reviews are public but another USER or ADMIN cannot edit or delete them",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 2990
+    },
+    {
+      "id": "DB28",
+      "suite": "database",
+      "expected": "USER can update own review and data stays text",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 4077
+    },
+    {
+      "id": "DB29",
+      "suite": "database",
+      "expected": "ADMIN analytics equals source count deltas and exposes aggregates only",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 143
+    },
+    {
+      "id": "DB30",
+      "suite": "database",
+      "expected": "USER can delete own review and check-in",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1538
+    },
+    {
+      "id": "DB31",
+      "suite": "database",
+      "expected": "ADMIN draft Blog is hidden from anonymous and regular USER",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 1224
+    },
+    {
+      "id": "DB32",
+      "suite": "database",
+      "expected": "Publishing Blog creates exactly one global notification and timestamp",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 741
+    },
+    {
+      "id": "DB33",
+      "suite": "database",
+      "expected": "All USER accounts can read the new global notification",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 232
+    },
+    {
+      "id": "DB34",
+      "suite": "database",
+      "expected": "Editing and republishing Blog updates link without duplicate notifications",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 661
+    },
+    {
+      "id": "DB35",
+      "suite": "database",
+      "expected": "Mark-read is idempotent and each USER has independent read state",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 719
+    },
+    {
+      "id": "DB36",
+      "suite": "database",
+      "expected": "USER cannot mark another USER notification state or create global notifications",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 430
+    },
+    {
+      "id": "DB37",
+      "suite": "database",
+      "expected": "USER can send contact only with own user ID and cannot read private inbox",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 533
+    },
+    {
+      "id": "DB38",
+      "suite": "database",
+      "expected": "ADMIN can delete a Blog and anonymous cannot read the deleted post",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 332
+    },
+    {
+      "id": "DB-CLEANUP",
+      "suite": "database",
+      "expected": "All temporary QA accounts and owned content are removed",
+      "method": "Supabase Data API",
+      "status": "PASS",
+      "evidence": "All assertions passed",
+      "durationMs": 13958
+    }
+  ]
+}

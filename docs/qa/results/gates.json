@@ -1,0 +1,54 @@
+{
+  "suite": "gates",
+  "executedAt": "2026-10-04T17:02:11.200Z",
+  "cases": [
+    {
+      "id": "GATE-LINT",
+      "suite": "gates",
+      "expected": "ESLint completes with no errors or warnings.",
+      "method": "npm run lint",
+      "status": "PASS",
+      "evidence": "Exit code 0; no diagnostics."
+    },
+    {
+      "id": "GATE-BUILD",
+      "suite": "gates",
+      "expected": "Next.js optimized production build completes with TypeScript checks.",
+      "method": "npm run build",
+      "status": "PASS",
+      "evidence": "Production build and all 27 generated page checks completed."
+    },
+    {
+      "id": "GATE-DB-SEED",
+      "suite": "gates",
+      "expected": "The Supabase seed retains the expected source totals after test cleanup.",
+      "method": "npm run db:verify -- --expect-seed",
+      "status": "PASS",
+      "evidence": "59 restaurants, 950 dishes, 17 categories and 30 links verified."
+    },
+    {
+      "id": "GATE-DB-QA",
+      "suite": "gates",
+      "expected": "Database integration policy and application cases finish with no failures.",
+      "method": "Supabase remote QA suite",
+      "status": "PASS",
+      "evidence": "53/53 passed; test cleanup passed."
+    },
+    {
+      "id": "GATE-HTTP-QA",
+      "suite": "gates",
+      "expected": "Real Next.js HTTP and Server Action tests finish with no failures.",
+      "method": "Local production-mode Next.js server + temporary Supabase fixtures",
+      "status": "PASS",
+      "evidence": "58/60 passed; 2 email-delivery cases await SMTP."
+    },
+    {
+      "id": "GATE-VERCEL-SECRETS",
+      "suite": "gates",
+      "expected": "Preview and Production each hold the service key as a hidden server-side secret.",
+      "method": "Vercel environment metadata",
+      "status": "PASS",
+      "evidence": "SUPABASE_SERVICE_ROLE_KEY is Hidden/Secret for Production and Preview branch codex/full-stack-implementation. No value was read back."
+    }
+  ]
+}
