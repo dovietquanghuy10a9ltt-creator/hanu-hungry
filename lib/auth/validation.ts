@@ -25,7 +25,7 @@ export function validatePassword(value: string): string | null {
 
 export function safeReturnPath(value: unknown, fallback = "/"): string {
   if (typeof value !== "string") return fallback;
-  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\") || Array.from(value).some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) {
     return fallback;
   }
   return value;

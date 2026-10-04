@@ -29,6 +29,6 @@ export function mapsUrl(location: {
     && Number.isFinite(location.latitude) && Number.isFinite(location.longitude)) {
     return `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`;
   }
-  const text = location.address_text?.trim() || location.plus_code?.trim();
+  const text = readableText(location.address_text, "") || readableText(location.plus_code, "");
   return text ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}` : null;
 }

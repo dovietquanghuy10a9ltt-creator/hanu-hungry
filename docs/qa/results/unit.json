@@ -1,0 +1,382 @@
+{
+  "suite": "unit",
+  "executedAt": "2026-10-04T17:03:31.951Z",
+  "cases": [
+    {
+      "id": "UNIT-001",
+      "suite": "unit",
+      "expected": "CSV parser handles quoted comma, quote and newline",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-002",
+      "suite": "unit",
+      "expected": "price parser keeps source text and parses only clear bounds",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-003",
+      "suite": "unit",
+      "expected": "category and dish identities are stable",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-004",
+      "suite": "unit",
+      "expected": "source data can be imported without losing restaurant/dish grain",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-005",
+      "suite": "unit",
+      "expected": "MSSV is exactly ten ASCII digits",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-006",
+      "suite": "unit",
+      "expected": "display name is the email local part",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-007",
+      "suite": "unit",
+      "expected": "password and internal redirect validation",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-008",
+      "suite": "unit",
+      "expected": "auth callback origin uses each Vercel Preview URL and an explicit production URL",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-009",
+      "suite": "unit",
+      "expected": "bootstrap creates once and preserves the existing password",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-010",
+      "suite": "unit",
+      "expected": "bootstrap refuses a conflicting MSSV instead of changing an account",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-011",
+      "suite": "unit",
+      "expected": "missing restaurant data stays explicit and never becomes a fake zero price",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-012",
+      "suite": "unit",
+      "expected": "Maps uses real coordinates first, or encoded source location text",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-013",
+      "suite": "unit",
+      "expected": "check-in streak and weekly recap use Vietnam calendar days",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-014",
+      "suite": "unit",
+      "expected": "gacha never invents a choice when the database query is empty",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-015",
+      "suite": "unit",
+      "expected": "U01 email validation rejects malformed, whitespace and overlong addresses",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-016",
+      "suite": "unit",
+      "expected": "U02 password bounds are exactly 8 to 72 characters",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-017",
+      "suite": "unit",
+      "expected": "U03 return paths preserve internal query and fragment",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-018",
+      "suite": "unit",
+      "expected": "U04 return paths reject control characters and external destinations",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-019",
+      "suite": "unit",
+      "expected": "U05 restaurant name is trimmed and capped at 180 characters",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-020",
+      "suite": "unit",
+      "expected": "U06 restaurant coordinates require a valid pair",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-021",
+      "suite": "unit",
+      "expected": "U07 category links deduplicate and reject invalid identifiers",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-022",
+      "suite": "unit",
+      "expected": "U08 restaurant photo URLs accept HTTP(S), reject executable schemes",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-023",
+      "suite": "unit",
+      "expected": "U09 category slugs normalize case and reject malformed names",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-024",
+      "suite": "unit",
+      "expected": "U10 dish requires a valid parent restaurant and a name",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-025",
+      "suite": "unit",
+      "expected": "U11 missing dish prices stay null, clear zero and equal bounds remain valid",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-026",
+      "suite": "unit",
+      "expected": "U12 dish price rejects negative, fractional, non-finite and inverted ranges",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-027",
+      "suite": "unit",
+      "expected": "U13 original per-unit price is retained",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-028",
+      "suite": "unit",
+      "expected": "U14 Blog requires slug, title, content and explicit supported status",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-029",
+      "suite": "unit",
+      "expected": "U15 Blog cover rejects executable schemes and overlong excerpt",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-030",
+      "suite": "unit",
+      "expected": "U16 budget accepts one dong through ten million with exact integer bounds",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-031",
+      "suite": "unit",
+      "expected": "U17 accent normalization covers uppercase D-stroke and whitespace",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-032",
+      "suite": "unit",
+      "expected": "U18 price and category filters work independently",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-033",
+      "suite": "unit",
+      "expected": "U19 matching restaurant names still obey budget and exclude unknown prices",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-034",
+      "suite": "unit",
+      "expected": "U20 literal wildcard characters do not match all catalog entries",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-035",
+      "suite": "unit",
+      "expected": "U21 suggestion ranking prefers prefix matches and caps at six",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-036",
+      "suite": "unit",
+      "expected": "U22 suggestions omit prices above budget and preserve source input",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-037",
+      "suite": "unit",
+      "expected": "U23 missing display values never render literal sentinels",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-038",
+      "suite": "unit",
+      "expected": "U24 missing Maps sentinels do not create invented locations",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-039",
+      "suite": "unit",
+      "expected": "U25 Maps safely encodes special location text and accepts real zero coordinates",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-040",
+      "suite": "unit",
+      "expected": "U26 empty history has all zero statistics",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-041",
+      "suite": "unit",
+      "expected": "U27 duplicate visits on one day count once toward streak",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-042",
+      "suite": "unit",
+      "expected": "U28 weekly recap starts Monday in Vietnam, excludes next week",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-043",
+      "suite": "unit",
+      "expected": "U29 a gap breaks current streak while retaining longest streak",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-044",
+      "suite": "unit",
+      "expected": "U30 Gacha returns only actual candidates without mutating the list",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-045",
+      "suite": "unit",
+      "expected": "price accepts 70000 exactly, grouped digits and integer dong",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-046",
+      "suite": "unit",
+      "expected": "one-character and accent-free queries find actual matching dishes",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    },
+    {
+      "id": "UNIT-047",
+      "suite": "unit",
+      "expected": "category, price and dish query must match together; unknown prices are excluded",
+      "method": "Node test runner",
+      "status": "PASS",
+      "evidence": "Test runner reported pass."
+    }
+  ]
+}

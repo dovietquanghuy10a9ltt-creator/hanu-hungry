@@ -26,7 +26,10 @@ export function historyStats(checkIns: readonly CheckInForStats[], now = new Dat
   }
   const mondayOffset = (new Date(today * dayMs).getUTCDay() + 6) % 7;
   const weekStart = today - mondayOffset;
-  const thisWeek = checkIns.filter((item) => localDayOrdinal(new Date(item.visited_at)) >= weekStart);
+  const thisWeek = checkIns.filter((item) => {
+    const day = localDayOrdinal(new Date(item.visited_at));
+    return day >= weekStart && day <= today;
+  });
   return {
     total: checkIns.length,
     currentStreak,

@@ -79,15 +79,16 @@ export async function loginAction(
       if (userError) throw userError;
       email = data.user.email;
     }
-  } catch {
+  } catch (err) {
+    console.error("[auth] loginAction error:", err instanceof Error ? err.message : "Unknown error");
     return error("Hiện chưa thể đăng nhập. Vui lòng thử lại sau.");
   }
   // Email stays on the server. Unknown student codes and wrong passwords share one response.
   if (!email) return error("MSSV hoặc mật khẩu không đúng.");
-  const supabase = await createClient();
+  const remember = form.get("remember") === "on";
+  const supabase = await createClient({ rememberSession: remember });
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
   if (signInError) return error("MSSV hoặc mật khẩu không đúng.");
-  const remember = form.get("remember") === "on";
   (await cookies()).set("hanu_remember", remember ? "1" : "0", {
     secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/",
     ...(remember ? { maxAge: 60 * 60 * 24 * 365 } : {}),
@@ -114,7 +115,8 @@ export async function forgotPasswordAction(
   let admin;
   try {
     admin = createAdminClient();
-  } catch {
+  } catch (err) {
+    console.error("[auth] forgotPasswordAction error:", err instanceof Error ? err.message : "Unknown error");
     return error("Hiện chưa thể xử lý yêu cầu. Vui lòng thử lại sau.");
   }
   try {
