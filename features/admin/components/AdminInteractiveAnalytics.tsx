@@ -1,0 +1,761 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { AdminCard, AdminHeader } from "@/features/admin/components/AdminPrimitives";
+
+export type RawCheckIn = {
+  id: string;
+  visited_at: string;
+  restaurant_id: string;
+  restaurant_name: string;
+  dish_id: string | null;
+  dish_name: string | null;
+  user_id: string;
+  user_name: string;
+  student_code?: string;
+};
+
+export type AnalyticsSummary = {
+  totalRestaurants: number;
+  totalDishes: number;
+  totalCheckIns: number;
+  totalReviews: number;
+  averageRating: number | null;
+};
+
+type PeriodOption = "week" | "month" | "year" | "custom";
+type MetricTab = "all" | "dishes" | "restaurants" | "users";
+
+const CHART_COLORS = [
+  "#b52a34", // Crimson Hanu
+  "#de7056", // Coral
+  "#d97706", // Amber
+  "#059669", // Emerald
+  "#2563eb", // Royal Blue
+  "#7c3aed", // Violet
+  "#db2777", // Pink
+  "#4b5563", // Gray
+];
+
+function formatDateVN(date: Date): string {
+  const d = date.getDate().toString().padStart(2, "0");
+  const m = (date.getMonth() + 1).toString().padStart(2, "0");
+  const y = date.getFullYear();
+  return `${d}/${m}/${y}`;
+}
+
+function toISODateInput(date: Date): string {
+  const d = date.getDate().toString().padStart(2, "0");
+  const m = (date.getMonth() + 1).toString().padStart(2, "0");
+  const y = date.getFullYear();
+  return `${y}-${m}-${d}`;
+}
+
+/** SVG Donut Chart */
+function DonutChart({
+  items,
+  total,
+  title,
+}: {
+  items: Array<{ name: string; count: number; percent: number; color: string }>;
+  total: number;
+  title: string;
+}) {
+  const radius = 64;
+  const circumference = 2 * Math.PI * radius;
+  let accumulatedPercent = 0;
+
+  return (
+    <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-around p-2">
+      <div className="relative flex shrink-0 items-center justify-center">
+        <svg width="180" height="180" viewBox="0 0 180 180" className="transform -rotate-90">
+          <circle
+            cx="90"
+            cy="90"
+            r={radius}
+            fill="transparent"
+            stroke="#f2ebe2"
+            strokeWidth="24"
+          />
+          {items.map((item, idx) => {
+            const strokeDasharray = `${(item.percent / 100) * circumference} ${circumference}`;
+            const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
+            accumulatedPercent += item.percent;
+
+            return (
+              <circle
+                key={idx}
+                cx="90"
+                cy="90"
+                r={radius}
+                fill="transparent"
+                stroke={item.color}
+                strokeWidth="24"
+                strokeDasharray={strokeDasharray}
+                strokeDashoffset={strokeDashoffset}
+                className="transition-all duration-500 hover:opacity-80"
+              />
+            );
+          })}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+          <span className="text-2xl font-black text-[var(--color-ink)]">{total}</span>
+          <span className="text-xs text-[var(--color-muted)] font-medium">lượt</span>
+        </div>
+      </div>
+
+      <div className="w-full max-w-xs space-y-2.5">
+        <h4 className="text-sm font-bold text-[var(--color-muted)] uppercase tracking-wider">{title}</h4>
+        <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+          {items.map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between text-xs sm:text-sm">
+              <div className="flex items-center gap-2 min-w-0 pr-2">
+                <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="truncate font-medium text-[var(--color-ink)]">{item.name}</span>
+              </div>
+              <div className="shrink-0 font-bold text-[var(--color-ink)]">
+                <span>{item.count}</span>
+                <span className="ml-1 text-xs text-[var(--color-muted)] font-normal">({item.percent}%)</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** SVG Area & Line Chart */
+function AreaChart({
+  data,
+}: {
+  data: Array<{ label: string; count: number }>;
+}) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  if (data.length === 0) return null;
+
+  const max = Math.max(1, ...data.map((d) => d.count));
+  const width = 640;
+  const height = 200;
+  const paddingX = 40;
+  const paddingY = 25;
+  const chartW = width - paddingX * 2;
+  const chartH = height - paddingY * 2;
+
+  const points = data.map((d, i) => {
+    const x = paddingX + (i / Math.max(1, data.length - 1)) * chartW;
+    const y = height - paddingY - (d.count / max) * chartH;
+    return { x, y, ...d };
+  });
+
+  const linePath = points.reduce((acc, p, i) => {
+    return i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`;
+  }, "");
+
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`;
+
+  return (
+    <div className="w-full">
+      <div className="relative overflow-x-auto">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="w-full h-48 sm:h-56 overflow-visible"
+        >
+          <defs>
+            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#b52a34" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#b52a34" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          {/* Grid lines */}
+          <line
+            x1={paddingX}
+            y1={height - paddingY}
+            x2={width - paddingX}
+            y2={height - paddingY}
+            stroke="#e6dcd1"
+            strokeWidth="1"
+          />
+          <line
+            x1={paddingX}
+            y1={paddingY}
+            x2={width - paddingX}
+            y2={paddingY}
+            stroke="#f0e9df"
+            strokeDasharray="4 4"
+            strokeWidth="1"
+          />
+
+          {/* Area Fill */}
+          <path d={areaPath} fill="url(#areaGradient)" />
+
+          {/* Stroke Line */}
+          <path
+            d={linePath}
+            fill="none"
+            stroke="#b52a34"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Point Dots */}
+          {points.map((p, idx) => (
+            <g key={idx} onMouseEnter={() => setHoveredIdx(idx)} onMouseLeave={() => setHoveredIdx(null)}>
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r={hoveredIdx === idx ? 6 : 4}
+                fill={hoveredIdx === idx ? "#84202a" : "#fff"}
+                stroke="#b52a34"
+                strokeWidth={hoveredIdx === idx ? 3 : 2}
+                className="cursor-pointer transition-all"
+              />
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      {/* Hover Info & X-axis labels */}
+      <div className="mt-2 flex items-center justify-between text-xs text-[var(--color-muted)]">
+        <span>{data[0]?.label}</span>
+        {hoveredIdx !== null && (
+          <span className="font-bold text-[var(--color-red)] bg-[var(--color-pale)] px-2.5 py-0.5 rounded-full">
+            {data[hoveredIdx].label}: {data[hoveredIdx].count} lượt check-in
+          </span>
+        )}
+        <span>{data[data.length - 1]?.label}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Leaderboard with Podium Top 3 */
+function Leaderboard({
+  title,
+  icon,
+  emptyText,
+  items,
+  type,
+}: {
+  title: string;
+  icon: string;
+  emptyText: string;
+  items: Array<{ id: string; name: string; count: number; sub?: string }>;
+  type: "dishes" | "restaurants" | "users";
+}) {
+  const max = Math.max(1, ...items.map((i) => i.count));
+  const medals = ["🥇", "🥈", "🥉"];
+
+  return (
+    <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs">
+      <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
+        <h3 className="flex items-center gap-2 text-base font-extrabold text-[var(--color-ink)]">
+          <span>{icon}</span> {title}
+        </h3>
+        <span className="rounded-full bg-[var(--color-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-red)]">
+          {items.length} mục
+        </span>
+      </div>
+
+      {items.length === 0 ? (
+        <p className="py-8 text-center text-sm text-[var(--color-muted)]">{emptyText}</p>
+      ) : (
+        <div className="mt-4 space-y-3">
+          {/* Podium for Top 3 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pb-2">
+            {items.slice(0, 3).map((item, index) => (
+              <div
+                key={item.id}
+                className={`relative rounded-xl border p-3 flex flex-col justify-between ${
+                  index === 0
+                    ? "border-amber-300 bg-amber-50/60 shadow-xs"
+                    : index === 1
+                    ? "border-slate-300 bg-slate-50/60"
+                    : "border-orange-200 bg-orange-50/40"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-1">
+                  <span className="text-xl" title={`Hạng ${index + 1}`}>
+                    {medals[index]}
+                  </span>
+                  <span className="font-extrabold text-[var(--color-red)] text-base">
+                    {item.count} <span className="text-xs font-medium text-[var(--color-muted)]">lượt</span>
+                  </span>
+                </div>
+                <div className="mt-2 min-w-0">
+                  <h4 className="truncate font-bold text-sm text-[var(--color-ink)]" title={item.name}>
+                    {item.name}
+                  </h4>
+                  {item.sub && (
+                    <p className="truncate text-xs text-[var(--color-muted)] font-mono">{item.sub}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Remaining items as ranked list */}
+          {items.length > 3 && (
+            <div className="divide-y divide-[var(--color-line)] border-t border-[var(--color-line)] pt-1 max-h-72 overflow-y-auto">
+              {items.slice(3).map((item, index) => {
+                const rank = index + 4;
+                const percentage = Math.round((item.count / max) * 100);
+                return (
+                  <div key={item.id} className="py-2.5 flex items-center justify-between gap-3 text-sm">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <span className="w-6 text-center text-xs font-bold text-[var(--color-muted)]">
+                        #{rank}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-[var(--color-ink)]">{item.name}</p>
+                        {item.sub && <p className="text-xs text-[var(--color-muted)] font-mono">{item.sub}</p>}
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#f4ebe1]">
+                          <div
+                            className="h-full rounded-full bg-[var(--color-coral)]"
+                            style={{ width: `${Math.max(4, percentage)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <span className="shrink-0 font-bold text-[var(--color-red)] text-right">
+                      {item.count} <span className="text-xs font-normal text-[var(--color-muted)]">lượt</span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function AdminInteractiveAnalytics({
+  summary,
+  checkIns,
+}: {
+  summary: AnalyticsSummary;
+  checkIns: RawCheckIn[];
+}) {
+  const [period, setPeriod] = useState<PeriodOption>("week");
+  const [activeTab, setActiveTab] = useState<MetricTab>("all");
+
+  // Date range state
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const [customStart, setCustomStart] = useState<string>(toISODateInput(weekAgo));
+  const [customEnd, setCustomEnd] = useState<string>(toISODateInput(now));
+
+  // Determine current effective date bounds
+  const { startDate, endDate, periodLabel } = useMemo(() => {
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    if (period === "week") {
+      const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
+      start.setHours(0, 0, 0, 0);
+      return { startDate: start, endDate: end, periodLabel: "Tuần vừa qua (7 ngày gần nhất)" };
+    }
+    if (period === "month") {
+      const start = new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
+      start.setHours(0, 0, 0, 0);
+      return { startDate: start, endDate: end, periodLabel: "Tháng vừa qua (30 ngày gần nhất)" };
+    }
+    if (period === "year") {
+      const start = new Date(end.getTime() - 365 * 24 * 60 * 60 * 1000);
+      start.setHours(0, 0, 0, 0);
+      return { startDate: start, endDate: end, periodLabel: "Năm vừa qua (365 ngày gần nhất)" };
+    }
+    // Custom date picker
+    const start = new Date(customStart);
+    start.setHours(0, 0, 0, 0);
+    const customEndDate = new Date(customEnd);
+    customEndDate.setHours(23, 59, 59, 999);
+    return {
+      startDate: start,
+      endDate: customEndDate,
+      periodLabel: `Từ ${formatDateVN(start)} đến ${formatDateVN(customEndDate)}`,
+    };
+  }, [period, customStart, customEnd]);
+
+  // Filter check-ins within the selected period
+  const filteredCheckIns = useMemo(() => {
+    return checkIns.filter((item) => {
+      const t = new Date(item.visited_at).getTime();
+      return t >= startDate.getTime() && t <= endDate.getTime();
+    });
+  }, [checkIns, startDate, endDate]);
+
+  // 1. Top Dishes (món ăn nhiều nhất)
+  const topDishes = useMemo(() => {
+    const dishCounts = new Map<string, { id: string; name: string; count: number }>();
+    for (const ci of filteredCheckIns) {
+      if (ci.dish_name) {
+        const key = ci.dish_name;
+        const current = dishCounts.get(key) || { id: ci.dish_id || key, name: key, count: 0 };
+        current.count += 1;
+        dishCounts.set(key, current);
+      }
+    }
+    return Array.from(dishCounts.values()).sort((a, b) => b.count - a.count);
+  }, [filteredCheckIns]);
+
+  // 2. Top Visited Restaurants (quán ghé thăm nhiều nhất)
+  const topRestaurants = useMemo(() => {
+    const restCounts = new Map<string, { id: string; name: string; count: number }>();
+    for (const ci of filteredCheckIns) {
+      if (ci.restaurant_name) {
+        const key = ci.restaurant_name;
+        const current = restCounts.get(key) || { id: ci.restaurant_id || key, name: key, count: 0 };
+        current.count += 1;
+        restCounts.set(key, current);
+      }
+    }
+    return Array.from(restCounts.values()).sort((a, b) => b.count - a.count);
+  }, [filteredCheckIns]);
+
+  // 3. Top Active Users / Who eats most (ai ăn nhiều nhất)
+  const topUsers = useMemo(() => {
+    const userCounts = new Map<string, { id: string; name: string; count: number; sub?: string }>();
+    for (const ci of filteredCheckIns) {
+      if (ci.user_name || ci.user_id) {
+        const key = ci.user_id;
+        const current = userCounts.get(key) || {
+          id: key,
+          name: ci.user_name || "Thành viên",
+          count: 0,
+          sub: ci.student_code ? `MSSV: ${ci.student_code}` : undefined,
+        };
+        current.count += 1;
+        userCounts.set(key, current);
+      }
+    }
+    return Array.from(userCounts.values()).sort((a, b) => b.count - a.count);
+  }, [filteredCheckIns]);
+
+  // 4. Area Chart daily activity
+  const dailyActivity = useMemo(() => {
+    const dayMap = new Map<string, number>();
+    // Pre-populate days in range if period is <= 31 days
+    const diffDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)));
+    if (diffDays <= 31) {
+      for (let i = 0; i <= diffDays; i++) {
+        const d = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+        if (d <= endDate) {
+          dayMap.set(formatDateVN(d).slice(0, 5), 0);
+        }
+      }
+    }
+
+    for (const ci of filteredCheckIns) {
+      const d = new Date(ci.visited_at);
+      const label = diffDays > 31 ? `${d.getMonth() + 1}/${d.getFullYear()}` : formatDateVN(d).slice(0, 5);
+      dayMap.set(label, (dayMap.get(label) || 0) + 1);
+    }
+
+    return Array.from(dayMap.entries()).map(([label, count]) => ({ label, count }));
+  }, [filteredCheckIns, startDate, endDate]);
+
+  // 5. Donut Chart distribution data (Top Restaurants)
+  const restaurantDonutData = useMemo(() => {
+    const total = filteredCheckIns.length;
+    if (total === 0) return [];
+    const top = topRestaurants.slice(0, 5);
+    const topCount = top.reduce((acc, r) => acc + r.count, 0);
+    const otherCount = total - topCount;
+
+    const slices = top.map((r, i) => ({
+      name: r.name,
+      count: r.count,
+      percent: Math.round((r.count / total) * 100),
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    }));
+
+    if (otherCount > 0) {
+      slices.push({
+        name: "Các quán khác",
+        count: otherCount,
+        percent: Math.round((otherCount / total) * 100),
+        color: "#9ca3af",
+      });
+    }
+
+    return slices;
+  }, [filteredCheckIns.length, topRestaurants]);
+
+  // 6. Donut Chart distribution data (Top Dishes)
+  const dishDonutData = useMemo(() => {
+    const totalWithDishes = filteredCheckIns.filter((c) => Boolean(c.dish_name)).length;
+    if (totalWithDishes === 0) return [];
+    const top = topDishes.slice(0, 5);
+    const topCount = top.reduce((acc, d) => acc + d.count, 0);
+    const otherCount = totalWithDishes - topCount;
+
+    const slices = top.map((d, i) => ({
+      name: d.name,
+      count: d.count,
+      percent: Math.round((d.count / totalWithDishes) * 100),
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    }));
+
+    if (otherCount > 0) {
+      slices.push({
+        name: "Các món khác",
+        count: otherCount,
+        percent: Math.round((otherCount / totalWithDishes) * 100),
+        color: "#9ca3af",
+      });
+    }
+
+    return slices;
+  }, [filteredCheckIns, topDishes]);
+
+  return (
+    <div className="space-y-8">
+      <AdminHeader
+        title="Thống kê trực quan"
+        description="Báo cáo số liệu thực tế dựa trên check-in, quán ghé thăm và món ăn được yêu thích."
+      />
+
+      {/* Global Summary Cards */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminCard>
+          <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">Quán đang hoạt động</p>
+          <p className="mt-2 text-3xl font-black text-[var(--color-red)]">{summary.totalRestaurants.toLocaleString("vi-VN")}</p>
+        </AdminCard>
+        <AdminCard>
+          <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">Món trong thực đơn</p>
+          <p className="mt-2 text-3xl font-black text-[var(--color-red)]">{summary.totalDishes.toLocaleString("vi-VN")}</p>
+        </AdminCard>
+        <AdminCard>
+          <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">Tổng lượt check-in</p>
+          <p className="mt-2 text-3xl font-black text-[var(--color-red)]">{summary.totalCheckIns.toLocaleString("vi-VN")}</p>
+        </AdminCard>
+        <AdminCard>
+          <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">Điểm đánh giá TB</p>
+          <p className="mt-2 text-3xl font-black text-[var(--color-red)]">
+            {summary.averageRating !== null ? `${summary.averageRating} ★` : "—"}
+          </p>
+        </AdminCard>
+      </div>
+
+      {/* Interactive Filter Control Panel */}
+      <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--color-line)] pb-4">
+          <div>
+            <h2 className="text-lg font-black text-[var(--color-ink)] flex items-center gap-2">
+              <span>📅</span> Khoảng thời gian thống kê
+            </h2>
+            <p className="text-xs text-[var(--color-muted)] mt-0.5">
+              Đang hiển thị dữ liệu: <strong className="text-[var(--color-red)] font-semibold">{periodLabel}</strong> (Tổng {filteredCheckIns.length} lượt check-in)
+            </p>
+          </div>
+
+          {/* Preset Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { id: "week", label: "Tuần vừa qua" },
+              { id: "month", label: "Tháng vừa qua" },
+              { id: "year", label: "Năm vừa qua" },
+              { id: "custom", label: "Chọn theo lịch" },
+            ].map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setPeriod(opt.id as PeriodOption)}
+                className={`rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold transition cursor-pointer ${
+                  period === opt.id
+                    ? "bg-[var(--color-red)] text-white shadow-xs"
+                    : "border border-[var(--color-line)] bg-[var(--color-pale)] text-[var(--color-ink)] hover:bg-[#ebdccc]"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Real Date Range Picker (Lịch thực tế) */}
+        {period === "custom" && (
+          <div className="rounded-xl border border-dashed border-[var(--color-coral)] bg-[#fdfaf6] p-4 flex flex-wrap items-center gap-4 text-sm animate-fadeIn">
+            <span className="font-bold text-[var(--color-red)] flex items-center gap-1.5">
+              <span>🗓️</span> Chọn ngày chính xác:
+            </span>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-[var(--color-muted)]">Từ ngày:</label>
+              <input
+                type="date"
+                value={customStart}
+                onChange={(e) => setCustomStart(e.target.value)}
+                className="rounded-lg border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs sm:text-sm font-semibold shadow-inner focus:outline-[var(--color-red)]"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-[var(--color-muted)]">Đến ngày:</label>
+              <input
+                type="date"
+                value={customEnd}
+                onChange={(e) => setCustomEnd(e.target.value)}
+                className="rounded-lg border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs sm:text-sm font-semibold shadow-inner focus:outline-[var(--color-red)]"
+              />
+            </div>
+            <span className="text-xs text-[var(--color-muted)] italic">
+              (Dữ liệu tự động cập nhật ngay khi thay đổi ngày)
+            </span>
+          </div>
+        )}
+
+        {/* Metric Category Tabs */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <span className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wide mr-1">
+            Hiển thị mục:
+          </span>
+          {[
+            { id: "all", label: "📊 Tất cả & Biểu đồ" },
+            { id: "dishes", label: "🍜 Món ăn nhiều nhất" },
+            { id: "restaurants", label: "🏪 Quán ghé thăm nhiều nhất" },
+            { id: "users", label: "🏆 Ai ăn nhiều nhất" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id as MetricTab)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                activeTab === tab.id
+                  ? "bg-[var(--color-ink)] text-white shadow-xs"
+                  : "border border-[var(--color-line)] bg-white text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-pale)]"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Visual Charts Section (Sơ đồ đường miền & sơ đồ tròn) */}
+      {(activeTab === "all" || activeTab === "restaurants" || activeTab === "dishes") && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Sơ đồ đường miền xu hướng check-in */}
+          <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
+              <div>
+                <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
+                  <span>📈</span> Xu hướng check-in (Sơ đồ miền)
+                </h3>
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">Số lượt check-in theo các mốc thời gian</p>
+              </div>
+              <span className="rounded-full bg-[var(--color-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-red)]">
+                {filteredCheckIns.length} lượt
+              </span>
+            </div>
+
+            {filteredCheckIns.length > 0 ? (
+              <AreaChart data={dailyActivity} />
+            ) : (
+              <p className="py-12 text-center text-sm text-[var(--color-muted)]">
+                Chưa có dữ liệu check-in trong khoảng thời gian này.
+              </p>
+            )}
+          </div>
+
+          {/* Sơ đồ tròn phân bổ quán hoặc món */}
+          <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
+              <div>
+                <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
+                  <span>🍩</span> Phân bổ tỉ lệ (Sơ đồ tròn)
+                </h3>
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                  {activeTab === "dishes" ? "Tỉ lệ theo món ăn" : "Tỉ lệ theo quán ăn ghé thăm"}
+                </p>
+              </div>
+              <span className="text-xs text-[var(--color-muted)]">
+                {periodLabel}
+              </span>
+            </div>
+
+            {filteredCheckIns.length > 0 ? (
+              activeTab === "dishes" && dishDonutData.length > 0 ? (
+                <DonutChart
+                  items={dishDonutData}
+                  total={filteredCheckIns.filter((c) => Boolean(c.dish_name)).length}
+                  title="Tỉ lệ món ăn"
+                />
+              ) : restaurantDonutData.length > 0 ? (
+                <DonutChart
+                  items={restaurantDonutData}
+                  total={filteredCheckIns.length}
+                  title="Tỉ lệ quán ghé thăm"
+                />
+              ) : (
+                <p className="py-12 text-center text-sm text-[var(--color-muted)]">
+                  Chưa đủ dữ liệu để vẽ biểu đồ tròn.
+                </p>
+              )
+            ) : (
+              <p className="py-12 text-center text-sm text-[var(--color-muted)]">
+                Chưa có lượt check-in nào trong khoảng thời gian này.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Main Requested Metric Sections */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* 1. Món ăn nhiều nhất */}
+        {(activeTab === "all" || activeTab === "dishes") && (
+          <div className={activeTab === "dishes" ? "lg:col-span-3" : ""}>
+            <Leaderboard
+              title="Món ăn nhiều nhất"
+              icon="🍜"
+              emptyText="Chưa có món ăn nào được ghi nhận check-in trong khoảng thời gian này."
+              items={topDishes}
+              type="dishes"
+            />
+          </div>
+        )}
+
+        {/* 2. Quán ghé thăm nhiều nhất */}
+        {(activeTab === "all" || activeTab === "restaurants") && (
+          <div className={activeTab === "restaurants" ? "lg:col-span-3" : ""}>
+            <Leaderboard
+              title="Quán ghé thăm nhiều nhất"
+              icon="🏪"
+              emptyText="Chưa có quán ăn nào được ghé thăm trong khoảng thời gian này."
+              items={topRestaurants}
+              type="restaurants"
+            />
+          </div>
+        )}
+
+        {/* 3. Ai ăn nhiều nhất */}
+        {(activeTab === "all" || activeTab === "users") && (
+          <div className={activeTab === "users" ? "lg:col-span-3" : ""}>
+            <Leaderboard
+              title="Ai ăn nhiều nhất"
+              icon="🏆"
+              emptyText="Chưa có thành viên nào check-in trong khoảng thời gian này."
+              items={topUsers}
+              type="users"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="pt-2 text-center">
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--color-red)] hover:underline"
+        >
+          ← Quay lại Tổng quan quản trị
+        </Link>
+      </div>
+    </div>
+  );
+}

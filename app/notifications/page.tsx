@@ -25,7 +25,7 @@ export default async function NotificationsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Cập nhật từ HANU Hungry</p><h1 className="section-title mt-2">Thông báo</h1><p className="mt-2 text-sm text-[var(--color-muted)]">{unreadCount} thông báo chưa đọc</p></div>{unreadCount > 0 && <form action={markAllNotificationsRead}><button type="submit" className="button button-secondary text-sm">Đánh dấu tất cả đã đọc</button></form>}</div>
+      <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Cập nhật từ Hanu Hungry</p><h1 className="section-title mt-2">Thông báo</h1><p className="mt-2 text-sm text-[var(--color-muted)]">{unreadCount} thông báo chưa đọc</p></div>{unreadCount > 0 && <form action={markAllNotificationsRead}><button type="submit" className="button button-secondary text-sm">Đánh dấu tất cả đã đọc</button></form>}</div>
       {items.length ? <div className="space-y-3">{items.map((item) => {
         const available = item.type === "BLOG_PUBLISHED"
           ? Boolean(item.blog_post_id && availableBlogs.has(item.blog_post_id))

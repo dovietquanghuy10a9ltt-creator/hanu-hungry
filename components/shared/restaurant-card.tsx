@@ -10,7 +10,7 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantSummary }
       <div className="flex items-center justify-between gap-3"><p className="restaurant-category">{restaurant.categories?.slice(0, 2).join(" · ") || "Quán quanh trường"}</p><span className="card-arrow" aria-hidden="true">↗</span></div>
       <h3 className="restaurant-name">{restaurant.name}</h3>
       <p className="text-sm leading-relaxed text-[var(--color-muted)]">{readableText(restaurant.area || restaurant.address_text, "Địa chỉ đang cập nhật")}</p>
-      <div className="mt-auto border-t border-[var(--color-line)] pt-4"><p className="text-sm text-[var(--color-red)]">{restaurant.min_price_vnd === null ? "Giá đang cập nhật" : <>Từ <strong className="text-lg">{formatVnd(restaurant.min_price_vnd)}</strong></>}</p></div>
+      <div className="mt-auto border-t border-[var(--color-line)] pt-4"><p className="text-sm text-[var(--color-red)]">{restaurant.min_price_vnd === null ? "Chưa có giá chính thức" : <strong className="text-base sm:text-lg">{restaurant.max_price_vnd && restaurant.max_price_vnd > restaurant.min_price_vnd ? `${formatVnd(restaurant.min_price_vnd)} - ${formatVnd(restaurant.max_price_vnd)}` : formatVnd(restaurant.min_price_vnd)}</strong>}</p></div>
     </div>
   </Link>;
 }

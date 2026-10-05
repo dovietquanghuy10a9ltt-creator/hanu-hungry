@@ -5,6 +5,7 @@ export type RestaurantSummary = {
   address_text: string | null;
   image_url: string | null;
   min_price_vnd: number | null;
+  max_price_vnd?: number | null;
   categories: string[] | null;
 };
 

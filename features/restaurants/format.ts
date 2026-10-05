@@ -19,6 +19,14 @@ export function formatPrice(priceText: string | null | undefined, min?: number |
   return formatVnd(min);
 }
 
+export function formatCardPrice(min?: number | null, max?: number | null) {
+  if (typeof min !== "number" || !Number.isFinite(min)) return "Chưa có giá chính thức";
+  if (typeof max === "number" && Number.isFinite(max) && max > min) {
+    return `${formatVnd(min)} - ${formatVnd(max)}`;
+  }
+  return formatVnd(min);
+}
+
 export function mapsUrl(location: {
   latitude?: number | null;
   longitude?: number | null;
