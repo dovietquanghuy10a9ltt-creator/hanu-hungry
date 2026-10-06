@@ -45,9 +45,29 @@ function PasswordField({ name, label, autoComplete = "new-password", minLength }
     <label className={labelClass}>
       {label}
       <span className="relative block">
-        <input name={name} type={visible ? "text" : "password"} autoComplete={autoComplete} minLength={minLength} required className={`${inputClass} pr-16`} />
-        <button type="button" onClick={() => setVisible((value) => !value)} className="absolute inset-y-0 right-1 mt-1.5 min-h-11 rounded-lg px-3 text-sm font-semibold text-[#8b2530] focus-visible:outline-2 focus-visible:outline-[#c51f30]" aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}>
-          {visible ? "Ẩn" : "Hiện"}
+        <input name={name} type={visible ? "text" : "password"} autoComplete={autoComplete} minLength={minLength} required className={`${inputClass} pr-12`} />
+        <button
+          type="button"
+          onClick={() => setVisible((value) => !value)}
+          className="absolute inset-y-0 right-1 mt-1.5 flex h-11 w-11 items-center justify-center rounded-lg text-[#8b2530] transition hover:bg-[#fae6e6] hover:text-[#c51f30] focus-visible:outline-2 focus-visible:outline-[#c51f30]"
+          aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
+          title={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
+        >
+          {visible ? (
+            /* Mắt mở */
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          ) : (
+            /* Mắt nhắm / gạch chéo */
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+              <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+              <path d="M17.479 17.499A10.75 10.75 0 0 1 2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 2.898-4.254" />
+              <line x1="2" y1="2" x2="22" y2="22" />
+            </svg>
+          )}
         </button>
       </span>
     </label>
@@ -77,7 +97,6 @@ export function LoginForm({ next, resetDone }: { next: string; resetDone: boolea
         if (Array.isArray(parsed)) {
           const valid = parsed.filter((item): item is string => typeof item === "string" && /^[0-9]{10}$/.test(item));
           setKnownMssvs(valid);
-          if (valid.length > 0) setStudentCode(valid[0]);
         }
       }
     } catch {}
@@ -121,27 +140,6 @@ export function LoginForm({ next, resetDone }: { next: string; resetDone: boolea
               <option key={code} value={code} label={`MSSV ${code}`} />
             ))}
           </datalist>
-          {knownMssvs.length > 0 && (
-            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-[#756561]">
-              <span className="font-semibold">Tài khoản đã đăng ký:</span>
-              {knownMssvs.map((code) => (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => setStudentCode(code)}
-                  className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 font-mono text-xs font-bold transition ${
-                    studentCode === code
-                      ? "border-[#c51f30] bg-[#fdf2f2] text-[#c51f30]"
-                      : "border-[#e2d5c3] bg-[#fffbf5] text-[#8b2530] hover:bg-[#fae6e6]"
-                  }`}
-                  title={`Dùng MSSV ${code}`}
-                >
-                  <span>{code}</span>
-                  {studentCode === code && <span className="text-[10px]">✓</span>}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
         <PasswordField name="password" label="Mật khẩu" autoComplete="current-password" />
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
