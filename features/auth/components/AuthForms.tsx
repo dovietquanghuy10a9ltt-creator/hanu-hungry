@@ -44,12 +44,19 @@ function PasswordField({ name, label, autoComplete = "new-password", minLength }
   return (
     <label className={labelClass}>
       {label}
-      <span className="relative block">
-        <input name={name} type={visible ? "text" : "password"} autoComplete={autoComplete} minLength={minLength} required className={`${inputClass} pr-12`} />
+      <span className="relative mt-2 flex items-center">
+        <input
+          name={name}
+          type={visible ? "text" : "password"}
+          autoComplete={autoComplete}
+          minLength={minLength}
+          required
+          className="field w-full pr-12"
+        />
         <button
           type="button"
           onClick={() => setVisible((value) => !value)}
-          className="absolute inset-y-0 right-1 mt-1.5 flex h-11 w-11 items-center justify-center rounded-lg text-[#8b2530] transition hover:bg-[#fae6e6] hover:text-[#c51f30] focus-visible:outline-2 focus-visible:outline-[#c51f30]"
+          className="absolute right-2.5 flex h-8 w-8 items-center justify-center rounded-md text-[#8b2530] transition hover:bg-[#fae6e6] hover:text-[#c51f30] focus-visible:outline-2 focus-visible:outline-[#c51f30]"
           aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
           title={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
         >

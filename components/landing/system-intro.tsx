@@ -39,11 +39,17 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
             <p className="text-lg font-bold text-[var(--color-red)] sm:text-xl">
               Quanh trường · Quanh bàn · Quanh một bữa ngon.
             </p>
-            <p className="text-base leading-relaxed text-[var(--color-muted)] sm:text-lg">
-              Hanu Hungry là nền tảng bản đồ và cẩm nang ăn uống dành riêng cho sinh viên Hanu.
-              Hệ thống tổng hợp thông tin chính xác về các quán ăn, quán nước, tiệm ăn vặt quanh trường
-              cùng mức giá, địa chỉ và đánh giá thực tế — giúp bạn không còn phải đau đầu với câu hỏi “Hôm nay ăn gì?”.
-            </p>
+            <div className="space-y-2 text-base leading-relaxed text-[var(--color-muted)]">
+              <p className="font-bold text-[var(--color-red)] text-sm sm:text-base">
+                Macaron - gửi lời chào thân ái đến Hanuer!!! 💌
+              </p>
+              <p>
+                Hanu Hungry được thành lập vào năm 2026 - được xây dựng bởi <strong>Macaron</strong> (nhóm những người gặp khó khăn trong việc chọn món ở Hanu).
+              </p>
+              <p>
+                Hanu Hungry là website khám phá đồ ăn dành cho sinh viên Trường Đại học Hà Nội, giúp bạn dễ dàng tìm kiếm và khám phá các địa điểm ăn uống xung quanh Hanu. Từ món ăn, thực đơn, mức giá đến địa điểm, chúng mình tập hợp những thông tin cần thiết để việc lựa chọn đồ ăn trở nên đơn giản và thuận tiện hơn.
+              </p>
+            </div>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link href="/login" className="button button-primary px-6 py-3 text-base">
                 Đăng nhập để khám phá ↗
@@ -53,10 +59,12 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
               </Link>
             </div>
           </div>
-          <div className="mt-8 border-t border-[var(--color-line)] pt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-[var(--color-muted)]">
-            <span>✓ 50+ quán quanh trường</span>
-            <span>✓ 900+ món ăn & đồ uống</span>
-            <span>✓ Dữ liệu khảo sát thực tế sinh viên Hanu</span>
+          <div className="mt-8 border-t border-[var(--color-line)] pt-5 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-[var(--color-muted)]">
+              <span>✓ 50+ quán quanh trường</span>
+              <span>✓ 900+ món ăn & đồ uống</span>
+              <span>✓ Dữ liệu khảo sát thực tế sinh viên Hanu</span>
+            </div>
           </div>
         </div>
 

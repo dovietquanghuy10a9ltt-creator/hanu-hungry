@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SocialIconsRow, CONTACT_INFO } from "@/components/shared/social-links";
 
 export async function SiteShell({ children }: { children: ReactNode }) {
   const supabase = await createClient();
@@ -95,9 +96,27 @@ export async function SiteShell({ children }: { children: ReactNode }) {
       </main>
 
       <footer className="border-t border-[var(--color-line)] bg-[#f1eadd] pb-24 md:pb-0">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-[var(--color-muted)] sm:px-6 md:flex-row md:items-center md:justify-between">
-          <div><strong className="text-[var(--color-red)]">Hanu Hungry</strong><p>Dữ liệu quán ăn từ khảo sát của nhóm sinh viên Hanu.</p></div>
-          <div className="flex flex-wrap gap-5"><Link href="/about">Về chúng mình</Link><Link href="/contact">Liên hệ</Link><Link href="/blog">Blog</Link></div>
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 text-sm text-[var(--color-muted)] sm:px-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <strong className="text-[var(--color-red)] text-base font-black">Hanu Hungry</strong>
+              <span className="text-xs bg-[var(--color-pale)] px-2 py-0.5 rounded-full text-[var(--color-ink)] font-semibold">bởi Macaron</span>
+            </div>
+            <p className="mt-1">Dữ liệu quán ăn từ khảo sát của nhóm sinh viên Hanu.</p>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+              <a href={CONTACT_INFO.phoneHref} className="hover:text-[var(--color-red)] font-semibold">📞 {CONTACT_INFO.phone}</a>
+              <span>·</span>
+              <a href={CONTACT_INFO.emailHref} className="hover:text-[var(--color-red)] font-semibold">✉️ {CONTACT_INFO.email}</a>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <SocialIconsRow />
+            <div className="flex flex-wrap gap-4 font-semibold text-[var(--color-ink)]">
+              <Link href="/about" className="hover:text-[var(--color-red)]">Về chúng mình</Link>
+              <Link href="/contact" className="hover:text-[var(--color-red)]">Liên hệ</Link>
+              <Link href="/blog" className="hover:text-[var(--color-red)]">Blog</Link>
+            </div>
+          </div>
         </div>
       </footer>
 
