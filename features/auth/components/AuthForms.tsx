@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import type { AuthActionState } from "@/features/auth/actions";
@@ -44,28 +44,110 @@ function PasswordField({ name, label, autoComplete = "new-password", minLength }
   return (
     <label className={labelClass}>
       {label}
-      <span className="relative block">
-        <input name={name} type={visible ? "text" : "password"} autoComplete={autoComplete} minLength={minLength} required className={`${inputClass} pr-16`} />
-        <button type="button" onClick={() => setVisible((value) => !value)} className="absolute inset-y-0 right-1 mt-1.5 min-h-11 rounded-lg px-3 text-sm font-semibold text-[#8b2530] focus-visible:outline-2 focus-visible:outline-[#c51f30]" aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}>
-          {visible ? "Ẩn" : "Hiện"}
+      <span className="relative mt-2 flex items-center">
+        <input
+          name={name}
+          type={visible ? "text" : "password"}
+          autoComplete={autoComplete}
+          minLength={minLength}
+          required
+          className="field w-full pr-12"
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((value) => !value)}
+          className="absolute right-2.5 flex h-8 w-8 items-center justify-center rounded-md text-[#8b2530] transition hover:bg-[#fae6e6] hover:text-[#c51f30] focus-visible:outline-2 focus-visible:outline-[#c51f30]"
+          aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
+          title={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
+        >
+          {visible ? (
+            /* Mắt mở */
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          ) : (
+            /* Mắt nhắm / gạch chéo */
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+              <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+              <path d="M17.479 17.499A10.75 10.75 0 0 1 2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 2.898-4.254" />
+              <line x1="2" y1="2" x2="22" y2="22" />
+            </svg>
+          )}
         </button>
       </span>
     </label>
   );
 }
 
+function saveRegisteredMssv(code: string) {
+  try {
+    if (!/^[0-9]{10}$/.test(code)) return;
+    const stored = localStorage.getItem("hanu_registered_mssvs");
+    const list: string[] = stored ? JSON.parse(stored) : [];
+    const updated = [code, ...list.filter((x) => x !== code)].slice(0, 5);
+    localStorage.setItem("hanu_registered_mssvs", JSON.stringify(updated));
+  } catch {}
+}
+
 export function LoginForm({ next, resetDone }: { next: string; resetDone: boolean }) {
   const [state, action] = useActionState(loginAction, initialState);
+  const [studentCode, setStudentCode] = useState("");
+  const [knownMssvs, setKnownMssvs] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("hanu_registered_mssvs");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const valid = parsed.filter((item): item is string => typeof item === "string" && /^[0-9]{10}$/.test(item));
+          setKnownMssvs(valid);
+        }
+      }
+    } catch {}
+  }, []);
+
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Chào mừng trở lại</h2>
       <p className="mt-2 text-sm leading-relaxed text-[#756561]">Dùng mã sinh viên để mở cuốn sổ ăn uống của bạn.</p>
       {resetDone && <p role="status" className="mt-5 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã đặt lại mật khẩu. Hãy đăng nhập bằng mật khẩu mới.</p>}
-      <form action={action} className="mt-7 space-y-5">
+      <form
+        action={action}
+        onSubmit={(e) => {
+          const code = (e.currentTarget.elements.namedItem("student_code") as HTMLInputElement)?.value?.trim();
+          if (code) saveRegisteredMssv(code);
+        }}
+        className="mt-7 space-y-5"
+      >
         <input type="hidden" name="next" value={next} />
-        <label className={labelClass}>Mã sinh viên (MSSV)
-          <input name="student_code" type="text" inputMode="numeric" autoComplete="username" pattern="[0-9]{10}" minLength={10} maxLength={10} title="MSSV gồm đúng 10 chữ số" required className={inputClass} placeholder="Nhập mã sinh viên 10 chữ số" />
-        </label>
+        <div>
+          <label className={labelClass}>Mã sinh viên (MSSV)
+            <input
+              name="student_code"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              list="registered-mssv-list"
+              pattern="[0-9]{10}"
+              minLength={10}
+              maxLength={10}
+              title="MSSV gồm đúng 10 chữ số"
+              value={studentCode}
+              onChange={(e) => setStudentCode(e.target.value)}
+              required
+              className={inputClass}
+              placeholder="Nhập mã sinh viên 10 chữ số"
+            />
+          </label>
+          <datalist id="registered-mssv-list">
+            {knownMssvs.map((code) => (
+              <option key={code} value={code} label={`MSSV ${code}`} />
+            ))}
+          </datalist>
+        </div>
         <PasswordField name="password" label="Mật khẩu" autoComplete="current-password" />
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 font-medium">
@@ -87,8 +169,15 @@ export function RegisterForm() {
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Tạo tài khoản</h2>
-      <p className="mt-2 text-sm leading-relaxed text-[#756561]">Tham gia HANU Hungry bằng email và MSSV của bạn.</p>
-      <form action={action} className="mt-7 space-y-5">
+      <p className="mt-2 text-sm leading-relaxed text-[#756561]">Tham gia Hanu Hungry bằng email và MSSV của bạn.</p>
+      <form
+        action={action}
+        onSubmit={(e) => {
+          const code = (e.currentTarget.elements.namedItem("student_code") as HTMLInputElement)?.value?.trim();
+          if (code) saveRegisteredMssv(code);
+        }}
+        className="mt-7 space-y-5"
+      >
         <label className={labelClass}>MSSV
           <input name="student_code" type="text" inputMode="numeric" pattern="[0-9]{10}" minLength={10} maxLength={10} title="MSSV gồm đúng 10 chữ số" autoComplete="off" required className={inputClass} placeholder="10 chữ số" />
         </label>

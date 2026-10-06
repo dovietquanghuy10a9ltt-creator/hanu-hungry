@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { formatPrice, formatVnd, mapsUrl, readableText } from "../features/restaurants/format.ts";
+import { formatCardPrice, formatPrice, formatVnd, mapsUrl, readableText } from "../features/restaurants/format.ts";
 import { historyStats } from "../features/history/stats.ts";
-import { pickRandom } from "../features/gacha/random.ts";
+import { isDrinkDish, pickRandom } from "../features/gacha/random.ts";
 
 test("missing restaurant data stays explicit and never becomes a fake zero price", () => {
   assert.equal(readableText(null), "Thông tin đang được cập nhật");
@@ -11,6 +11,20 @@ test("missing restaurant data stays explicit and never becomes a fake zero price
   assert.equal(formatPrice(null, null, null), "Chưa có dữ liệu giá");
   assert.equal(formatPrice("None", null, null), "Chưa có dữ liệu giá");
   assert.equal(formatPrice("30,000 - 50,000", 30000, 50000), "30,000 - 50,000");
+  assert.equal(formatCardPrice(null, null), "Chưa có giá chính thức");
+  assert.equal(formatCardPrice(25000, null), "25.000đ");
+  assert.equal(formatCardPrice(25000, 50000), "25.000đ - 50.000đ");
+  assert.equal(formatCardPrice(25000, 25000), "25.000đ");
+});
+
+test("isDrinkDish correctly classifies drinks and food", () => {
+  assert.equal(isDrinkDish("Trà sữa trân châu"), true);
+  assert.equal(isDrinkDish("Cafe muối"), true);
+  assert.equal(isDrinkDish("Pepsi"), true);
+  assert.equal(isDrinkDish("Bún bò Huế"), false);
+  assert.equal(isDrinkDish("Cơm tấm sườn bì"), false);
+  assert.equal(isDrinkDish("Bánh mì pate"), false);
+  assert.equal(isDrinkDish("Gà rán giòn"), false);
 });
 
 test("Maps uses real coordinates first, or encoded source location text", () => {

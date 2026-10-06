@@ -101,7 +101,15 @@ h1,h2,h3,h4,.brand-display,.section-title { font-family: var(--font-heading), Ge
 .empty-state>span { color: var(--color-red); font-size: 50px; }.empty-state h2 { font-size: 1.8rem; margin: 16px 0 10px; }.empty-state p { color: var(--color-muted); }
 .gacha-page { max-width: 960px; margin: 0 auto; }
 .gacha-intro { text-align: center; }
-.cosmic-heading { font-family: var(--font-cosmic), Georgia, serif; font-weight: 400; color: var(--color-red); font-size: clamp(1.1rem, 3vw, 1.65rem); letter-spacing: .01em; }
+@font-face {
+  font-family: "Crayonette DJR";
+  src: url("/fonts/CrayonetteDJR.woff2") format("woff2"),
+       url("/fonts/CrayonetteDJR.ttf") format("truetype"),
+       local("Crayonette DJR");
+  font-display: swap;
+}
+
+.cosmic-heading { font-family: var(--font-crayonette), "Crayonette DJR", "Crayonette", var(--font-cosmic), Georgia, serif; font-weight: 400; color: var(--color-red); font-size: clamp(1.1rem, 3vw, 1.65rem); letter-spacing: .01em; }
 .gacha-intro h1 { font-size: clamp(2.5rem, 6vw, 4.3rem); line-height: 1.1; letter-spacing: -.035em; margin-top: 18px; }
 .gacha-intro>p:last-child { margin: 18px auto 0; max-width: 480px; color: var(--color-muted); line-height: 1.6; }
 .gacha-mode { display: flex; justify-content: center; gap: 4px; width: fit-content; margin: 28px auto 0; padding: 5px; border: 1px solid var(--color-line); background: #f0e7da; border-radius: 99px; }
@@ -126,5 +134,5 @@ h1,h2,h3,h4,.brand-display,.section-title { font-family: var(--font-heading), Ge
 @keyframes twinkle { to { opacity: .3; transform: scale(.8); } }
 @keyframes orbit-breathe { to { opacity: .45; } }
 @media (min-width: 768px) { .mobile-navigation { display: none; } }
-@media (max-width: 767px) { .home-page { gap: 40px; }.home-hero { grid-template-columns: minmax(0, 1fr); gap: 34px; }.hero-copy h1 { font-size: clamp(2.6rem, 9vw, 3.7rem); }.hero-poster { display: none; }.home-bottom { grid-template-columns: 1fr; }.history-invitation { border-left: 0; border-top: 1px solid var(--color-line); }.gacha-invitation,.history-invitation { padding: 28px; }.invitation-star { font-size: 70px; opacity: .5; }.section-heading { align-items: start; flex-direction: column; gap: 8px; }.explore-filters { grid-template-columns: 1fr; padding: 18px; gap: 16px; }.intro-number { display: none; }.cosmic-stage { padding: 32px 0; min-height: 360px; }.cosmic-star { display: none; }.orbit { width: 100%; }.gacha-ticket { max-width: 440px; }.gacha-intro h1 { font-size: 2.6rem; }.ticket-top,.ticket-bottom { padding: 14px 18px; font-size: 8px; }.reel-window { padding: 24px 18px; }.reel-name { font-size: 1.45rem; }.gacha-reveal { padding: 24px 18px; } }
+@media (max-width: 767px) { .home-page { gap: 40px; }.home-hero { grid-template-columns: minmax(0, 1fr); gap: 34px; }.hero-copy h1 { font-size: clamp(2.6rem, 9vw, 3.7rem); }.hero-poster { display: none; }.home-bottom { grid-template-columns: 1fr; }.history-invitation { border-left: 0; border-top: 1px solid var(--color-line); }.gacha-invitation,.history-invitation { padding: 28px; }.invitation-star { font-size: 70px; opacity: .5; }.section-heading { align-items: start; flex-direction: column; gap: 8px; }.explore-filters { grid-template-columns: 1fr; padding: 18px; gap: 16px; }.intro-number { display: none; }.cosmic-stage { padding: 32px 0; min-height: 360px; }.cosmic-star { display: none; }.orbit { width: 100%; }.gacha-ticket { max-width: 440px; }.gacha-intro h1 { font-size: 2.6rem; }.gacha-mode { flex-wrap: wrap; border-radius: 24px; }.gacha-mode button { padding: 8px 14px; font-size: 0.85rem; }.ticket-top,.ticket-bottom { padding: 14px 18px; font-size: 8px; }.reel-window { padding: 24px 18px; }.reel-name { font-size: 1.45rem; }.gacha-reveal { padding: 24px 18px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }

@@ -1,0 +1,163 @@
+import Link from "next/link";
+import { BlogNewsWidget } from "@/components/shared/blog-news-widget";
+import type { BlogPostSummary } from "@/features/blog/data";
+
+export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummary[] }) {
+  const features = [
+    {
+      tag: "⌕ Khám phá địa điểm",
+      title: "Sổ địa điểm quanh trường",
+      description: "Tra cứu danh sách quán ăn theo tên món, danh mục ẩm thực (cơm, bún phở, đồ ăn vặt, đồ uống...) hoặc khoảng giá min – max phù hợp túi tiền sinh viên.",
+    },
+    {
+      tag: "✦ Gacha vũ trụ",
+      title: "Để vũ trụ chọn giúp bạn",
+      description: "Không biết ăn gì hay uống gì? Vòng quay Gacha với 3 chế độ riêng biệt: Gacha theo quán, Gacha theo đồ ăn và Gacha theo đồ uống sẽ giúp bạn có bữa ăn bất ngờ.",
+    },
+    {
+      tag: "▤ Nhật ký ẩm thực",
+      title: "Lưu giữ những bữa ngon",
+      description: "Lưu lại những quán bạn đã ghé qua, theo dõi chuỗi ngày ăn ngon và thống kê hành trình khám phá ẩm thực quanh khu vực Đại học Hà Nội.",
+    },
+    {
+      tag: "★ Review thực tế",
+      title: "Chia sẻ từ sinh viên Hanu",
+      description: "Đọc những cảm nhận và đánh giá chân thực từ cộng đồng sinh viên Hanu; đóng góp nhận xét của chính bạn về món ăn và không gian quán.",
+    },
+  ];
+
+  return (
+    <div className="space-y-12">
+      {/* Hero Section với poster banner Ảnh 4 */}
+      <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
+        <div className="flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
+          <div className="space-y-6">
+            <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
+            <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">
+              Hanu Hungry
+            </h1>
+            <p className="text-lg font-bold text-[var(--color-red)] sm:text-xl">
+              Quanh trường · Quanh bàn · Quanh một bữa ngon.
+            </p>
+            <div className="space-y-2 text-base leading-relaxed text-[var(--color-muted)]">
+              <p className="font-bold text-[var(--color-red)] text-sm sm:text-base">
+                Macaron - gửi lời chào thân ái đến Hanuer!!! 💌
+              </p>
+              <p>
+                Hanu Hungry được thành lập vào năm 2026 - được xây dựng bởi <strong>Macaron</strong> (nhóm những người gặp khó khăn trong việc chọn món ở Hanu).
+              </p>
+              <p>
+                Hanu Hungry là website khám phá đồ ăn dành cho sinh viên Trường Đại học Hà Nội, giúp bạn dễ dàng tìm kiếm và khám phá các địa điểm ăn uống xung quanh Hanu. Từ món ăn, thực đơn, mức giá đến địa điểm, chúng mình tập hợp những thông tin cần thiết để việc lựa chọn đồ ăn trở nên đơn giản và thuận tiện hơn.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Link href="/login" className="button button-primary px-6 py-3 text-base">
+                Đăng nhập để khám phá ↗
+              </Link>
+              <Link href="/register" className="button button-secondary px-6 py-3 text-base">
+                Tạo tài khoản mới
+              </Link>
+            </div>
+          </div>
+          <div className="mt-8 border-t border-[var(--color-line)] pt-5 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-[var(--color-muted)]">
+              <span>✓ 50+ quán quanh trường</span>
+              <span>✓ 900+ món ăn & đồ uống</span>
+              <span>✓ Dữ liệu khảo sát thực tế sinh viên Hanu</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Poster banner phong cách ảnh 4 */}
+        <div className="hero-poster hidden md:flex flex-col justify-between">
+          <div className="poster-top">
+            <span>HÀ NỘI</span>
+            <span>ĂN GÌ / 01</span>
+          </div>
+          <div className="poster-word">
+            đói<br /><span>chưa?</span>
+          </div>
+          <div className="poster-orbit" aria-hidden="true">✳</div>
+          <div className="poster-note">
+            Đi một vòng nhỏ.<br />Gặp một quán ngon.
+          </div>
+          <Link href="/login" className="poster-link">
+            Để vũ trụ chọn giúp <span>↗</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Main features + Blog News Widget (Ảnh 1) */}
+      <section className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,1.1fr)]">
+        <div className="space-y-6">
+          <div>
+            <p className="eyebrow">Tiện ích dành riêng cho bạn</p>
+            <h2 className="section-title mt-2">Các tính năng nổi bật của hệ thống</h2>
+            <p className="mt-2 text-sm text-[var(--color-muted)] sm:text-base">
+              Đăng nhập vào hệ thống để mở khóa toàn bộ tiện ích:
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {features.map((feature, idx) => (
+              <article key={idx} className="card flex flex-col justify-between p-6 transition-transform hover:-translate-y-1">
+                <div>
+                  <span className="inline-block rounded-full bg-[var(--color-pale)] px-3 py-1 text-xs font-bold text-[var(--color-red)]">
+                    {feature.tag}
+                  </span>
+                  <h3 className="mt-4 text-xl font-black text-[var(--color-ink)]">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--color-muted)]">{feature.description}</p>
+                </div>
+                <div className="mt-6 border-t border-[var(--color-line)] pt-4">
+                  <Link href="/login" className="text-sm font-bold text-[var(--color-red)] hover:underline">
+                    Đăng nhập để trải nghiệm →
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        {/* Widget TIN TỨC kiểu Ảnh 1 */}
+        <div className="sticky top-24">
+          <BlogNewsWidget posts={recentPosts} title="TIN TỨC" />
+        </div>
+      </section>
+
+      {/* Sửa triệt để lỗi màu chữ ở Ảnh 2: Banner đỏ đậm với chữ trắng tương phản cao */}
+      <section
+        className="relative overflow-hidden rounded-3xl p-8 sm:p-12 text-white shadow-xl"
+        style={{ background: "linear-gradient(135deg, #8c1d24 0%, #b52a34 100%)", border: "1px solid #b52a34" }}
+      >
+        <div className="relative z-10 max-w-2xl space-y-4">
+          <span className="inline-block rounded-full bg-white/20 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-white backdrop-blur">
+            Gia nhập cộng đồng Hanu Hungry
+          </span>
+          <h2 className="text-3xl font-black leading-tight sm:text-4xl text-white">
+            Sẵn sàng cho bữa ngon tiếp theo?
+          </h2>
+          <p className="text-sm sm:text-base leading-relaxed text-white/90">
+            Đăng nhập bằng tài khoản của bạn để mở khóa toàn bộ tính năng tìm kiếm, quay Gacha, lưu nhật ký và chia sẻ đánh giá.
+          </p>
+          <div className="flex flex-wrap items-center gap-3 pt-3">
+            <Link
+              href="/login"
+              className="inline-block rounded-full bg-[#fffdf8] px-6 py-3 text-sm font-black text-[#8c1d24] shadow-md transition-transform hover:scale-105 hover:bg-white"
+            >
+              Đăng nhập ngay ↗
+            </Link>
+            <Link
+              href="/register"
+              className="inline-block rounded-full border border-white/60 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-white/15"
+            >
+              Tạo tài khoản mới
+            </Link>
+          </div>
+        </div>
+        <div className="pointer-events-none absolute -bottom-6 -right-6 select-none text-[150px] leading-none text-white/10" aria-hidden="true">
+          ✦
+        </div>
+      </section>
+    </div>
+  );
+}

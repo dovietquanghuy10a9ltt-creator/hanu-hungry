@@ -6,7 +6,11 @@ import { siteConfig } from "@/config/site";
 
 export function Navigation({ mobile = false, isAdmin = false, signedIn = false }: { mobile?: boolean; isAdmin?: boolean; signedIn?: boolean }) {
   const pathname = usePathname();
-  const items = [...siteConfig.navigation, ...(mobile && signedIn ? [{ href: "/profile", label: "Cá nhân", icon: "◎" }] : []), ...(!mobile && isAdmin ? [{ href: "/admin", label: "Quản trị", icon: "▦" }] : [])];
+  const items = [
+    ...siteConfig.navigation,
+    ...(mobile && signedIn ? [{ href: "/profile", label: "Cá nhân", icon: "◎" }] : []),
+    ...(isAdmin ? [{ href: "/admin", label: "Quản trị", icon: "▦" }] : []),
+  ];
   return <nav aria-label={mobile ? "Điều hướng di động" : "Điều hướng chính"} className={mobile ? "mobile-navigation md:hidden" : "hidden items-center gap-1 md:flex"}>
     {items.map((item) => {
       const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
