@@ -380,8 +380,39 @@ export function AdminInteractiveAnalytics({
     setAccountPage(1);
   }, [accountSearch, roleFilter]);
 
+  // Sắp xếp tài khoản:
+  // 1. Tất cả tài khoản Quản trị viên (ADMIN) luôn được ghim lên đầu trang (STT 1 và 2)
+  // 2. Các tài khoản khác sắp xếp theo lần đăng nhập gần nhất (last_sign_in_at mới nhất lên trước)
+  // 3. Nếu chưa đăng nhập: xếp sau cùng theo ngày tạo (created_at mới nhất)
+  const sortedAccounts = useMemo(() => {
+    return [...accounts].sort((a, b) => {
+      // 1. Ưu tiên ADMIN lên đầu
+      if (a.role === "ADMIN" && b.role !== "ADMIN") return -1;
+      if (a.role !== "ADMIN" && b.role === "ADMIN") return 1;
+
+      // 2. Trong các tài khoản ADMIN:
+      if (a.role === "ADMIN" && b.role === "ADMIN") {
+        if (a.display_name === "mtvzzn") return -1;
+        if (b.display_name === "mtvzzn") return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+
+      // 3. Các tài khoản còn lại: sắp xếp theo đăng nhập gần nhất
+      const timeA = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0;
+      const timeB = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
+      if (timeA !== timeB) {
+        return timeB - timeA;
+      }
+
+      // 4. Nếu chưa đăng nhập: sắp xếp theo ngày đăng ký mới nhất
+      const createdA = new Date(a.created_at).getTime();
+      const createdB = new Date(b.created_at).getTime();
+      return createdB - createdA;
+    });
+  }, [accounts]);
+
   const filteredAccounts = useMemo(() => {
-    return accounts.filter((acc) => {
+    return sortedAccounts.filter((acc) => {
       if (roleFilter !== "all" && acc.role !== roleFilter) return false;
       if (!accountSearch.trim()) return true;
       const q = accountSearch.toLowerCase().trim();
@@ -391,7 +422,7 @@ export function AdminInteractiveAnalytics({
         acc.email.toLowerCase().includes(q)
       );
     });
-  }, [accounts, accountSearch, roleFilter]);
+  }, [sortedAccounts, accountSearch, roleFilter]);
 
   const totalAccountPages = Math.max(1, Math.ceil(filteredAccounts.length / ACCOUNTS_PER_PAGE));
   const paginatedAccounts = useMemo(() => {
@@ -741,6 +772,7 @@ export function AdminInteractiveAnalytics({
                 <table className="w-full text-left text-sm">
                   <thead className="border-b border-[var(--color-line)] bg-[#fcf8f3] text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
                     <tr>
+                      <th className="py-3 px-3 text-center w-14">STT</th>
                       <th className="py-3 px-4">Thành viên</th>
                       <th className="py-3 px-4">Mã sinh viên (MSSV)</th>
                       <th className="py-3 px-4">Email</th>
@@ -750,10 +782,20 @@ export function AdminInteractiveAnalytics({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--color-line)]">
-                    {paginatedAccounts.map((acc) => {
+                    {paginatedAccounts.map((acc, index) => {
                       const isAdmin = acc.role === "ADMIN";
+                      const stt = (accountPage - 1) * ACCOUNTS_PER_PAGE + index + 1;
                       return (
                         <tr key={acc.id} className="hover:bg-[#faf5ee] transition-colors">
+                          <td className="py-3.5 px-3 text-center text-xs">
+                            {isAdmin ? (
+                              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-900 font-black shadow-2xs">
+                                {stt}
+                              </span>
+                            ) : (
+                              <span className="font-semibold text-[var(--color-muted)]">{stt}</span>
+                            )}
+                          </td>
                           <td className="py-3.5 px-4">
                             <div className="flex items-center gap-3">
                               {acc.avatar_url ? (
@@ -913,7 +955,7 @@ export function AdminInteractiveAnalytics({
             </p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {accounts.slice(0, 6).map((acc) => {
+              {sortedAccounts.slice(0, 6).map((acc, index) => {
                 const isAdmin = acc.role === "ADMIN";
                 return (
                   <div
@@ -922,6 +964,9 @@ export function AdminInteractiveAnalytics({
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-pale)] text-[10px] font-black text-[var(--color-ink)] border border-[var(--color-line)]">
+                          #{index + 1}
+                        </span>
                         {acc.avatar_url ? (
                           <img
                             src={acc.avatar_url}
