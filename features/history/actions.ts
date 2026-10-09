@@ -41,3 +41,52 @@ export async function deleteCheckIn(formData: FormData) {
   revalidatePath("/history");
   revalidatePath("/profile");
 }
+
+export async function quickCheckIn(restaurantId: string): Promise<{ success: boolean; message: string }> {
+  if (!uuid.test(restaurantId)) {
+    return { success: false, message: "Quán không hợp lệ." };
+  }
+
+  const { user } = await requireUser();
+  const supabase = await createClient();
+
+  const { data: restaurant } = await supabase
+    .from("restaurants")
+    .select("id, name")
+    .eq("id", restaurantId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (!restaurant) {
+    return { success: false, message: "Quán không còn khả dụng hoặc đã ngừng hoạt động." };
+  }
+
+  // Anti-spam: prevent rapid double check-in within 15 seconds
+  const recentThreshold = new Date(Date.now() - 15000).toISOString();
+  const { data: recentCheckIn } = await supabase
+    .from("check_ins")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("restaurant_id", restaurantId)
+    .gte("created_at", recentThreshold)
+    .maybeSingle();
+
+  if (recentCheckIn) {
+    return { success: true, message: `Bạn vừa xác nhận ăn tại ${restaurant.name} rồi!` };
+  }
+
+  const { error } = await supabase.from("check_ins").insert({
+    user_id: user.id,
+    restaurant_id: restaurantId,
+    dish_id: null,
+  });
+
+  if (error) {
+    console.error("[history] quickCheckIn error:", error.message);
+    return { success: false, message: "Không thể lưu lần đã ăn. Vui lòng thử lại." };
+  }
+
+  revalidatePath("/history");
+  revalidatePath("/profile");
+  return { success: true, message: `Đã lưu ${restaurant.name} vào Nhật ký ăn uống! 🔥` };
+}

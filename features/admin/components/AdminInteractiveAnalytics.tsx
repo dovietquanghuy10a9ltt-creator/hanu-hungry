@@ -24,8 +24,32 @@ export type AnalyticsSummary = {
   averageRating: number | null;
 };
 
+export type SystemAccount = {
+  id: string;
+  student_code: string;
+  display_name: string;
+  avatar_url: string | null;
+  role: "USER" | "ADMIN";
+  email: string;
+  created_at: string;
+  last_sign_in_at: string | null;
+};
+
 type PeriodOption = "week" | "month" | "year" | "custom";
-type MetricTab = "all" | "dishes" | "restaurants" | "users";
+type MetricTab = "all" | "accounts" | "dishes" | "restaurants" | "users";
+
+function formatRelativeTime(dateString: string): string {
+  const d = new Date(dateString);
+  const diffMs = Date.now() - d.getTime();
+  const diffMin = Math.floor(diffMs / (60 * 1000));
+  if (diffMin < 1) return "Vừa xong";
+  if (diffMin < 60) return `${diffMin} phút trước`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `${diffHours} giờ trước`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays} ngày trước`;
+  return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")} ${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+}
 
 const CHART_COLORS = [
   "#b52a34", // Crimson Hanu
@@ -338,12 +362,36 @@ function Leaderboard({
 export function AdminInteractiveAnalytics({
   summary,
   checkIns,
+  accounts = [],
 }: {
   summary: AnalyticsSummary;
   checkIns: RawCheckIn[];
+  accounts?: SystemAccount[];
 }) {
   const [period, setPeriod] = useState<PeriodOption>("week");
   const [activeTab, setActiveTab] = useState<MetricTab>("all");
+  const [accountSearch, setAccountSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
+
+  const filteredAccounts = useMemo(() => {
+    return accounts.filter((acc) => {
+      if (roleFilter !== "all" && acc.role !== roleFilter) return false;
+      if (!accountSearch.trim()) return true;
+      const q = accountSearch.toLowerCase().trim();
+      return (
+        acc.display_name.toLowerCase().includes(q) ||
+        acc.student_code.toLowerCase().includes(q) ||
+        acc.email.toLowerCase().includes(q)
+      );
+    });
+  }, [accounts, accountSearch, roleFilter]);
+
+  const accountStats = useMemo(() => {
+    const total = accounts.length;
+    const userCount = accounts.filter((a) => a.role === "USER").length;
+    const adminCount = accounts.filter((a) => a.role === "ADMIN").length;
+    return { total, userCount, adminCount };
+  }, [accounts]);
 
   // Date range state
   const now = new Date();
@@ -617,6 +665,7 @@ export function AdminInteractiveAnalytics({
           </span>
           {[
             { id: "all", label: "📊 Tất cả & Biểu đồ" },
+            { id: "accounts", label: `👥 Danh sách tài khoản (${accounts.length})` },
             { id: "dishes", label: "🍜 Món ăn nhiều nhất" },
             { id: "restaurants", label: "🏪 Quán ghé thăm nhiều nhất" },
             { id: "users", label: "🏆 Ai ăn nhiều nhất" },
@@ -747,6 +796,271 @@ export function AdminInteractiveAnalytics({
           </div>
         )}
       </div>
+
+      {/* Accounts Directory Preview on 'all' tab */}
+      {activeTab === "all" && (
+        <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-line)] pb-3">
+            <div>
+              <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
+                <span>👥</span> Danh sách tài khoản trong hệ thống
+              </h3>
+              <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                Tổng cộng {accountStats.total} tài khoản đã đăng ký ({accountStats.userCount} Sinh viên, {accountStats.adminCount} Admin)
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab("accounts")}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer"
+            >
+              Xem chi tiết toàn bộ ({accounts.length} tài khoản) →
+            </button>
+          </div>
+
+          {accounts.length === 0 ? (
+            <p className="py-8 text-center text-sm text-[var(--color-muted)]">
+              Chưa có tài khoản nào được tạo trong hệ thống.
+            </p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {accounts.slice(0, 6).map((acc) => {
+                const isAdmin = acc.role === "ADMIN";
+                return (
+                  <div
+                    key={acc.id}
+                    className="flex flex-col justify-between rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] p-3 text-xs"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {acc.avatar_url ? (
+                          <img
+                            src={acc.avatar_url}
+                            alt=""
+                            className="h-8 w-8 shrink-0 rounded-full object-cover border border-[var(--color-line)]"
+                          />
+                        ) : (
+                          <div
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                              isAdmin
+                                ? "bg-red-100 text-[var(--color-red)] ring-1 ring-red-300"
+                                : "bg-teal-100 text-teal-800"
+                            }`}
+                          >
+                            {isAdmin ? "👑" : (acc.display_name || "S")[0].toUpperCase()}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-bold text-[var(--color-ink)] truncate leading-snug">
+                            {acc.display_name || "Thành viên"}
+                          </p>
+                          <p className="font-mono text-[11px] font-bold text-amber-800">
+                            MSSV: {acc.student_code}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
+                          isAdmin
+                            ? "bg-red-100 text-[var(--color-red)] border border-red-200"
+                            : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        }`}
+                      >
+                        {isAdmin ? "Admin" : "Sinh viên"}
+                      </span>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-[var(--color-line)] flex items-center justify-between text-[11px] text-[var(--color-muted)]">
+                      <span className="truncate max-w-[170px]" title={acc.email}>
+                        ✉️ {acc.email}
+                      </span>
+                      <span>
+                        {new Date(acc.created_at).toLocaleDateString("vi-VN")}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Full Accounts Directory Tab */}
+      {activeTab === "accounts" && (
+        <div className="space-y-6">
+          {/* Summary Cards */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-[var(--color-line)] bg-white p-4 shadow-xs">
+              <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+                Tổng tài khoản hệ thống
+              </p>
+              <p className="mt-1.5 text-2xl font-black text-[var(--color-red)]">{accountStats.total}</p>
+              <p className="mt-1 text-xs text-[var(--color-muted)]">Số tài khoản sinh viên và quản trị viên</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--color-line)] bg-white p-4 shadow-xs">
+              <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+                Tài khoản Sinh viên (USER)
+              </p>
+              <p className="mt-1.5 text-2xl font-black text-emerald-600">{accountStats.userCount}</p>
+              <p className="mt-1 text-xs text-[var(--color-muted)]">Sinh viên tham gia sử dụng Hanu Hungry</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--color-line)] bg-white p-4 shadow-xs">
+              <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+                Quản trị viên (ADMIN)
+              </p>
+              <p className="mt-1.5 text-2xl font-black text-purple-700">{accountStats.adminCount}</p>
+              <p className="mt-1 text-xs text-[var(--color-muted)]">Tài khoản có quyền kiểm duyệt nội dung</p>
+            </div>
+          </div>
+
+          {/* Directory Table Container */}
+          <div className="rounded-2xl border border-[var(--color-line)] bg-white shadow-xs overflow-hidden">
+            {/* Header, Search & Filter Controls */}
+            <div className="p-5 border-b border-[var(--color-line)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
+                  <span>👥</span> Danh sách người dùng trong hệ thống
+                </h3>
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                  Hiển thị {filteredAccounts.length} / {accounts.length} tài khoản
+                </p>
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="🔍 Tìm MSSV, tên, email..."
+                  value={accountSearch}
+                  onChange={(e) => setAccountSearch(e.target.value)}
+                  className="rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] px-3.5 py-1.5 text-xs font-medium placeholder:text-[var(--color-muted)] focus:outline-[var(--color-red)] min-w-[220px]"
+                />
+
+                <div className="flex items-center gap-1 rounded-xl bg-[var(--color-pale)] p-1 border border-[var(--color-line)]">
+                  {(
+                    [
+                      { id: "all", label: `Tất cả (${accountStats.total})` },
+                      { id: "USER", label: `Sinh viên (${accountStats.userCount})` },
+                      { id: "ADMIN", label: `Admin (${accountStats.adminCount})` },
+                    ] as const
+                  ).map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setRoleFilter(f.id)}
+                      className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
+                        roleFilter === f.id
+                          ? "bg-[var(--color-ink)] text-white shadow-xs"
+                          : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Table */}
+            {filteredAccounts.length === 0 ? (
+              <p className="py-12 text-center text-sm text-[var(--color-muted)]">
+                Không tìm thấy tài khoản nào phù hợp với bộ lọc tìm kiếm.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-[var(--color-line)] bg-[#fcf8f3] text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3 px-4">Thành viên</th>
+                      <th className="py-3 px-4">Mã sinh viên (MSSV)</th>
+                      <th className="py-3 px-4">Email</th>
+                      <th className="py-3 px-4">Vai trò</th>
+                      <th className="py-3 px-4">Ngày tham gia</th>
+                      <th className="py-3 px-4 text-right">Đăng nhập gần nhất</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--color-line)]">
+                    {filteredAccounts.map((acc) => {
+                      const isAdmin = acc.role === "ADMIN";
+                      return (
+                        <tr key={acc.id} className="hover:bg-[#faf5ee] transition-colors">
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-3">
+                              {acc.avatar_url ? (
+                                <img
+                                  src={acc.avatar_url}
+                                  alt=""
+                                  className="h-8 w-8 shrink-0 rounded-full object-cover border border-[var(--color-line)]"
+                                />
+                              ) : (
+                                <div
+                                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                                    isAdmin
+                                      ? "bg-red-100 text-[var(--color-red)] ring-1 ring-red-300"
+                                      : "bg-teal-100 text-teal-800"
+                                  }`}
+                                >
+                                  {isAdmin ? "👑" : (acc.display_name || "S")[0].toUpperCase()}
+                                </div>
+                              )}
+                              <span className="font-bold text-[var(--color-ink)]">
+                                {acc.display_name || "Thành viên"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="inline-block rounded-md bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-900 font-mono">
+                              {acc.student_code}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="text-xs text-[var(--color-ink)] font-mono">
+                              {acc.email}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                                isAdmin
+                                  ? "bg-red-50 text-[var(--color-red)] border border-red-200"
+                                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              }`}
+                            >
+                              <span>{isAdmin ? "👑 Admin" : "🎓 Sinh viên"}</span>
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-xs text-[var(--color-muted)]">
+                            {new Date(acc.created_at).toLocaleDateString("vi-VN", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            })}
+                          </td>
+                          <td className="py-3.5 px-4 text-right text-xs">
+                            {acc.last_sign_in_at ? (
+                              <div>
+                                <span className="font-bold text-[var(--color-ink)]">
+                                  {formatRelativeTime(acc.last_sign_in_at)}
+                                </span>
+                                <p className="text-[11px] text-[var(--color-muted)]">
+                                  {new Date(acc.last_sign_in_at).toLocaleDateString("vi-VN")}
+                                </p>
+                              </div>
+                            ) : (
+                              <span className="text-[var(--color-muted)] italic">Chưa ghi nhận</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="pt-2 text-center">
         <Link

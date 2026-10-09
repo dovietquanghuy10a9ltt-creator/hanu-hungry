@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SocialIconsRow, CONTACT_INFO } from "@/components/shared/social-links";
+import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
 
 export async function SiteShell({ children }: { children: ReactNode }) {
   const supabase = await createClient();
@@ -121,6 +122,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
       </footer>
 
       {user && <Navigation mobile signedIn={true} isAdmin={isAdmin} />}
+      {user && <SmartCheckInRecall />}
     </div>
   );
 }

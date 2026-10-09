@@ -6,6 +6,7 @@ import { createCheckIn } from "@/features/history/actions";
 import { createReview, deleteReview, updateReview } from "@/features/reviews/actions";
 import { formatPrice, mapsUrl, readableText } from "@/features/restaurants/format";
 import { getRestaurant } from "@/features/restaurants/data";
+import { MapNavigationButton } from "@/features/restaurants/components/MapNavigationButton";
 import { createClient } from "@/lib/supabase/server";
 
 type Props = { params: Promise<{ id: string }> };
@@ -50,7 +51,7 @@ export default async function RestaurantPage({ params }: Props) {
             {ratingAverage !== null && <p><span className="font-bold">Đánh giá:</span> {ratingAverage.toFixed(1)}/5 ({reviewItems.length} lượt)</p>}
           </div>
           <p className="text-sm leading-6 text-[var(--color-muted)]">{readableText(restaurant.description)}</p>
-          {mapLink ? <a href={mapLink} target="_blank" rel="noopener noreferrer" className="button button-primary w-full sm:w-auto">Mở trên Google Maps ↗</a> : <p className="rounded-xl bg-[var(--color-pale)] px-4 py-3 text-sm text-[var(--color-muted)]">Chưa có dữ liệu vị trí để mở bản đồ.</p>}
+          {mapLink ? <MapNavigationButton mapLink={mapLink} restaurantId={restaurant.id} restaurantName={restaurant.name} /> : <p className="rounded-xl bg-[var(--color-pale)] px-4 py-3 text-sm text-[var(--color-muted)]">Chưa có dữ liệu vị trí để mở bản đồ.</p>}
         </div>
       </section>
 
@@ -58,7 +59,7 @@ export default async function RestaurantPage({ params }: Props) {
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,.7fr)]">
         <div className="space-y-4"><div><p className="eyebrow">Thực đơn</p><h2 className="section-title mt-2">Món ăn & giá</h2></div>
-          {dishes.length ? <div className="card divide-y divide-[var(--color-line)] overflow-hidden">{dishes.map((dish) => <div key={dish.id} className="flex flex-wrap items-start justify-between gap-2 p-4 sm:p-5"><div className="min-w-0 flex-1"><h3 className="break-words font-bold">{dish.name}</h3>{dish.notes && <p className="mt-1 break-words text-sm text-[var(--color-muted)]">{dish.notes}</p>}</div><span className="max-w-full break-words text-sm font-bold text-[var(--color-red)]">{formatPrice(dish.price_text, dish.price_min_vnd, dish.price_max_vnd)}</span></div>)}</div> : <div className="card p-6 text-sm text-[var(--color-muted)]">Thực đơn đang được cập nhật.</div>}
+          {dishes.length ? <div className="card divide-y divide-[var(--color-line)] overflow-hidden">{dishes.map((dish) => <div key={dish.id} className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">{dish.image_url && <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)]"><Image src={dish.image_url} alt={dish.name} fill className="object-cover" sizes="56px" unoptimized /></div>}<div className="min-w-0 flex-1"><h3 className="break-words font-bold">{dish.name}</h3>{dish.notes && <p className="mt-1 break-words text-sm text-[var(--color-muted)]">{dish.notes}</p>}</div><span className="max-w-full break-words text-sm font-bold text-[var(--color-red)]">{formatPrice(dish.price_text, dish.price_min_vnd, dish.price_max_vnd)}</span></div>)}</div> : <div className="card p-6 text-sm text-[var(--color-muted)]">Thực đơn đang được cập nhật.</div>}
         </div>
         <div className="space-y-4"><div><p className="eyebrow">Nhật ký ăn uống</p><h2 className="section-title mt-2">Bạn đã ăn ở đây?</h2></div>
           <div className="card space-y-4 p-5"><p className="text-sm leading-6 text-[var(--color-muted)]">Chỉ khi bạn bấm “Đã ăn”, lần ghé quán mới được lưu vào lịch sử.</p>

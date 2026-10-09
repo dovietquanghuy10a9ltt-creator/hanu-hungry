@@ -10,6 +10,7 @@ import {
   setDishActiveAction, setRestaurantActiveAction, updateBlogAction,
   updateCategoryAction, updateDishAction, updateRestaurantAction,
 } from "@/features/admin/actions";
+import { ImageUploadField } from "./ImageUploadField";
 
 const initial: AdminActionState = { status: "idle", message: "" };
 const input = "mt-1.5 min-h-11 w-full rounded-xl border border-[#e5d7d2] bg-white px-3 py-2 text-base text-[#28201e] outline-none focus:border-[#c51f30] focus:ring-2 focus:ring-[#c51f30]/15";
@@ -70,7 +71,7 @@ export function RestaurantForm({ restaurant, categories, selectedCategoryIds = [
       <TextField name="longitude" title="Kinh độ (chỉ nhập dữ liệu thật)" type="number" min={-180} max={180} step="any" defaultValue={restaurant?.longitude} />
     </div>
     <TextArea name="description" title="Mô tả" defaultValue={restaurant?.description} rows={4} />
-    <TextField name="image_url" title="URL ảnh" type="url" defaultValue={restaurant?.image_url} />
+    <ImageUploadField name="image" urlFieldName="image_url" title="Ảnh quán ăn" defaultUrl={restaurant?.image_url} description="Tải ảnh quán từ máy (JPG, PNG, WEBP, GIF tối đa 5MB)." />
     <TextArea name="notes" title="Ghi chú hiển thị từ dữ liệu khảo sát" defaultValue={restaurant?.notes} />
     <fieldset>
       <legend className="text-sm font-semibold text-[#4d3c38]">Category</legend>
@@ -120,6 +121,7 @@ export type DishFormValue = {
   id: string; restaurant_id: string; name: string; price_text: string | null;
   price_min_vnd: number | null; price_max_vnd: number | null;
   notes: string | null; is_active: boolean;
+  image_url?: string | null;
 };
 
 export function DishForm({ dish, restaurants }: {
@@ -143,6 +145,7 @@ export function DishForm({ dish, restaurants }: {
     </div>
     <p className="text-xs text-[#756561]">Nếu không biết giá, để trống cả hai ô số. Không nhập 0 thay cho giá chưa rõ.</p>
     <TextArea name="notes" title="Ghi chú" defaultValue={dish?.notes} />
+    <ImageUploadField name="image" urlFieldName="image_url" title="Ảnh món ăn (không bắt buộc)" defaultUrl={dish?.image_url} description="Tải ảnh món ăn từ máy (JPG, PNG, WEBP, GIF tối đa 5MB)." />
     <Message state={state} />
     <Submit>{dish ? "Lưu món" : "Thêm món"}</Submit>
   </form>;
@@ -172,7 +175,7 @@ export function BlogForm({ post }: { post?: BlogFormValue }) {
     <TextField name="slug" title="Slug không dấu" defaultValue={post?.slug} required placeholder="ten-bai-viet" />
     <TextArea name="excerpt" title="Tóm tắt" defaultValue={post?.excerpt} />
     <TextArea name="content" title="Nội dung" defaultValue={post?.content} rows={14} required />
-    <TextField name="cover_image_url" title="URL ảnh bìa" type="url" defaultValue={post?.cover_image_url} />
+    <ImageUploadField name="image" urlFieldName="cover_image_url" title="Ảnh bìa bài viết" defaultUrl={post?.cover_image_url} description="Tải ảnh bìa bài viết từ máy (JPG, PNG, WEBP, GIF tối đa 5MB)." />
     <div className="grid gap-4 sm:grid-cols-2">
       <TextField name="seo_title" title="SEO title" defaultValue={post?.seo_title} />
       <TextField name="seo_description" title="SEO description" defaultValue={post?.seo_description} />

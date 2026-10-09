@@ -106,6 +106,7 @@ export function parseCategoryForm(form: FormData): Result<{ name: string; slug: 
 export function parseDishForm(form: FormData): Result<{
   restaurant_id: string; name: string; price_text: string | null;
   price_min_vnd: number | null; price_max_vnd: number | null; notes: string | null;
+  image_url: string | null;
 }> {
   const restaurantId = value(form, "restaurant_id");
   if (!isUuid(restaurantId)) return { ok: false, error: "Quán không hợp lệ." };
@@ -122,11 +123,14 @@ export function parseDishForm(form: FormData): Result<{
   }
   const notes = optionalText(form, "notes", 3000);
   if (!notes.ok) return notes;
+  const imageUrl = optionalUrl(form, "image_url");
+  if (!imageUrl.ok) return imageUrl;
   return {
     ok: true,
     data: {
       restaurant_id: restaurantId, name: name.data, price_text: priceText.data,
       price_min_vnd: priceMin.data, price_max_vnd: priceMax.data, notes: notes.data,
+      image_url: imageUrl.data,
     },
   };
 }

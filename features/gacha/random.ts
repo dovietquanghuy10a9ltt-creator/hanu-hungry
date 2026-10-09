@@ -1,7 +1,11 @@
-import { randomInt } from "node:crypto";
-
 export function pickRandom<T>(items: readonly T[]): T | null {
-  return items.length ? items[randomInt(items.length)] : null;
+  if (!items.length) return null;
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return items[array[0] % items.length];
+  }
+  return items[Math.floor(Math.random() * items.length)];
 }
 
 export function isDrinkDish(dishName: string, categorySlugs: string[] = []): boolean {

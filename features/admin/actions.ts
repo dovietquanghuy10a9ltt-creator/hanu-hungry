@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   isUuid, parseBlogForm, parseCategoryForm, parseDishForm, parseRestaurantForm,
 } from "@/features/admin/validation";
+import { uploadAdminMedia } from "./media";
 
 export type AdminActionState = { status: "idle" | "error" | "success"; message: string };
 
@@ -63,6 +64,20 @@ export async function createRestaurantAction(
   _state: AdminActionState, form: FormData,
 ): Promise<AdminActionState> {
   await requireAdmin();
+
+  const imageFile = form.get("image") as File | null;
+  const removeImage = form.get("remove_image") === "1";
+  if (removeImage) {
+    form.set("image_url", "");
+  } else if (imageFile && typeof imageFile === "object" && imageFile.size > 0) {
+    try {
+      const uploaded = await uploadAdminMedia("restaurants", imageFile);
+      form.set("image_url", uploaded);
+    } catch (err) {
+      return fail(err instanceof Error ? err.message : "Không thể tải ảnh quán lên.");
+    }
+  }
+
   const parsed = parseRestaurantForm(form);
   if (!parsed.ok) return fail(parsed.error);
   const supabase = await createClient();
@@ -80,6 +95,20 @@ export async function updateRestaurantAction(
   await requireAdmin();
   const id = field(form, "id");
   if (!isUuid(id)) return fail("Mã quán không hợp lệ.");
+
+  const imageFile = form.get("image") as File | null;
+  const removeImage = form.get("remove_image") === "1";
+  if (removeImage) {
+    form.set("image_url", "");
+  } else if (imageFile && typeof imageFile === "object" && imageFile.size > 0) {
+    try {
+      const uploaded = await uploadAdminMedia("restaurants", imageFile);
+      form.set("image_url", uploaded);
+    } catch (err) {
+      return fail(err instanceof Error ? err.message : "Không thể tải ảnh quán lên.");
+    }
+  }
+
   const parsed = parseRestaurantForm(form);
   if (!parsed.ok) return fail(parsed.error);
   const supabase = await createClient();
@@ -160,6 +189,20 @@ export async function createDishAction(
   _state: AdminActionState, form: FormData,
 ): Promise<AdminActionState> {
   await requireAdmin();
+
+  const imageFile = form.get("image") as File | null;
+  const removeImage = form.get("remove_image") === "1";
+  if (removeImage) {
+    form.set("image_url", "");
+  } else if (imageFile && typeof imageFile === "object" && imageFile.size > 0) {
+    try {
+      const uploaded = await uploadAdminMedia("dishes", imageFile);
+      form.set("image_url", uploaded);
+    } catch (err) {
+      return fail(err instanceof Error ? err.message : "Không thể tải ảnh món ăn lên.");
+    }
+  }
+
   const parsed = parseDishForm(form);
   if (!parsed.ok) return fail(parsed.error);
   const supabase = await createClient();
@@ -176,6 +219,20 @@ export async function updateDishAction(
   await requireAdmin();
   const id = field(form, "id");
   if (!isUuid(id)) return fail("Mã món không hợp lệ.");
+
+  const imageFile = form.get("image") as File | null;
+  const removeImage = form.get("remove_image") === "1";
+  if (removeImage) {
+    form.set("image_url", "");
+  } else if (imageFile && typeof imageFile === "object" && imageFile.size > 0) {
+    try {
+      const uploaded = await uploadAdminMedia("dishes", imageFile);
+      form.set("image_url", uploaded);
+    } catch (err) {
+      return fail(err instanceof Error ? err.message : "Không thể tải ảnh món ăn lên.");
+    }
+  }
+
   const parsed = parseDishForm(form);
   if (!parsed.ok) return fail(parsed.error);
   const supabase = await createClient();
@@ -208,6 +265,20 @@ export async function createBlogAction(
   _state: AdminActionState, form: FormData,
 ): Promise<AdminActionState> {
   const { user } = await requireAdmin();
+
+  const imageFile = form.get("image") as File | null;
+  const removeImage = form.get("remove_image") === "1";
+  if (removeImage) {
+    form.set("cover_image_url", "");
+  } else if (imageFile && typeof imageFile === "object" && imageFile.size > 0) {
+    try {
+      const uploaded = await uploadAdminMedia("blog", imageFile);
+      form.set("cover_image_url", uploaded);
+    } catch (err) {
+      return fail(err instanceof Error ? err.message : "Không thể tải ảnh bìa lên.");
+    }
+  }
+
   const parsed = parseBlogForm(form);
   if (!parsed.ok) return fail(parsed.error);
   const supabase = await createClient();
@@ -227,6 +298,20 @@ export async function updateBlogAction(
   await requireAdmin();
   const id = field(form, "id");
   if (!isUuid(id)) return fail("Mã bài Blog không hợp lệ.");
+
+  const imageFile = form.get("image") as File | null;
+  const removeImage = form.get("remove_image") === "1";
+  if (removeImage) {
+    form.set("cover_image_url", "");
+  } else if (imageFile && typeof imageFile === "object" && imageFile.size > 0) {
+    try {
+      const uploaded = await uploadAdminMedia("blog", imageFile);
+      form.set("cover_image_url", uploaded);
+    } catch (err) {
+      return fail(err instanceof Error ? err.message : "Không thể tải ảnh bìa lên.");
+    }
+  }
+
   const parsed = parseBlogForm(form);
   if (!parsed.ok) return fail(parsed.error);
   const supabase = await createClient();

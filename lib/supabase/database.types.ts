@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          student_code: string | null
+          display_name: string | null
+          path: string
+          ip_address: string | null
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          student_code?: string | null
+          display_name?: string | null
+          path: string
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          student_code?: string | null
+          display_name?: string | null
+          path?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -220,6 +253,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          image_url: string | null
           is_active: boolean
           name: string
           notes: string | null
@@ -234,6 +268,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           name: string
           notes?: string | null
@@ -248,6 +283,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           name?: string
           notes?: string | null
@@ -527,6 +563,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rate_limits: {
+        Row: {
+          blocked_until: string | null
+          first_attempt_at: string
+          attempts: number
+          key: string
+          last_attempt_at: string
+        }
+        Insert: {
+          blocked_until?: string | null
+          first_attempt_at?: string
+          attempts?: number
+          key: string
+          last_attempt_at?: string
+        }
+        Update: {
+          blocked_until?: string | null
+          first_attempt_at?: string
+          attempts?: number
+          key?: string
+          last_attempt_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

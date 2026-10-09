@@ -16,14 +16,20 @@ export async function listRestaurants(filters: RestaurantFilters = {}): Promise<
     max_price_vnd: filters.maxPrice,
     limit_count: filters.limit ?? 24,
   });
-  if (error) throw new Error(`Không thể tải danh sách quán: ${error.message}`);
+  if (error) {
+    console.error("[restaurants] listRestaurants error:", error.message);
+    throw new Error("Không thể tải danh sách quán. Vui lòng thử lại sau.");
+  }
   return (data ?? []) as RestaurantSummary[];
 }
 
 export async function listCategories() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("categories").select("id, name, slug").order("name");
-  if (error) throw new Error(`Không thể tải danh mục: ${error.message}`);
+  if (error) {
+    console.error("[restaurants] listCategories error:", error.message);
+    throw new Error("Không thể tải danh mục. Vui lòng thử lại sau.");
+  }
   return data ?? [];
 }
 
@@ -31,9 +37,12 @@ export async function getRestaurant(id: string): Promise<RestaurantDetail | null
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.from("restaurants")
-    .select("id,name,area,address_text,plus_code,latitude,longitude,description,image_url,notes,dishes(id,name,price_text,price_min_vnd,price_max_vnd,notes,is_active),restaurant_categories(categories(id,name,slug))")
+    .select("id,name,area,address_text,plus_code,latitude,longitude,description,image_url,notes,dishes(id,name,price_text,price_min_vnd,price_max_vnd,notes,is_active,image_url),restaurant_categories(categories(id,name,slug))")
     .eq("id", id).eq("is_active", true).maybeSingle();
-  if (error) throw new Error(`Không thể tải quán: ${error.message}`);
+  if (error) {
+    console.error("[restaurants] getRestaurant error:", error.message);
+    throw new Error("Không thể tải thông tin quán. Vui lòng thử lại sau.");
+  }
   if (!data) return null;
   return data as unknown as RestaurantDetail;
 }

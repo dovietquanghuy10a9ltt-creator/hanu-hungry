@@ -64,8 +64,9 @@ async function main() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const password = process.env.BOOTSTRAP_ADMIN_1_PASSWORD;
   if (!url || !key || !password) throw new Error("Runtime Supabase URL, publishable key and ADMIN password are required.");
-  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data: login, error: loginError } = await client.auth.signInWithPassword({ email: "linhphamhn342@gmail.com", password });
+  const client = createClient(url, key);
+  const adminEmail = process.env.BOOTSTRAP_ADMIN_1_EMAIL || "admin1@example.com";
+  const { data: login, error: loginError } = await client.auth.signInWithPassword({ email: adminEmail, password });
   if (loginError || !login.user) throw new Error("Could not authenticate bootstrap ADMIN.");
   const { data: profile, error: profileError } = await client.from("profiles").select("role").eq("id", login.user.id).single();
   if (profileError || profile?.role !== "ADMIN") throw new Error("Account is not ADMIN.");

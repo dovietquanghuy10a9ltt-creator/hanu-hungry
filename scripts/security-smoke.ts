@@ -15,18 +15,24 @@ async function main() {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const adminPassword = process.env.BOOTSTRAP_ADMIN_1_PASSWORD;
-  check(url && anonKey && serviceKey && adminPassword, "Runtime Supabase URL, publishable/service keys and admin password are required.");
+  const admin1Email = process.env.BOOTSTRAP_ADMIN_1_EMAIL;
+  const admin1Code = process.env.BOOTSTRAP_ADMIN_1_STUDENT_CODE;
+  const admin2Email = process.env.BOOTSTRAP_ADMIN_2_EMAIL;
+  const admin2Code = process.env.BOOTSTRAP_ADMIN_2_STUDENT_CODE;
+  check(url && anonKey && serviceKey && adminPassword && admin1Email && admin1Code && admin2Email && admin2Code, "Runtime Supabase URL, publishable/service keys, admin emails, student codes and admin password are required.");
 
   const owner = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: adminRows, error: adminRowsError } = await owner.from("profiles")
     .select("student_code,display_name").eq("role", "ADMIN");
+  const admin1Name = admin1Email.split("@")[0];
+  const admin2Name = admin2Email.split("@")[0];
   check(!adminRowsError && adminRows?.length === 2
-    && adminRows.some((row) => row.student_code === "2404060021" && row.display_name === "linhphamhn342")
-    && adminRows.some((row) => row.student_code === "2404060034" && row.display_name === "mtvzzn"),
+    && adminRows.some((row) => row.student_code === admin1Code && row.display_name === admin1Name)
+    && adminRows.some((row) => row.student_code === admin2Code && row.display_name === admin2Name),
   "Expected exactly the two configured ADMIN profiles.");
   const admin = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: adminLogin, error: adminLoginError } = await admin.auth.signInWithPassword({
-    email: "linhphamhn342@gmail.com", password: adminPassword,
+    email: admin1Email, password: adminPassword,
   });
   check(!adminLoginError && adminLogin.user, "Admin login failed; check bootstrap credentials.");
   const { data: adminProfile, error: adminProfileError } = await admin.from("profiles").select("id,role").eq("id", adminLogin.user.id).single();

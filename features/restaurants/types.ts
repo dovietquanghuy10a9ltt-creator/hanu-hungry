@@ -17,6 +17,7 @@ export type Dish = {
   price_max_vnd: number | null;
   notes: string | null;
   is_active: boolean;
+  image_url?: string | null;
 };
 
 export type RestaurantDetail = {

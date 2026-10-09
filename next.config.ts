@@ -29,17 +29,25 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' blob: data: https:",
-      "font-src 'self'",
-      "connect-src 'self' https://*.supabase.co",
+      "font-src 'self' data:",
+      "connect-src 'self' ws: wss: https://*.supabase.co https://va.vercel-scripts.com https://*.vercel-insights.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },
 ];
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: [
+    "26.42.11.207",
+    "26.42.11.207:3000",
+    "localhost",
+    "localhost:3000",
+    "127.0.0.1",
+    "127.0.0.1:3000",
+  ],
   images: {
     remotePatterns: [
       {

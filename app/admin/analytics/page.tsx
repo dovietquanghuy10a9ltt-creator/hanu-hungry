@@ -6,6 +6,7 @@ import {
   AdminInteractiveAnalytics,
   type RawCheckIn,
   type AnalyticsSummary,
+  type SystemAccount,
 } from "@/features/admin/components/AdminInteractiveAnalytics";
 
 export default async function AdminAnalyticsPage() {
@@ -14,14 +15,23 @@ export default async function AdminAnalyticsPage() {
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
 
-  const [{ data: rpcData, error: rpcError }, { data: rawCheckIns, error: checkInsError }] =
-    await Promise.all([
-      supabase.rpc("admin_analytics"),
-      adminSupabase
-        .from("check_ins")
-        .select("id, visited_at, restaurant_id, dish_id, user_id, restaurants(name), dishes(name), profiles(display_name, student_code)")
-        .order("visited_at", { ascending: false }),
-    ]);
+  const [
+    { data: rpcData, error: rpcError },
+    { data: rawCheckIns, error: checkInsError },
+    { data: rawProfiles },
+    authUsersRes,
+  ] = await Promise.all([
+    supabase.rpc("admin_analytics"),
+    adminSupabase
+      .from("check_ins")
+      .select("id, visited_at, restaurant_id, dish_id, user_id, restaurants(name), dishes(name), profiles(display_name, student_code)")
+      .order("visited_at", { ascending: false }),
+    adminSupabase
+      .from("profiles")
+      .select("id, student_code, display_name, avatar_url, role, created_at, updated_at")
+      .order("created_at", { ascending: false }),
+    adminSupabase.auth.admin.listUsers().catch(() => ({ data: { users: [] } })),
+  ]);
 
   if (rpcError && checkInsError) {
     return (
@@ -60,10 +70,29 @@ export default async function AdminAnalyticsPage() {
     student_code: item.profiles?.student_code || undefined,
   }));
 
+  const emailMap = new Map(
+    (authUsersRes?.data?.users ?? []).map((u) => [
+      u.id,
+      { email: u.email ?? "—", lastSignIn: u.last_sign_in_at ?? null },
+    ])
+  );
+
+  const formattedAccounts: SystemAccount[] = (rawProfiles ?? []).map((p: any) => ({
+    id: p.id,
+    student_code: p.student_code,
+    display_name: p.display_name,
+    avatar_url: p.avatar_url,
+    role: p.role,
+    email: emailMap.get(p.id)?.email ?? "—",
+    created_at: p.created_at,
+    last_sign_in_at: emailMap.get(p.id)?.lastSignIn ?? null,
+  }));
+
   return (
     <AdminInteractiveAnalytics
       summary={summary}
       checkIns={formattedCheckIns}
+      accounts={formattedAccounts}
     />
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { listCatalog } from "@/features/restaurants/catalog";
-import { isDrinkDish } from "@/features/gacha/actions";
+import { isDrinkDish } from "@/features/gacha/random";
 import { GachaExperience, type GachaMode } from "@/features/gacha/components/GachaExperience";
 
 export const metadata: Metadata = { title: "Gacha - Tín hiệu từ vũ trụ" };
@@ -15,5 +15,5 @@ export default async function GachaPage({ searchParams }: { searchParams: Promis
     item.dishes.filter((dish) => isDrinkDish(dish.name, item.category_slugs)).map((dish) => dish.name)
   );
 
-  return <div className="gacha-page"><header className="gacha-intro"><p className="cosmic-heading">Tín hiệu từ vũ trụ</p><h1>Hôm nay ăn gì?</h1><p>Chiếc bụng đói cần một gợi ý. Vũ trụ thì có cả một danh sách.</p></header><GachaExperience restaurantNames={restaurantNames} foodNames={foodNames} drinkNames={drinkNames} initialMode={initialMode} /></div>;
+  return <div className="gacha-page"><header className="gacha-intro"><p className="cosmic-heading">Tín hiệu từ vũ trụ</p><h1>Hôm nay ăn gì?</h1><p>Chiếc bụng đói cần một gợi ý. Vũ trụ thì có cả một danh sách.</p></header><GachaExperience catalog={catalog} restaurantNames={restaurantNames} foodNames={foodNames} drinkNames={drinkNames} initialMode={initialMode} /></div>;
 }

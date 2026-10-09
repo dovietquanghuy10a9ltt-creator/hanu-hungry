@@ -10,15 +10,15 @@ import {
 } from "../lib/auth/validation.ts";
 
 test("MSSV is exactly ten ASCII digits", () => {
-  assert.equal(isValidStudentCode("2404060021"), true);
-  for (const invalid of ["240406002", "24040600211", "240406002x", "２４０４０６００２１", " 2404060021 "]) {
+  assert.equal(isValidStudentCode("1234567890"), true);
+  for (const invalid of ["123456789", "12345678901", "123456789x", "１２３４５６７８９０", " 1234567890 "]) {
     assert.equal(isValidStudentCode(invalid), false);
   }
 });
 
 test("display name is the email local part", () => {
-  assert.equal(normalizeEmail(" LinhPhamHN342@Gmail.com "), "linhphamhn342@gmail.com");
-  assert.equal(displayNameFromEmail(" LinhPhamHN342@Gmail.com "), "linhphamhn342");
+  assert.equal(normalizeEmail(" StudentTester@Hanu.vn "), "studenttester@hanu.vn");
+  assert.equal(displayNameFromEmail(" StudentTester@Hanu.vn "), "studenttester");
 });
 
 test("password and internal redirect validation", () => {

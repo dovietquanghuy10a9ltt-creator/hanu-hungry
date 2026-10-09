@@ -10,7 +10,7 @@ export default async function EditDishPage({ params }: { params: Promise<{ id: s
   if (!isUuid(id)) notFound();
   const supabase = await createClient();
   const [dishResult, restaurantResult] = await Promise.all([
-    supabase.from("dishes").select("id,restaurant_id,name,price_text,price_min_vnd,price_max_vnd,notes,is_active").eq("id", id).maybeSingle(),
+    supabase.from("dishes").select("id,restaurant_id,name,price_text,price_min_vnd,price_max_vnd,notes,is_active,image_url").eq("id", id).maybeSingle(),
     supabase.from("restaurants").select("id,name").order("name").limit(1000),
   ]);
   if (!dishResult.data) notFound();

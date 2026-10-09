@@ -24,12 +24,16 @@ const createAccount=async(index)=>{
 let fixture;
 try {
   const [one,two]=[await createAccount(1),await createAccount(2)];
-  const adminAccount=assertOk(await admin.auth.signInWithPassword({email:'linhphamhn342@gmail.com',password:process.env.BOOTSTRAP_ADMIN_1_PASSWORD})).user;
+  const admin1Email = process.env.BOOTSTRAP_ADMIN_1_EMAIL || 'admin1@hanu.vn';
+  const admin1Code = process.env.BOOTSTRAP_ADMIN_1_STUDENT_CODE || '2404060021';
+  const admin2Email = process.env.BOOTSTRAP_ADMIN_2_EMAIL || 'admin2@hanu.vn';
+  const admin2Code = process.env.BOOTSTRAP_ADMIN_2_STUDENT_CODE || '2404060034';
+  const adminAccount=assertOk(await admin.auth.signInWithPassword({email:admin1Email,password:process.env.BOOTSTRAP_ADMIN_1_PASSWORD})).user;
   assertOk(await user.auth.signInWithPassword({email:one.email,password:one.password}));
   assertOk(await other.auth.signInWithPassword({email:two.email,password:two.password}));
   const admin2=make();
-  await qa.run('DB01','Exactly two configured ADMIN profiles exist',async()=>{const rows=assertOk(await owner.from('profiles').select('student_code,role').eq('role','ADMIN'));assert.deepEqual(rows.map(r=>r.student_code).sort(),['2404060021','2404060034']);});
-  await qa.run('DB02','Second configured ADMIN can authenticate',async()=>{assertOk(await admin2.auth.signInWithPassword({email:'mtvzzn@gmail.com',password:process.env.BOOTSTRAP_ADMIN_2_PASSWORD}));await admin2.auth.signOut({scope:'local'});});
+  await qa.run('DB01','Exactly two configured ADMIN profiles exist',async()=>{const rows=assertOk(await owner.from('profiles').select('student_code,role').eq('role','ADMIN'));assert.deepEqual(rows.map(r=>r.student_code).sort(),[admin1Code,admin2Code].sort());});
+  await qa.run('DB02','Second configured ADMIN can authenticate',async()=>{assertOk(await admin2.auth.signInWithPassword({email:admin2Email,password:process.env.BOOTSTRAP_ADMIN_2_PASSWORD}));await admin2.auth.signOut({scope:'local'});});
   await qa.run('DB03','Signup trigger ignores user supplied ADMIN role and uses email local part',async()=>{const p=assertOk(await user.from('profiles').select('*').single());assert.equal(p.id,one.id);assert.equal(p.role,'USER');assert.equal(p.display_name,one.email.split('@')[0]);assert.equal(p.student_code,one.studentCode);assert.ok(!('password' in p));});
   await qa.run('DB04','Invalid MSSV is rejected by the database signup trigger',async()=>{const r=await owner.auth.admin.createUser({email:`${prefix}-invalid@example.com`,password:one.password,email_confirm:true,user_metadata:{student_code:'123'}});if(r.data.user)users.push(r.data.user.id);assert.ok(r.error,'Invalid MSSV must not create a user');});
   await qa.run('DB05','Duplicate MSSV is rejected during account creation',async()=>{const r=await owner.auth.admin.createUser({email:`${prefix}-duplicate@example.com`,password:one.password,email_confirm:true,user_metadata:{student_code:one.studentCode}});if(r.data.user)users.push(r.data.user.id);assert.ok(r.error,'Duplicate MSSV must not create a profile');});

@@ -47,7 +47,8 @@ export async function rollGacha(mode: string): Promise<{ result: GachaResult | n
       categories: source.categories,
     };
     return { result: { restaurant, dish: selected.dish }, error: null };
-  } catch {
+  } catch (err) {
+    console.error("[rollGacha error]", err);
     return { result: null, error: "Vũ trụ đang mất sóng. Bạn thử quay lại nhé." };
   }
 }

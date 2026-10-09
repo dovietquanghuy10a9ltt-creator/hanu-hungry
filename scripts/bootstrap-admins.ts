@@ -4,9 +4,19 @@ import { createClient, type SupabaseClient, type User } from "@supabase/supabase
 
 type AdminSeed = { email: string; studentCode: string; passwordEnv: string };
 
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+
 export const INITIAL_ADMINS: readonly AdminSeed[] = [
-  { email: "linhphamhn342@gmail.com", studentCode: "2404060021", passwordEnv: "BOOTSTRAP_ADMIN_1_PASSWORD" },
-  { email: "mtvzzn@gmail.com", studentCode: "2404060034", passwordEnv: "BOOTSTRAP_ADMIN_2_PASSWORD" },
+  {
+    email: process.env.BOOTSTRAP_ADMIN_1_EMAIL || "admin1@hanu.vn",
+    studentCode: process.env.BOOTSTRAP_ADMIN_1_STUDENT_CODE || "2404060021",
+    passwordEnv: "BOOTSTRAP_ADMIN_1_PASSWORD",
+  },
+  {
+    email: process.env.BOOTSTRAP_ADMIN_2_EMAIL || "admin2@hanu.vn",
+    studentCode: process.env.BOOTSTRAP_ADMIN_2_STUDENT_CODE || "2404060034",
+    passwordEnv: "BOOTSTRAP_ADMIN_2_PASSWORD",
+  },
 ];
 
 function displayName(email: string): string {

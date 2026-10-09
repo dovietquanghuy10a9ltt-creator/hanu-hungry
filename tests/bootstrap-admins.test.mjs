@@ -57,7 +57,7 @@ test("bootstrap creates once and preserves the existing password", async () => {
   assert.deepEqual(profiles.get(users[0].id), {
     id: users[0].id,
     student_code: seed.studentCode,
-    display_name: "linhphamhn342",
+    display_name: seed.email.split("@")[0],
     role: "ADMIN",
   });
 });
