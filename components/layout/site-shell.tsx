@@ -30,7 +30,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
     ]);
 
     profile = profileRes.data;
-    const isAdmin = profile?.role === "ADMIN";
+    isAdmin = profile?.role === "ADMIN";
 
     if (!isAdmin) {
       const readSet = new Set((readsRes.data ?? []).map((r) => r.notification_id));
