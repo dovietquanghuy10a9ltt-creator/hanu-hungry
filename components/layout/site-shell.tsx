@@ -11,21 +11,9 @@ import { historyStats, localDayOrdinal } from "@/features/history/stats";
 export async function SiteShell({ children }: { children: ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const profile = user
-    ? (await supabase.from("profiles").select("display_name, role, avatar_url").eq("id", user.id).maybeSingle()).data
-    : null;
-  const isAdmin = profile?.role === "ADMIN";
-
+  let profile = null;
+  let isAdmin = false;
   let unreadNotificationsCount = 0;
-  if (user && !isAdmin) {
-    const [{ data: notifs }, { data: reads }] = await Promise.all([
-      supabase.from("notifications").select("id").eq("audience", "ALL_USERS"),
-      supabase.from("notification_reads").select("notification_id").eq("user_id", user.id),
-    ]);
-    const readSet = new Set((reads ?? []).map((r) => r.notification_id));
-    unreadNotificationsCount = (notifs ?? []).filter((n) => !readSet.has(n.id)).length;
-  }
-
   let streakData: StreakData = {
     currentStreak: 0,
     longestStreak: 0,
@@ -34,11 +22,22 @@ export async function SiteShell({ children }: { children: ReactNode }) {
   };
 
   if (user) {
-    const { data: userCheckIns } = await supabase
-      .from("check_ins")
-      .select("restaurant_id, visited_at")
-      .eq("user_id", user.id);
-    const checkIns = userCheckIns ?? [];
+    const [profileRes, notifsRes, readsRes, checkInsRes] = await Promise.all([
+      supabase.from("profiles").select("display_name, role, avatar_url").eq("id", user.id).maybeSingle(),
+      supabase.from("notifications").select("id").eq("audience", "ALL_USERS"),
+      supabase.from("notification_reads").select("notification_id").eq("user_id", user.id),
+      supabase.from("check_ins").select("restaurant_id, visited_at").eq("user_id", user.id),
+    ]);
+
+    profile = profileRes.data;
+    const isAdmin = profile?.role === "ADMIN";
+
+    if (!isAdmin) {
+      const readSet = new Set((readsRes.data ?? []).map((r) => r.notification_id));
+      unreadNotificationsCount = (notifsRes.data ?? []).filter((n) => !readSet.has(n.id)).length;
+    }
+
+    const checkIns = checkInsRes.data ?? [];
     const stats = historyStats(checkIns);
     const today = localDayOrdinal(new Date());
     const daySet = new Set(checkIns.map((ci) => localDayOrdinal(new Date(ci.visited_at))));
