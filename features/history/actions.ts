@@ -75,10 +75,20 @@ export async function quickCheckIn(restaurantId: string): Promise<{ success: boo
     return { success: true, message: `Bạn vừa xác nhận ăn tại ${restaurant.name} rồi!` };
   }
 
+  // Gắn món ăn đặc trưng của quán nếu có trong thực đơn
+  const { data: dishes } = await supabase
+    .from("dishes")
+    .select("id, name")
+    .eq("restaurant_id", restaurantId)
+    .eq("is_active", true)
+    .limit(10);
+
+  const mainDish = dishes?.find((d) => !d.name.toLowerCase().startsWith("gọi thêm")) || dishes?.[0];
+
   const { error } = await supabase.from("check_ins").insert({
     user_id: user.id,
     restaurant_id: restaurantId,
-    dish_id: null,
+    dish_id: mainDish?.id || null,
   });
 
   if (error) {

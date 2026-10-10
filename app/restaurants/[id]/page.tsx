@@ -115,7 +115,7 @@ export default async function RestaurantPage({ params }: Props) {
                     return (
                       <div
                         key={visit.id || index}
-                        className="rounded-xl border border-[var(--color-line)] bg-[#fdfbf7] p-3 text-xs space-y-1"
+                        className="rounded-xl border border-[var(--color-line)] bg-[#fdfbf7] p-3 text-xs"
                       >
                         <div className="flex items-center justify-between font-bold text-[var(--color-ink)]">
                           <span className="flex items-center gap-1.5">
@@ -125,15 +125,6 @@ export default async function RestaurantPage({ params }: Props) {
                             ⏰ {formattedTime}
                           </span>
                         </div>
-                        {visit.dishes?.name ? (
-                          <p className="text-amber-900 font-semibold flex items-center gap-1 pt-0.5">
-                            <span>🍜</span> Món: {visit.dishes.name}
-                          </p>
-                        ) : (
-                          <p className="text-[var(--color-muted)] italic pt-0.5">
-                            Ghé quán (Chưa chọn món)
-                          </p>
-                        )}
                       </div>
                     );
                   })}

@@ -480,11 +480,16 @@ export function AdminInteractiveAnalytics({
 
   // 1. Top Dishes (món ăn nhiều nhất)
   const topDishes = useMemo(() => {
-    const dishCounts = new Map<string, { id: string; name: string; count: number }>();
+    const dishCounts = new Map<string, { id: string; name: string; count: number; sub?: string }>();
     for (const ci of filteredCheckIns) {
       if (ci.dish_name) {
         const key = ci.dish_name;
-        const current = dishCounts.get(key) || { id: ci.dish_id || key, name: key, count: 0 };
+        const current = dishCounts.get(key) || {
+          id: ci.dish_id || key,
+          name: key,
+          count: 0,
+          sub: ci.restaurant_name ? `Quán: ${ci.restaurant_name}` : undefined,
+        };
         current.count += 1;
         dishCounts.set(key, current);
       }

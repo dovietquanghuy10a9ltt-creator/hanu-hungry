@@ -79,17 +79,21 @@ export default async function AdminAnalyticsPage() {
     updated_at: string;
   };
 
-  const formattedCheckIns: RawCheckIn[] = (checkInsList as unknown as CheckInRow[]).map((item) => ({
-    id: item.id,
-    visited_at: item.visited_at,
-    restaurant_id: item.restaurant_id,
-    restaurant_name: item.restaurants?.name || "Quán không xác định",
-    dish_id: item.dish_id || null,
-    dish_name: item.dishes?.name || null,
-    user_id: item.user_id,
-    user_name: item.profiles?.display_name || "Thành viên",
-    student_code: item.profiles?.student_code || undefined,
-  }));
+  const formattedCheckIns: RawCheckIn[] = (checkInsList as unknown as CheckInRow[]).map((item) => {
+    // Nếu check-in chưa gắn món cụ thể, fallback về tên quán để số liệu món ăn đồng bộ với lượt check-in
+    const effectiveDishName = item.dishes?.name || (item.restaurants?.name ? `${item.restaurants.name}` : null);
+    return {
+      id: item.id,
+      visited_at: item.visited_at,
+      restaurant_id: item.restaurant_id,
+      restaurant_name: item.restaurants?.name || "Quán không xác định",
+      dish_id: item.dish_id || null,
+      dish_name: effectiveDishName,
+      user_id: item.user_id,
+      user_name: item.profiles?.display_name || "Thành viên",
+      student_code: item.profiles?.student_code || undefined,
+    };
+  });
 
   const emailMap = new Map(
     (authUsersRes?.data?.users ?? []).map((u) => [

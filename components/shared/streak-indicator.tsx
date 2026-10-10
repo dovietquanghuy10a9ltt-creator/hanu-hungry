@@ -30,16 +30,18 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
 
   // Close popover when clicking outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [isOpen]);
 
@@ -99,7 +101,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
 
       {/* 2. Duolingo-style Streak Popover */}
       {isOpen && (
-        <div className="absolute right-0 sm:right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-xs sm:w-88 rounded-3xl border border-[var(--color-line)] bg-white p-5 shadow-2xl z-50 animate-fadeIn space-y-4">
+        <div className="fixed inset-x-3 top-16 mx-auto max-w-sm sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-88 sm:max-w-none sm:mx-0 rounded-3xl border border-[var(--color-line)] bg-white p-5 shadow-2xl z-50 animate-fadeIn space-y-4">
           {/* Header Flame & Streak Count */}
           <div className="flex flex-col items-center text-center space-y-1.5">
             <div
