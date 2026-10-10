@@ -19,19 +19,14 @@ export interface StreakData {
 
 export function StreakIndicator({ streak }: { streak: StreakData }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
-  // Detect when check-in was just created (?added=1)
-  useEffect(() => {
-    if (searchParams.get("added") === "1") {
-      setShowCelebration(true);
-    }
-  }, [searchParams]);
+  const showCelebration = searchParams.get("added") === "1" && !isDismissed;
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -49,7 +44,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
   }, [isOpen]);
 
   const closeCelebration = () => {
-    setShowCelebration(false);
+    setIsDismissed(true);
     // Remove ?added=1 from URL without full reload
     const params = new URLSearchParams(searchParams.toString());
     params.delete("added");

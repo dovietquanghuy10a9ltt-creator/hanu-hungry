@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
 import { updateProfile } from "@/features/profile/actions";
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif"];
@@ -115,8 +114,8 @@ export function ProfileEditor({
                 formData.set("removeAvatar", "1");
               }
               await updateProfile(formData);
-            } catch (err: any) {
-              setFormatError(err.message || "Đã xảy ra lỗi khi lưu thông tin.");
+            } catch (err: unknown) {
+              setFormatError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi lưu thông tin.");
               setIsSubmitting(false);
             }
           }}

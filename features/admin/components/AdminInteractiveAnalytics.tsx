@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useMemo, useState } from "react";
 import { AdminCard, AdminHeader } from "@/features/admin/components/AdminPrimitives";
 
 export type RawCheckIn = {
@@ -88,7 +87,16 @@ function DonutChart({
 }) {
   const radius = 64;
   const circumference = 2 * Math.PI * radius;
-  let accumulatedPercent = 0;
+  let runningOffset = 0;
+  const segments = items.map((item) => {
+    const offsetPercent = runningOffset;
+    runningOffset += item.percent;
+    return {
+      ...item,
+      strokeDasharray: `${(item.percent / 100) * circumference} ${circumference}`,
+      strokeDashoffset: -((offsetPercent / 100) * circumference),
+    };
+  });
 
   return (
     <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-around p-2">
@@ -102,26 +110,20 @@ function DonutChart({
             stroke="#f2ebe2"
             strokeWidth="24"
           />
-          {items.map((item, idx) => {
-            const strokeDasharray = `${(item.percent / 100) * circumference} ${circumference}`;
-            const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
-            accumulatedPercent += item.percent;
-
-            return (
-              <circle
-                key={idx}
-                cx="90"
-                cy="90"
-                r={radius}
-                fill="transparent"
-                stroke={item.color}
-                strokeWidth="24"
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={strokeDashoffset}
-                className="transition-all duration-500 hover:opacity-80"
-              />
-            );
-          })}
+          {segments.map((segment, idx) => (
+            <circle
+              key={idx}
+              cx="90"
+              cy="90"
+              r={radius}
+              fill="transparent"
+              stroke={segment.color}
+              strokeWidth="24"
+              strokeDasharray={segment.strokeDasharray}
+              strokeDashoffset={segment.strokeDashoffset}
+              className="transition-all duration-500 hover:opacity-80"
+            />
+          ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
           <span className="text-2xl font-black text-[var(--color-ink)]">{total}</span>
@@ -263,13 +265,11 @@ function Leaderboard({
   icon,
   emptyText,
   items,
-  type,
 }: {
   title: string;
   icon: string;
   emptyText: string;
   items: Array<{ id: string; name: string; count: number; sub?: string }>;
-  type: "dishes" | "restaurants" | "users";
 }) {
   const max = Math.max(1, ...items.map((i) => i.count));
   const medals = ["🥇", "🥈", "🥉"];
@@ -374,11 +374,6 @@ export function AdminInteractiveAnalytics({
   const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
   const [accountPage, setAccountPage] = useState(1);
   const ACCOUNTS_PER_PAGE = 15;
-
-  // Reset page when search or roleFilter changes
-  useEffect(() => {
-    setAccountPage(1);
-  }, [accountSearch, roleFilter]);
 
   // Sắp xếp tài khoản:
   // 1. Tất cả tài khoản Quản trị viên (ADMIN) luôn được ghim lên đầu trang (STT 1 và 2)
@@ -732,7 +727,10 @@ export function AdminInteractiveAnalytics({
                   type="text"
                   placeholder="🔍 Tìm MSSV, tên, email..."
                   value={accountSearch}
-                  onChange={(e) => setAccountSearch(e.target.value)}
+                  onChange={(e) => {
+                    setAccountSearch(e.target.value);
+                    setAccountPage(1);
+                  }}
                   className="rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] px-3.5 py-1.5 text-xs font-medium placeholder:text-[var(--color-muted)] focus:outline-[var(--color-red)] min-w-[220px]"
                 />
 
@@ -747,7 +745,10 @@ export function AdminInteractiveAnalytics({
                     <button
                       key={f.id}
                       type="button"
-                      onClick={() => setRoleFilter(f.id)}
+                      onClick={() => {
+                        setRoleFilter(f.id);
+                        setAccountPage(1);
+                      }}
                       className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
                         roleFilter === f.id
                           ? "bg-[var(--color-ink)] text-white shadow-xs"
@@ -1088,7 +1089,6 @@ export function AdminInteractiveAnalytics({
           icon="🍜"
           emptyText="Chưa có món ăn nào được ghi nhận check-in trong khoảng thời gian này."
           items={topDishes}
-          type="dishes"
         />
       )}
 
@@ -1098,7 +1098,6 @@ export function AdminInteractiveAnalytics({
           icon="🏪"
           emptyText="Chưa có quán ăn nào được ghé thăm trong khoảng thời gian này."
           items={topRestaurants}
-          type="restaurants"
         />
       )}
 
@@ -1108,7 +1107,6 @@ export function AdminInteractiveAnalytics({
           icon="🏆"
           emptyText="Chưa có thành viên nào check-in trong khoảng thời gian này."
           items={topUsers}
-          type="users"
         />
       )}
     </div>

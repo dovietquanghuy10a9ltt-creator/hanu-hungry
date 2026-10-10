@@ -103,7 +103,9 @@ export function LoginForm({ next, resetDone }: { next: string; resetDone: boolea
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
           const valid = parsed.filter((item): item is string => typeof item === "string" && /^[0-9]{10}$/.test(item));
-          setKnownMssvs(valid);
+          if (valid.length > 0) {
+            queueMicrotask(() => setKnownMssvs(valid));
+          }
         }
       }
     } catch {}

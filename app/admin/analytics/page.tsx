@@ -58,7 +58,28 @@ export default async function AdminAnalyticsPage() {
       : null,
   };
 
-  const formattedCheckIns: RawCheckIn[] = checkInsList.map((item: any) => ({
+  type CheckInRow = {
+    id: string;
+    visited_at: string;
+    restaurant_id: string;
+    dish_id: string | null;
+    user_id: string;
+    restaurants?: { name: string } | null;
+    dishes?: { name: string } | null;
+    profiles?: { display_name: string; student_code: string } | null;
+  };
+
+  type ProfileRow = {
+    id: string;
+    student_code: string;
+    display_name: string;
+    avatar_url: string | null;
+    role: "USER" | "ADMIN";
+    created_at: string;
+    updated_at: string;
+  };
+
+  const formattedCheckIns: RawCheckIn[] = (checkInsList as unknown as CheckInRow[]).map((item) => ({
     id: item.id,
     visited_at: item.visited_at,
     restaurant_id: item.restaurant_id,
@@ -77,7 +98,7 @@ export default async function AdminAnalyticsPage() {
     ])
   );
 
-  const formattedAccounts: SystemAccount[] = (rawProfiles ?? []).map((p: any) => ({
+  const formattedAccounts: SystemAccount[] = (rawProfiles as unknown as ProfileRow[] ?? []).map((p) => ({
     id: p.id,
     student_code: p.student_code,
     display_name: p.display_name,
