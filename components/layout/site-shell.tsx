@@ -5,6 +5,8 @@ import { Navigation } from "@/components/layout/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SocialIconsRow, CONTACT_INFO } from "@/components/shared/social-links";
 import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
+import { StreakIndicator, type StreakData } from "@/components/shared/streak-indicator";
+import { historyStats, localDayOrdinal } from "@/features/history/stats";
 
 export async function SiteShell({ children }: { children: ReactNode }) {
   const supabase = await createClient();
@@ -24,6 +26,44 @@ export async function SiteShell({ children }: { children: ReactNode }) {
     unreadNotificationsCount = (notifs ?? []).filter((n) => !readSet.has(n.id)).length;
   }
 
+  let streakData: StreakData = {
+    currentStreak: 0,
+    longestStreak: 0,
+    isTodayCheckedIn: false,
+    weekDays: [],
+  };
+
+  if (user) {
+    const { data: userCheckIns } = await supabase
+      .from("check_ins")
+      .select("restaurant_id, visited_at")
+      .eq("user_id", user.id);
+    const checkIns = userCheckIns ?? [];
+    const stats = historyStats(checkIns);
+    const today = localDayOrdinal(new Date());
+    const daySet = new Set(checkIns.map((ci) => localDayOrdinal(new Date(ci.visited_at))));
+    const isTodayCheckedIn = daySet.has(today);
+
+    const mondayOffset = (new Date(today * 86400000).getUTCDay() + 6) % 7;
+    const weekStart = today - mondayOffset;
+    const dayNames = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+    const weekDays = [0, 1, 2, 3, 4, 5, 6].map((offset) => {
+      const dayOrd = weekStart + offset;
+      return {
+        dayLabel: dayNames[offset],
+        isToday: dayOrd === today,
+        checkedIn: daySet.has(dayOrd),
+      };
+    });
+
+    streakData = {
+      currentStreak: stats.currentStreak,
+      longestStreak: stats.longestStreak,
+      isTodayCheckedIn,
+      weekDays,
+    };
+  }
+
   return (
     <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]">
       <header className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[#faf7ef]/95 backdrop-blur">
@@ -36,6 +76,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2">
             {user ? (
               <>
+                <StreakIndicator streak={streakData} />
                 {!isAdmin && (
                   <Link
                     href="/notifications"

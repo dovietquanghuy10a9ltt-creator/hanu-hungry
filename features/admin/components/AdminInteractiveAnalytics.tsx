@@ -36,7 +36,7 @@ export type SystemAccount = {
 };
 
 type PeriodOption = "week" | "month" | "year" | "custom";
-type MetricTab = "all" | "accounts" | "dishes" | "restaurants" | "users";
+type MetricTab = "accounts" | "dishes" | "restaurants" | "users";
 
 function formatRelativeTime(dateString: string): string {
   const d = new Date(dateString);
@@ -369,7 +369,7 @@ export function AdminInteractiveAnalytics({
   accounts?: SystemAccount[];
 }) {
   const [period, setPeriod] = useState<PeriodOption>("week");
-  const [activeTab, setActiveTab] = useState<MetricTab>("all");
+  const [activeTab, setActiveTab] = useState<MetricTab>("accounts");
   const [accountSearch, setAccountSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
   const [accountPage, setAccountPage] = useState(1);
@@ -664,7 +664,6 @@ export function AdminInteractiveAnalytics({
       <div className="rounded-2xl border border-[var(--color-line)] bg-white p-3 shadow-xs">
         <div className="flex flex-wrap items-center gap-2">
           {[
-            { id: "all", label: "📊 Tất cả & Biểu đồ" },
             { id: "accounts", label: `👥 Danh sách tài khoản (${accounts.length})` },
             { id: "dishes", label: "🍜 Món ăn nhiều nhất" },
             { id: "restaurants", label: "🏪 Quán ghé thăm nhiều nhất" },
@@ -776,7 +775,7 @@ export function AdminInteractiveAnalytics({
                       <th className="py-3 px-4">Thành viên</th>
                       <th className="py-3 px-4">Mã sinh viên (MSSV)</th>
                       <th className="py-3 px-4">Email</th>
-                      <th className="py-3 px-4">Vai trò</th>
+                      <th className="py-3 px-4 min-w-[130px] whitespace-nowrap">Vai trò</th>
                       <th className="py-3 px-4">Ngày tham gia</th>
                       <th className="py-3 px-4 text-right">Đăng nhập gần nhất</th>
                     </tr>
@@ -830,9 +829,9 @@ export function AdminInteractiveAnalytics({
                               {acc.email}
                             </span>
                           </td>
-                          <td className="py-3.5 px-4">
+                          <td className="py-3.5 px-4 whitespace-nowrap">
                             <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap shrink-0 ${
                                 isAdmin
                                   ? "bg-red-50 text-[var(--color-red)] border border-red-200"
                                   : "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -928,97 +927,7 @@ export function AdminInteractiveAnalytics({
         </div>
       )}
 
-      {/* 2. ACCOUNTS PREVIEW AT TOP ON 'ALL' TAB */}
-      {activeTab === "all" && (
-        <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-line)] pb-3">
-            <div>
-              <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
-                <span>👥</span> Danh sách tài khoản trong hệ thống
-              </h3>
-              <p className="text-xs text-[var(--color-muted)] mt-0.5">
-                Tổng cộng {accountStats.total} tài khoản đã đăng ký ({accountStats.userCount} Sinh viên, {accountStats.adminCount} Admin)
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab("accounts")}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer"
-            >
-              Xem chi tiết toàn bộ ({accounts.length} tài khoản) →
-            </button>
-          </div>
 
-          {accounts.length === 0 ? (
-            <p className="py-8 text-center text-sm text-[var(--color-muted)]">
-              Chưa có tài khoản nào được tạo trong hệ thống.
-            </p>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {sortedAccounts.slice(0, 6).map((acc, index) => {
-                const isAdmin = acc.role === "ADMIN";
-                return (
-                  <div
-                    key={acc.id}
-                    className="flex flex-col justify-between rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] p-3 text-xs"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-pale)] text-[10px] font-black text-[var(--color-ink)] border border-[var(--color-line)]">
-                          #{index + 1}
-                        </span>
-                        {acc.avatar_url ? (
-                          <img
-                            src={acc.avatar_url}
-                            alt=""
-                            className="h-8 w-8 shrink-0 rounded-full object-cover border border-[var(--color-line)]"
-                          />
-                        ) : (
-                          <div
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                              isAdmin
-                                ? "bg-red-100 text-[var(--color-red)] ring-1 ring-red-300"
-                                : "bg-teal-100 text-teal-800"
-                            }`}
-                          >
-                            {isAdmin ? "👑" : (acc.display_name || "S")[0].toUpperCase()}
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="font-bold text-[var(--color-ink)] truncate leading-snug">
-                            {acc.display_name || "Thành viên"}
-                          </p>
-                          <p className="font-mono text-[11px] font-bold text-amber-800">
-                            MSSV: {acc.student_code}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
-                          isAdmin
-                            ? "bg-red-100 text-[var(--color-red)] border border-red-200"
-                            : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        }`}
-                      >
-                        {isAdmin ? "Admin" : "Sinh viên"}
-                      </span>
-                    </div>
-
-                    <div className="mt-2.5 pt-2 border-t border-[var(--color-line)] flex items-center justify-between text-[11px] text-[var(--color-muted)]">
-                      <span className="truncate max-w-[170px]" title={acc.email}>
-                        ✉️ {acc.email}
-                      </span>
-                      <span>
-                        {new Date(acc.created_at).toLocaleDateString("vi-VN")}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* 3. DATE RANGE FILTER CONTROL PANEL (Chỉ hiển thị cho các mục thống kê dữ liệu check-in) */}
       {activeTab !== "accounts" && (
@@ -1089,8 +998,8 @@ export function AdminInteractiveAnalytics({
         </div>
       )}
 
-      {/* 4. BIỂU ĐỒ (Charts Section) */}
-      {(activeTab === "all" || activeTab === "restaurants" || activeTab === "dishes") && (
+      {/* 3. BIỂU ĐỒ (Charts Section) */}
+      {(activeTab === "restaurants" || activeTab === "dishes") && (
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Sơ đồ đường miền xu hướng */}
           <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
@@ -1172,56 +1081,36 @@ export function AdminInteractiveAnalytics({
         </div>
       )}
 
-      {/* 5. LEADERBOARDS SECTION */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* 1. Món ăn nhiều nhất */}
-        {(activeTab === "all" || activeTab === "dishes") && (
-          <div className={activeTab === "dishes" ? "lg:col-span-3" : ""}>
-            <Leaderboard
-              title="Món ăn nhiều nhất"
-              icon="🍜"
-              emptyText="Chưa có món ăn nào được ghi nhận check-in trong khoảng thời gian này."
-              items={topDishes}
-              type="dishes"
-            />
-          </div>
-        )}
+      {/* 4. BẢNG XẾP HẠNG (Leaderboard Section) */}
+      {activeTab === "dishes" && (
+        <Leaderboard
+          title="Món ăn nhiều nhất"
+          icon="🍜"
+          emptyText="Chưa có món ăn nào được ghi nhận check-in trong khoảng thời gian này."
+          items={topDishes}
+          type="dishes"
+        />
+      )}
 
-        {/* 2. Quán ghé thăm nhiều nhất */}
-        {(activeTab === "all" || activeTab === "restaurants") && (
-          <div className={activeTab === "restaurants" ? "lg:col-span-3" : ""}>
-            <Leaderboard
-              title="Quán ghé thăm nhiều nhất"
-              icon="🏪"
-              emptyText="Chưa có quán ăn nào được ghé thăm trong khoảng thời gian này."
-              items={topRestaurants}
-              type="restaurants"
-            />
-          </div>
-        )}
+      {activeTab === "restaurants" && (
+        <Leaderboard
+          title="Quán ghé thăm nhiều nhất"
+          icon="🏪"
+          emptyText="Chưa có quán ăn nào được ghé thăm trong khoảng thời gian này."
+          items={topRestaurants}
+          type="restaurants"
+        />
+      )}
 
-        {/* 3. Ai ăn nhiều nhất */}
-        {(activeTab === "all" || activeTab === "users") && (
-          <div className={activeTab === "users" ? "lg:col-span-3" : ""}>
-            <Leaderboard
-              title="Ai ăn nhiều nhất"
-              icon="🏆"
-              emptyText="Chưa có thành viên nào check-in trong khoảng thời gian này."
-              items={topUsers}
-              type="users"
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="pt-2 text-center">
-        <Link
-          href="/admin"
-          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--color-red)] hover:underline"
-        >
-          ← Quay lại Tổng quan quản trị
-        </Link>
-      </div>
+      {activeTab === "users" && (
+        <Leaderboard
+          title="Ai ăn nhiều nhất"
+          icon="🏆"
+          emptyText="Chưa có thành viên nào check-in trong khoảng thời gian này."
+          items={topUsers}
+          type="users"
+        />
+      )}
     </div>
   );
 }

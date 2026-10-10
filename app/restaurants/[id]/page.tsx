@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createCheckIn } from "@/features/history/actions";
-import { createReview, deleteReview, updateReview } from "@/features/reviews/actions";
+import { ReviewForm } from "@/features/reviews/components/ReviewForm";
 import { formatPrice, mapsUrl, readableText } from "@/features/restaurants/format";
 import { getRestaurant } from "@/features/restaurants/data";
 import { MapNavigationButton } from "@/features/restaurants/components/MapNavigationButton";
@@ -69,7 +69,13 @@ export default async function RestaurantPage({ params }: Props) {
       </section>
 
       <section id="reviews" className="space-y-5 scroll-mt-24"><div><p className="eyebrow">Cảm nhận của sinh viên</p><h2 className="section-title mt-2">Đánh giá quán</h2></div>
-        {user ? <div className="card max-w-3xl p-5 sm:p-6"><h3 className="font-extrabold">{ownReview ? "Sửa đánh giá của bạn" : "Chia sẻ trải nghiệm của bạn"}</h3><form action={ownReview ? updateReview : createReview} className="mt-4 space-y-4"><input type="hidden" name="restaurantId" value={restaurant.id} />{ownReview && <input type="hidden" name="id" value={ownReview.id} />}<label className="block text-sm font-bold">Số sao<select name="rating" defaultValue={ownReview?.rating || 5} className="field mt-1.5">{[5, 4, 3, 2, 1].map((value) => <option key={value} value={value}>{value} sao</option>)}</select></label><label className="block text-sm font-bold">Nhận xét<textarea name="comment" rows={4} minLength={3} maxLength={2000} required defaultValue={ownReview?.comment || ""} placeholder="Món ăn, không gian, trải nghiệm..." className="field mt-1.5 min-h-28 resize-y" /></label><button type="submit" className="button button-primary">{ownReview ? "Lưu thay đổi" : "Gửi đánh giá"}</button></form>{ownReview && <form action={deleteReview} className="mt-3"><input type="hidden" name="id" value={ownReview.id} /><input type="hidden" name="restaurantId" value={restaurant.id} /><button type="submit" className="min-h-11 text-sm font-bold text-[var(--color-red)]">Xóa đánh giá của tôi</button></form>}</div> : <p className="text-sm text-[var(--color-muted)]"><Link href="/login" className="font-bold text-[var(--color-red)]">Đăng nhập</Link> để chia sẻ đánh giá.</p>}
+        {user ? (
+          <ReviewForm restaurantId={restaurant.id} ownReview={ownReview} />
+        ) : (
+          <p className="text-sm text-[var(--color-muted)]">
+            <Link href="/login" className="font-bold text-[var(--color-red)]">Đăng nhập</Link> để chia sẻ đánh giá.
+          </p>
+        )}
         {reviewItems.length ? <div className="grid gap-3 md:grid-cols-2">{reviewItems.map((review) => <article key={review.id} className="card p-5"><div className="flex items-center justify-between gap-2"><strong className="text-sm">{review.user_id === user?.id ? "Bạn" : "Sinh viên Hanu"}</strong>{review.rating !== null && <span className="text-sm font-bold text-[var(--color-red)]">{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span>}</div><p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6">{review.comment}</p><time className="mt-3 block text-xs text-[var(--color-muted)]" dateTime={review.created_at}>{new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date(review.created_at))}</time></article>)}</div> : <div className="card p-6 text-sm text-[var(--color-muted)]">Chưa có đánh giá. Hãy là người đầu tiên chia sẻ trải nghiệm.</div>}
       </section>
     </div>
