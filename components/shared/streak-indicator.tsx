@@ -252,3 +252,4 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
     </div>
   );
 }
+

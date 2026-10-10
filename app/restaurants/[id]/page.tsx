@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { createCheckIn } from "@/features/history/actions";
 import { ReviewForm } from "@/features/reviews/components/ReviewForm";
 import { formatPrice, mapsUrl, readableText } from "@/features/restaurants/format";
 import { getRestaurant } from "@/features/restaurants/data";
@@ -22,10 +21,19 @@ export default async function RestaurantPage({ params }: Props) {
   const restaurant = await getRestaurant(id);
   if (!restaurant) notFound();
   const supabase = await createClient();
-  const [{ data: { user } }, { data: reviews }] = await Promise.all([
-    supabase.auth.getUser(),
+  const { data: { user } } = await supabase.auth.getUser();
+  const [{ data: reviews }, { data: pastVisits }] = await Promise.all([
     supabase.from("reviews").select("id,user_id,rating,comment,created_at").eq("restaurant_id", id).order("created_at", { ascending: false }),
+    user
+      ? supabase
+          .from("check_ins")
+          .select("id, visited_at, dish_id, dishes(name)")
+          .eq("restaurant_id", id)
+          .eq("user_id", user.id)
+          .order("visited_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
   ]);
+  const userVisits = pastVisits ?? [];
   const reviewItems = reviews ?? [];
   const ratedReviews = reviewItems.filter((review) => review.rating !== null);
   const ratingAverage = ratedReviews.length
@@ -61,9 +69,91 @@ export default async function RestaurantPage({ params }: Props) {
         <div className="space-y-4"><div><p className="eyebrow">Thực đơn</p><h2 className="section-title mt-2">Món ăn & giá</h2></div>
           {dishes.length ? <div className="card divide-y divide-[var(--color-line)] overflow-hidden">{dishes.map((dish) => <div key={dish.id} className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">{dish.image_url && <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)]"><Image src={dish.image_url} alt={dish.name} fill className="object-cover" sizes="56px" unoptimized /></div>}<div className="min-w-0 flex-1"><h3 className="break-words font-bold">{dish.name}</h3>{dish.notes && <p className="mt-1 break-words text-sm text-[var(--color-muted)]">{dish.notes}</p>}</div><span className="max-w-full break-words text-sm font-bold text-[var(--color-red)]">{formatPrice(dish.price_text, dish.price_min_vnd, dish.price_max_vnd)}</span></div>)}</div> : <div className="card p-6 text-sm text-[var(--color-muted)]">Thực đơn đang được cập nhật.</div>}
         </div>
-        <div className="space-y-4"><div><p className="eyebrow">Nhật ký ăn uống</p><h2 className="section-title mt-2">Bạn đã ăn ở đây?</h2></div>
-          <div className="card space-y-4 p-5"><p className="text-sm leading-6 text-[var(--color-muted)]">Chỉ khi bạn bấm “Đã ăn”, lần ghé quán mới được lưu vào lịch sử.</p>
-            {user ? <form action={createCheckIn} className="space-y-3"><input type="hidden" name="restaurantId" value={restaurant.id} /><label className="block text-sm font-bold">Món đã ăn (không bắt buộc)<select name="dishId" className="field mt-1.5"><option value="">Chỉ lưu quán</option>{dishes.map((dish) => <option key={dish.id} value={dish.id}>{dish.name}</option>)}</select></label><button type="submit" className="button button-primary w-full">✓ Đã ăn</button></form> : <Link href={`/login?next=${encodeURIComponent(`/restaurants/${id}`)}`} className="button button-primary w-full">Đăng nhập để lưu</Link>}
+        <div className="space-y-4">
+          <div>
+            <p className="eyebrow">Nhật ký ghé quán</p>
+            <h2 className="section-title mt-2">Lịch sử của bạn</h2>
+          </div>
+          <div className="card space-y-4 p-5 sm:p-6">
+            {!user ? (
+              <div className="space-y-3 text-center py-4">
+                <span className="text-3xl">📖</span>
+                <p className="text-sm text-[var(--color-muted)]">
+                  Đăng nhập để theo dõi và xem lại những lần bạn từng ghé ăn tại quán này.
+                </p>
+                <Link
+                  href={`/login?next=${encodeURIComponent(`/restaurants/${id}`)}`}
+                  className="button button-primary inline-flex text-xs px-4 py-2 font-bold"
+                >
+                  Đăng nhập ngay
+                </Link>
+              </div>
+            ) : userVisits.length > 0 ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
+                  <span className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+                    Tổng số lần đã ghé
+                  </span>
+                  <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-black text-emerald-700">
+                    {userVisits.length} lần
+                  </span>
+                </div>
+
+                <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                  {userVisits.map((visit: any, index: number) => {
+                    const date = new Date(visit.visited_at);
+                    const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }).format(date);
+                    const formattedTime = new Intl.DateTimeFormat("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(date);
+
+                    return (
+                      <div
+                        key={visit.id || index}
+                        className="rounded-xl border border-[var(--color-line)] bg-[#fdfbf7] p-3 text-xs space-y-1"
+                      >
+                        <div className="flex items-center justify-between font-bold text-[var(--color-ink)]">
+                          <span className="flex items-center gap-1.5">
+                            <span>🗓️</span> {formattedDate}
+                          </span>
+                          <span className="text-[11px] text-[var(--color-muted)] font-mono">
+                            ⏰ {formattedTime}
+                          </span>
+                        </div>
+                        {visit.dishes?.name ? (
+                          <p className="text-amber-900 font-semibold flex items-center gap-1 pt-0.5">
+                            <span>🍜</span> Món: {visit.dishes.name}
+                          </p>
+                        ) : (
+                          <p className="text-[var(--color-muted)] italic pt-0.5">
+                            Ghé quán (Chưa chọn món)
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <p className="text-[11px] text-[var(--color-muted)] text-center pt-1 border-t border-[var(--color-line)]">
+                  Lần ghé được tự động ghi nhận khi bạn mở Google Maps chỉ đường tới quán.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3 text-center py-4">
+                <span className="text-3xl">📍</span>
+                <p className="text-sm font-semibold text-[var(--color-ink)]">
+                  Bạn chưa từng ghé quán này
+                </p>
+                <p className="text-xs text-[var(--color-muted)] leading-relaxed">
+                  Bấm nút <strong>“Mở trên Google Maps”</strong> ở phía trên để tìm đường tới quán. Hệ thống sẽ tự động ghi nhớ và nhắc bạn lưu vào nhật ký ăn uống!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
