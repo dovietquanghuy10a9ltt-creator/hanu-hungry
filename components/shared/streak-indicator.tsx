@@ -60,7 +60,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`group flex min-h-10 sm:min-h-11 items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 text-xs sm:text-sm font-black transition cursor-pointer select-none ${
+        className={`group flex min-h-9 sm:min-h-11 items-center gap-1.5 rounded-full px-2 sm:px-3.5 text-xs sm:text-sm font-black transition cursor-pointer select-none ${
           isTodayCheckedIn
             ? "border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 text-orange-600 shadow-xs hover:border-orange-400 hover:shadow-sm"
             : "border border-[var(--color-line)] bg-[var(--color-pale)] text-[var(--color-muted)] hover:bg-[#ebdccc] hover:text-[var(--color-ink)]"
@@ -99,7 +99,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
 
       {/* 2. Duolingo-style Streak Popover */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-88 rounded-3xl border border-[var(--color-line)] bg-white p-5 shadow-2xl z-50 animate-fadeIn space-y-4">
+        <div className="absolute right-0 sm:right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-xs sm:w-88 rounded-3xl border border-[var(--color-line)] bg-white p-5 shadow-2xl z-50 animate-fadeIn space-y-4">
           {/* Header Flame & Streak Count */}
           <div className="flex flex-col items-center text-center space-y-1.5">
             <div

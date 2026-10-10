@@ -711,7 +711,7 @@ export function AdminInteractiveAnalytics({
           {/* Directory Table Container */}
           <div className="rounded-2xl border border-[var(--color-line)] bg-white shadow-xs overflow-hidden">
             {/* Header, Search & Filter Controls */}
-            <div className="p-5 border-b border-[var(--color-line)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 border-b border-[var(--color-line)] flex flex-col gap-3 sm:gap-4">
               <div>
                 <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
                   <span>👥</span> Danh sách người dùng trong hệ thống
@@ -721,20 +721,35 @@ export function AdminInteractiveAnalytics({
                 </p>
               </div>
 
-              {/* Filters */}
-              <div className="flex flex-wrap items-center gap-3">
-                <input
-                  type="text"
-                  placeholder="🔍 Tìm MSSV, tên, email..."
-                  value={accountSearch}
-                  onChange={(e) => {
-                    setAccountSearch(e.target.value);
-                    setAccountPage(1);
-                  }}
-                  className="rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] px-3.5 py-1.5 text-xs font-medium placeholder:text-[var(--color-muted)] focus:outline-[var(--color-red)] min-w-[220px]"
-                />
+              {/* Filters & Search Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 w-full">
+                <div className="relative w-full sm:max-w-xs flex-1">
+                  <input
+                    type="text"
+                    placeholder="🔍 Tìm MSSV, tên, email..."
+                    value={accountSearch}
+                    onChange={(e) => {
+                      setAccountSearch(e.target.value);
+                      setAccountPage(1);
+                    }}
+                    className="w-full rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] px-3.5 py-2 text-xs font-medium placeholder:text-[var(--color-muted)] focus:outline-[var(--color-red)] shadow-xs"
+                  />
+                  {accountSearch && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountSearch("");
+                        setAccountPage(1);
+                      }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] hover:text-[var(--color-ink)] px-1 cursor-pointer"
+                      aria-label="Xóa tìm kiếm"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
 
-                <div className="flex items-center gap-1 rounded-xl bg-[var(--color-pale)] p-1 border border-[var(--color-line)]">
+                <div className="flex items-center gap-1 rounded-xl bg-[var(--color-pale)] p-1 border border-[var(--color-line)] overflow-x-auto max-w-full shrink-0">
                   {(
                     [
                       { id: "all", label: `Tất cả (${accountStats.total})` },
@@ -749,7 +764,7 @@ export function AdminInteractiveAnalytics({
                         setRoleFilter(f.id);
                         setAccountPage(1);
                       }}
-                      className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
+                      className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
                         roleFilter === f.id
                           ? "bg-[var(--color-ink)] text-white shadow-xs"
                           : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
@@ -768,8 +783,11 @@ export function AdminInteractiveAnalytics({
                 Không tìm thấy tài khoản nào phù hợp với bộ lọc tìm kiếm.
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+              <div className="overflow-x-auto w-full max-w-full touch-pan-x">
+                <div className="block sm:hidden text-[11px] text-[var(--color-muted)] px-4 py-1.5 bg-[#fdfaf5] border-b border-[var(--color-line)] italic">
+                  👉 Cuộn ngang bảng để xem đầy đủ cột thông tin
+                </div>
+                <table className="w-full text-left text-sm min-w-[620px]">
                   <thead className="border-b border-[var(--color-line)] bg-[#fcf8f3] text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-3 text-center w-14">STT</th>

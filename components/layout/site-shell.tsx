@@ -66,29 +66,29 @@ export async function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]">
       <header className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[#faf7ef]/95 backdrop-blur">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-          <Link href="/" className="flex min-h-12 shrink-0 items-center gap-2" aria-label="Hanu Hungry - Trang chủ">
-            <Image src="/brand/logo.png" alt="" width={40} height={40} className="h-8 w-8 object-contain sm:h-10 sm:w-10" priority />
-            <span className="brand-display text-[1.35rem] leading-none text-[var(--color-red)] sm:text-[1.65rem]">Hanu Hungry</span>
+        <div className="mx-auto flex min-h-14 sm:min-h-16 max-w-7xl items-center justify-between gap-1.5 sm:gap-3 px-3 sm:px-6">
+          <Link href="/" className="flex min-h-11 sm:min-h-12 shrink-0 items-center gap-1.5 sm:gap-2" aria-label="Hanu Hungry - Trang chủ">
+            <Image src="/brand/logo.png" alt="" width={40} height={40} className="h-7 w-7 object-contain sm:h-10 sm:w-10" priority />
+            <span className="brand-display text-[1.15rem] leading-none text-[var(--color-red)] sm:text-[1.65rem]">Hanu Hungry</span>
           </Link>
           {user && <Navigation isAdmin={isAdmin} signedIn={true} />}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {user ? (
               <>
                 <StreakIndicator streak={streakData} />
                 {!isAdmin && (
                   <Link
                     href="/notifications"
-                    className="relative inline-flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[var(--color-pale)] text-[var(--color-red)] transition hover:bg-[#eadbc9] hover:scale-105 active:scale-95"
+                    className="relative inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[var(--color-pale)] text-[var(--color-red)] transition hover:bg-[#eadbc9] hover:scale-105 active:scale-95"
                     aria-label={`Thông báo bài viết từ Admin${unreadNotificationsCount > 0 ? ` (${unreadNotificationsCount} chưa đọc)` : ""}`}
                     title="Thông báo bài viết từ Admin"
                   >
-                    <svg className="h-5 w-5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <svg className="h-4.5 w-4.5 sm:h-5 sm:w-5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                     </svg>
                     {unreadNotificationsCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-red)] px-1 text-[11px] font-black text-white shadow-sm animate-pulse">
+                      <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 sm:h-5 sm:min-w-5 items-center justify-center rounded-full bg-[var(--color-red)] px-1 text-[10px] sm:text-[11px] font-black text-white shadow-sm animate-pulse">
                         {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
                       </span>
                     )}
@@ -97,42 +97,43 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                 {isAdmin ? (
                   <Link
                     href="/profile"
-                    className="flex min-h-10 sm:min-h-11 items-center gap-2 rounded-full border border-[#f0c2c6] bg-[#fdf2f2] px-3 sm:px-4 text-sm font-bold text-[var(--color-red)] shadow-xs transition hover:bg-[#fae6e6]"
+                    className="flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-full border border-[#f0c2c6] bg-[#fdf2f2] px-2.5 sm:px-4 text-xs sm:text-sm font-bold text-[var(--color-red)] shadow-xs transition hover:bg-[#fae6e6]"
                     title="Tài khoản Quản trị viên"
                   >
                     {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover border border-[var(--color-red)]" />
+                      <img src={profile.avatar_url} alt="" className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover border border-[var(--color-red)] shrink-0" />
                     ) : (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-red)] text-white text-[10px]">👑</span>
+                      <span className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-[var(--color-red)] text-white text-[10px] shrink-0">👑</span>
                     )}
-                    <span className="truncate max-w-[110px] sm:max-w-[150px]">{profile?.display_name || user.email?.split("@")[0] || "Admin"}</span>
-                    <span className="inline-flex items-center rounded-full bg-[var(--color-red)] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-xs">
+                    <span className="hidden sm:inline truncate max-w-[110px] sm:max-w-[150px]">{profile?.display_name || user.email?.split("@")[0] || "Admin"}</span>
+                    <span className="inline-flex items-center rounded-full bg-[var(--color-red)] px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-white shadow-xs shrink-0">
                       Admin
                     </span>
                   </Link>
                 ) : (
                   <Link
                     href="/profile"
-                    className="hidden min-h-11 items-center gap-2 rounded-full bg-[var(--color-pale)] px-4 text-sm font-semibold text-[var(--color-red)] transition hover:bg-[#eadbc9] sm:flex"
+                    className="flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-full bg-[var(--color-pale)] px-2.5 sm:px-4 text-xs sm:text-sm font-semibold text-[var(--color-red)] transition hover:bg-[#eadbc9]"
                   >
                     {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+                      <img src={profile.avatar_url} alt="" className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover shrink-0" />
                     ) : null}
-                    <span>{profile?.display_name || user.email?.split("@")[0] || "Tài khoản"}</span>
+                    <span className="hidden sm:inline truncate max-w-[110px]">{profile?.display_name || user.email?.split("@")[0] || "Tài khoản"}</span>
+                    <span className="sm:hidden text-xs font-bold">Hồ sơ</span>
                   </Link>
                 )}
               </>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link href="/login" className="button button-secondary shrink-0 whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">Đăng nhập</Link>
-                <Link href="/register" className="button button-primary shrink-0 whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">Đăng ký</Link>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Link href="/login" className="button button-secondary shrink-0 whitespace-nowrap px-2.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">Đăng nhập</Link>
+                <Link href="/register" className="button button-primary shrink-0 whitespace-nowrap px-2.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">Đăng ký</Link>
               </div>
             )}
           </div>
         </div>
       </header>
 
-      <main id="main-content" className="mx-auto min-h-[calc(100vh-15rem)] max-w-7xl px-4 pb-28 pt-6 sm:px-6 md:pb-14 md:pt-10">
+      <main id="main-content" className="mx-auto min-h-[calc(100vh-15rem)] max-w-7xl px-3 sm:px-6 pb-28 pt-4 sm:pt-6 md:pb-14 md:pt-10 min-w-0 max-w-full overflow-x-clip">
         {children}
       </main>
 

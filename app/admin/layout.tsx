@@ -13,20 +13,20 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     ["/admin/categories", "Category"],
     ["/admin/blog", "Blog"],
   ];
-  return <main className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]">
-    <header className="border-b border-[var(--color-line)] bg-white px-4 py-4 sm:px-8">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+  return <main className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] max-w-full overflow-x-hidden">
+    <header className="border-b border-[var(--color-line)] bg-white px-3 py-3 sm:px-8 sm:py-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
         <Link href="/admin/analytics" className="inline-flex min-h-11 items-center gap-2 text-[var(--color-red)]">
-          <Image src="/brand/logo.png" alt="" width={36} height={36} className="h-9 w-9 object-contain" />
-          <span className="brand-display text-2xl leading-none">{siteConfig.name}</span>
-          <span className="text-xs font-bold uppercase tracking-wider">Admin</span>
+          <Image src="/brand/logo.png" alt="" width={36} height={36} className="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
+          <span className="brand-display text-xl sm:text-2xl leading-none">{siteConfig.name}</span>
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-[var(--color-pale)] text-[var(--color-red)] px-1.5 py-0.5 rounded">Admin</span>
         </Link>
-        <Link href="/" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-muted)] hover:text-[var(--color-red)]">Về trang chủ</Link>
+        <Link href="/" className="inline-flex min-h-11 items-center text-xs sm:text-sm font-semibold text-[var(--color-muted)] hover:text-[var(--color-red)] shrink-0">Về trang chủ ↗</Link>
       </div>
-      <nav aria-label="Quản trị" className="mx-auto mt-3 flex max-w-6xl gap-2 overflow-x-auto pb-1">
-        {links.map(([href, text]) => <Link key={href} href={href} className="inline-flex min-h-11 shrink-0 items-center rounded-full border border-[var(--color-line)] px-4 text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-red)] hover:text-[var(--color-red)]">{text}</Link>)}
+      <nav aria-label="Quản trị" className="mx-auto mt-2.5 flex max-w-6xl gap-1.5 sm:gap-2 overflow-x-auto pb-1 touch-pan-x">
+        {links.map(([href, text]) => <Link key={href} href={href} className="inline-flex min-h-9 sm:min-h-11 shrink-0 items-center rounded-full border border-[var(--color-line)] px-3 sm:px-4 text-xs sm:text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-red)] hover:text-[var(--color-red)]">{text}</Link>)}
       </nav>
     </header>
-    <div className="mx-auto max-w-6xl px-4 py-7 sm:px-8 sm:py-10">{children}</div>
+    <div className="mx-auto max-w-6xl px-3 py-5 sm:px-8 sm:py-10 min-w-0 max-w-full">{children}</div>
   </main>;
 }

@@ -22,9 +22,9 @@ export default async function AdminRestaurantsPage({ searchParams }: {
     <AdminHeader title="Quản lý quán ăn" description="Chỉnh sửa dữ liệu khảo sát; ngừng hiển thị quán khi cần giữ lịch sử đã ăn.">
       <Link href="/admin/restaurants/new" className="inline-flex min-h-11 items-center rounded-xl bg-[#bd2030] px-4 text-sm font-bold text-white">+ Thêm quán</Link>
     </AdminHeader>
-    <form className="mb-5 flex flex-wrap gap-2" action="/admin/restaurants">
-      <input name="q" defaultValue={q} maxLength={100} placeholder="Tìm tên quán" className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#e6d7d0] bg-white px-4 text-base outline-none focus:border-[#bd2030]" />
-      <button className="min-h-11 rounded-xl border border-[#dec8c0] bg-white px-4 font-semibold">Tìm</button>
+    <form className="mb-5 flex items-center gap-2 w-full max-w-full" action="/admin/restaurants">
+      <input name="q" defaultValue={q} maxLength={100} placeholder="Tìm tên quán..." className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#e6d7d0] bg-white px-3.5 sm:px-4 text-sm sm:text-base outline-none focus:border-[#bd2030]" />
+      <button className="min-h-11 shrink-0 rounded-xl border border-[#dec8c0] bg-white px-4 font-semibold text-sm sm:text-base">Tìm</button>
     </form>
     {error && <AdminError>Chưa tải được danh sách quán. Kiểm tra kết nối database.</AdminError>}
     {!error && (!data || data.length === 0) && <AdminCard><p className="text-sm text-[#76645d]">Chưa có quán phù hợp.</p></AdminCard>}
