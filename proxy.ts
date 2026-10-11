@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/database.types";
 
-const protectedPrefixes = ["/admin", "/profile", "/history", "/notifications", "/settings", "/check-ins", "/restaurants", "/gacha", "/blog"];
+const protectedPrefixes = ["/admin", "/profile", "/history", "/notifications", "/settings", "/check-ins"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
