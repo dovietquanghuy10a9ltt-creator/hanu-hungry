@@ -13,8 +13,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     ["/admin/categories", "Category"],
     ["/admin/blog", "Blog"],
   ];
-  return <main className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] max-w-full overflow-x-hidden">
-    <header className="border-b border-[var(--color-line)] bg-white px-3 py-3 sm:px-8 sm:py-4">
+  return <main className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] w-full overflow-x-hidden">
+    <header className="border-b border-[var(--color-line)] bg-white px-4 py-3 sm:px-8 sm:py-4">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
         <Link href="/admin/analytics" className="inline-flex min-h-11 items-center gap-2 text-[var(--color-red)]">
           <Image src="/brand/logo.png" alt="" width={36} height={36} className="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
@@ -27,6 +27,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         {links.map(([href, text]) => <Link key={href} href={href} className="inline-flex min-h-9 sm:min-h-11 shrink-0 items-center rounded-full border border-[var(--color-line)] px-3 sm:px-4 text-xs sm:text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-red)] hover:text-[var(--color-red)]">{text}</Link>)}
       </nav>
     </header>
-    <div className="mx-auto max-w-6xl px-3 py-5 sm:px-8 sm:py-10 min-w-0 max-w-full">{children}</div>
+    <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-8 sm:py-10 min-w-0">{children}</div>
   </main>;
 }
