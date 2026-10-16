@@ -17,6 +17,11 @@ export const INITIAL_ADMINS: readonly AdminSeed[] = [
     studentCode: process.env.BOOTSTRAP_ADMIN_2_STUDENT_CODE || "2404060034",
     passwordEnv: "BOOTSTRAP_ADMIN_2_PASSWORD",
   },
+  {
+    email: process.env.BOOTSTRAP_ADMIN_3_EMAIL || "huyennhung1213@gmail.com",
+    studentCode: process.env.BOOTSTRAP_ADMIN_3_STUDENT_CODE || "2404060015",
+    passwordEnv: "BOOTSTRAP_ADMIN_3_PASSWORD",
+  },
 ];
 
 function displayName(email: string): string {
