@@ -5,7 +5,7 @@ import { AdminCard, AdminError, AdminHeader, AdminPager } from "@/features/admin
 const PAGE_SIZE = 24;
 
 export default async function AdminRestaurantsPage({ searchParams }: {
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; deleted?: string }>;
 }) {
   const params = await searchParams;
   const page = Math.max(1, Math.min(1000, Number.parseInt(params.page ?? "1", 10) || 1));
@@ -19,9 +19,10 @@ export default async function AdminRestaurantsPage({ searchParams }: {
   const { data, count, error } = await query;
   const hasNext = (count ?? 0) > page * PAGE_SIZE;
   return <>
-    <AdminHeader title="Quản lý quán ăn" description="Chỉnh sửa dữ liệu khảo sát; ngừng hiển thị quán khi cần giữ lịch sử đã ăn.">
+    <AdminHeader title="Quản lý quán ăn" description="Quản lý và chỉnh sửa thông tin các quán ăn quanh trường.">
       <Link href="/admin/restaurants/new" className="inline-flex min-h-11 items-center rounded-xl bg-[#bd2030] px-4 text-sm font-bold text-white">+ Thêm quán</Link>
     </AdminHeader>
+    {params.deleted === "1" && <p role="status" className="mb-4 rounded-xl bg-green-50 p-4 text-sm text-green-800">Đã xóa quán ăn thành công.</p>}
     <form className="mb-5 flex items-center gap-2 w-full max-w-full" action="/admin/restaurants">
       <input name="q" defaultValue={q} maxLength={100} placeholder="Tìm tên quán..." className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#e6d7d0] bg-white px-3.5 sm:px-4 text-sm sm:text-base outline-none focus:border-[#bd2030]" />
       <button className="min-h-11 shrink-0 rounded-xl border border-[#dec8c0] bg-white px-4 font-semibold text-sm sm:text-base">Tìm</button>
@@ -32,9 +33,6 @@ export default async function AdminRestaurantsPage({ searchParams }: {
       {(data ?? []).map((restaurant) => <Link key={restaurant.id} href={`/admin/restaurants/${restaurant.id}`} className="block rounded-2xl border border-[#eddfd8] bg-white p-5 transition hover:border-[#bd2030] hover:shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <h2 className="text-lg font-bold">{restaurant.name}</h2>
-          <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${restaurant.is_active ? "bg-green-50 text-green-800" : "bg-stone-100 text-stone-600"}`}>
-            {restaurant.is_active ? "Đang hiển thị" : "Đã ẩn"}
-          </span>
         </div>
         <p className="mt-2 text-sm text-[#76645d]">{restaurant.area || restaurant.address_text || "Chưa có dữ liệu vị trí"}</p>
         {restaurant.source_stt && <p className="mt-2 text-xs text-[#9a8a83]">STT khảo sát: {restaurant.source_stt}</p>}

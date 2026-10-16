@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   isUuid, parseBlogForm, parseCategoryForm, parseDishForm, parseRestaurantForm,
 } from "@/features/admin/validation";
@@ -137,6 +138,30 @@ export async function setRestaurantActiveAction(
   return done(active === "true" ? "Đã kích hoạt quán." : "Đã ngừng hiển thị quán.");
 }
 
+export async function deleteRestaurantAction(
+  _state: AdminActionState, form: FormData,
+): Promise<AdminActionState> {
+  await requireAdmin();
+  const id = field(form, "id");
+  if (!isUuid(id)) return fail("Mã quán không hợp lệ.");
+
+  const admin = createAdminClient();
+  // Foreign key on check_ins and reviews have ON DELETE RESTRICT, so remove them first
+  await admin.from("check_ins").delete().eq("restaurant_id", id);
+  await admin.from("reviews").delete().eq("restaurant_id", id);
+  await admin.from("restaurant_categories").delete().eq("restaurant_id", id);
+  await admin.from("dishes").delete().eq("restaurant_id", id);
+
+  const { error } = await admin.from("restaurants").delete().eq("id", id);
+  if (error) {
+    console.error("[deleteRestaurant] Error:", error.message);
+    return fail("Không thể xóa quán ăn. Vui lòng thử lại.");
+  }
+
+  refreshRestaurants(id);
+  redirect("/admin/restaurants?deleted=1");
+}
+
 export async function createCategoryAction(
   _state: AdminActionState, form: FormData,
 ): Promise<AdminActionState> {
@@ -259,6 +284,26 @@ export async function setDishActiveAction(
   revalidatePath("/admin/dishes");
   refreshRestaurants(data.restaurant_id);
   return done(active === "true" ? "Đã kích hoạt món." : "Đã ngừng hiển thị món.");
+}
+
+export async function deleteDishAction(
+  _state: AdminActionState, form: FormData,
+): Promise<AdminActionState> {
+  await requireAdmin();
+  const id = field(form, "id");
+  if (!isUuid(id)) return fail("Mã món không hợp lệ.");
+
+  const admin = createAdminClient();
+  const { data: dish } = await admin.from("dishes").select("restaurant_id").eq("id", id).maybeSingle();
+  const { error } = await admin.from("dishes").delete().eq("id", id);
+  if (error) {
+    console.error("[deleteDish] Error:", error.message);
+    return fail("Không thể xóa món ăn. Vui lòng thử lại.");
+  }
+
+  revalidatePath("/admin/dishes");
+  if (dish?.restaurant_id) refreshRestaurants(dish.restaurant_id);
+  redirect("/admin/dishes?deleted=1");
 }
 
 export async function createBlogAction(

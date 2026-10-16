@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/features/admin/validation";
-import { DishForm, DishStatusForm } from "@/features/admin/components/AdminForms";
+import { DishForm, DeleteDishForm } from "@/features/admin/components/AdminForms";
 import { AdminCard, AdminError, AdminHeader } from "@/features/admin/components/AdminPrimitives";
 
 export default async function EditDishPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,9 +20,10 @@ export default async function EditDishPage({ params }: { params: Promise<{ id: s
       <Link href="/admin/dishes" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#a91d2c]">← Danh sách món</Link>
     </AdminHeader>
     {restaurantResult.error ? <AdminError>Chưa tải được danh sách quán.</AdminError> : <AdminCard><DishForm dish={dish} restaurants={restaurantResult.data ?? []} /></AdminCard>}
-    <AdminCard className="mt-5">
-      <h2 className="mb-3 text-lg font-bold">Trạng thái hiển thị</h2>
-      <DishStatusForm id={id} active={dish.is_active} />
+    <AdminCard className="mt-5 border-red-200 bg-red-50/20">
+      <h2 className="mb-2 text-lg font-bold text-red-700">Xóa món ăn</h2>
+      <p className="mb-4 text-sm text-[#76645d]">Hành động này sẽ xóa vĩnh viễn món ăn này khỏi quán.</p>
+      <DeleteDishForm id={id} name={dish.name} />
     </AdminCard>
   </>;
 }

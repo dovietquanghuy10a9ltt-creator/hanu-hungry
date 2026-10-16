@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import type { AdminActionState } from "@/features/admin/actions";
 import {
   createBlogAction, createCategoryAction, createDishAction, createRestaurantAction,
-  deleteBlogAction, deleteCategoryAction, setBlogStatusAction,
-  setDishActiveAction, setRestaurantActiveAction, updateBlogAction,
+  deleteBlogAction, deleteCategoryAction, deleteDishAction, deleteRestaurantAction,
+  setBlogStatusAction, setDishActiveAction, setRestaurantActiveAction, updateBlogAction,
   updateCategoryAction, updateDishAction, updateRestaurantAction,
 } from "@/features/admin/actions";
 import { ImageUploadField } from "./ImageUploadField";
@@ -97,6 +97,51 @@ export function RestaurantStatusForm({ id, active }: { id: string; active: boole
   </form>;
 }
 
+export function DeleteRestaurantForm({ id, name }: { id: string; name?: string }) {
+  const [state, action] = useActionState(deleteRestaurantAction, initial);
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  return (
+    <div className="space-y-3">
+      {!isConfirming ? (
+        <button
+          type="button"
+          onClick={() => setIsConfirming(true)}
+          className="inline-flex min-h-11 items-center rounded-xl border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700 transition hover:bg-red-100"
+        >
+          🗑️ Xóa quán ăn này
+        </button>
+      ) : (
+        <form action={action} className="rounded-xl border border-red-300 bg-red-50 p-4 space-y-3">
+          <input type="hidden" name="id" value={id} />
+          <p className="text-sm font-semibold text-red-900">
+            Bạn có chắc chắn muốn xóa quán ăn {name ? `"${name}"` : "này"}?
+          </p>
+          <p className="text-xs text-red-700">
+            Toàn bộ món ăn, phân loại và lịch sử liên quan đến quán này sẽ bị xóa vĩnh viễn khỏi hệ thống.
+          </p>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button
+              type="submit"
+              className="min-h-11 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-60"
+            >
+              Xác nhận xóa
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsConfirming(false)}
+              className="min-h-11 rounded-xl border border-[#d9c7c0] bg-white px-4 py-2.5 text-sm font-bold text-[#5f3c38] transition hover:bg-[#fff3ee]"
+            >
+              Hủy bỏ
+            </button>
+          </div>
+          <Message state={state} />
+        </form>
+      )}
+    </div>
+  );
+}
+
 export function CategoryForm({ category }: { category?: { id: string; name: string; slug: string } }) {
   const [state, action] = useActionState(category ? updateCategoryAction : createCategoryAction, initial);
   return <form action={action} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
@@ -159,6 +204,51 @@ export function DishStatusForm({ id, active }: { id: string; active: boolean }) 
     <Submit muted>{active ? "Ngừng hiển thị món" : "Kích hoạt lại món"}</Submit>
     <Message state={state} />
   </form>;
+}
+
+export function DeleteDishForm({ id, name }: { id: string; name?: string }) {
+  const [state, action] = useActionState(deleteDishAction, initial);
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  return (
+    <div className="space-y-3">
+      {!isConfirming ? (
+        <button
+          type="button"
+          onClick={() => setIsConfirming(true)}
+          className="inline-flex min-h-11 items-center rounded-xl border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700 transition hover:bg-red-100"
+        >
+          🗑️ Xóa món ăn này
+        </button>
+      ) : (
+        <form action={action} className="rounded-xl border border-red-300 bg-red-50 p-4 space-y-3">
+          <input type="hidden" name="id" value={id} />
+          <p className="text-sm font-semibold text-red-900">
+            Bạn có chắc chắn muốn xóa món {name ? `"${name}"` : "này"}?
+          </p>
+          <p className="text-xs text-red-700">
+            Món ăn này sẽ bị xóa hoàn toàn khỏi thực đơn của quán.
+          </p>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button
+              type="submit"
+              className="min-h-11 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-60"
+            >
+              Xác nhận xóa
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsConfirming(false)}
+              className="min-h-11 rounded-xl border border-[#d9c7c0] bg-white px-4 py-2.5 text-sm font-bold text-[#5f3c38] transition hover:bg-[#fff3ee]"
+            >
+              Hủy bỏ
+            </button>
+          </div>
+          <Message state={state} />
+        </form>
+      )}
+    </div>
+  );
 }
 
 export type BlogFormValue = {

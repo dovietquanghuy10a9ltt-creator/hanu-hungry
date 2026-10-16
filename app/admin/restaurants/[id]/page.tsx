@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/features/admin/validation";
-import { RestaurantForm, RestaurantStatusForm } from "@/features/admin/components/AdminForms";
+import { RestaurantForm, DeleteRestaurantForm } from "@/features/admin/components/AdminForms";
 import { AdminCard, AdminError, AdminHeader } from "@/features/admin/components/AdminPrimitives";
 
 export default async function EditRestaurantPage({ params, searchParams }: {
@@ -29,10 +29,10 @@ export default async function EditRestaurantPage({ params, searchParams }: {
     {categoryResult.error || selectedResult.error
       ? <AdminError>Chưa tải được category của quán. Vui lòng thử lại trước khi lưu.</AdminError>
       : <AdminCard><RestaurantForm restaurant={restaurant} categories={categoryResult.data ?? []} selectedCategoryIds={(selectedResult.data ?? []).map((row) => row.category_id)} /></AdminCard>}
-    <AdminCard className="mt-5">
-      <h2 className="mb-3 text-lg font-bold">Trạng thái hiển thị</h2>
-      <p className="mb-4 text-sm text-[#76645d]">Ngừng hiển thị thay cho xóa để giữ check-in và đánh giá cũ.</p>
-      <RestaurantStatusForm id={id} active={restaurant.is_active} />
+    <AdminCard className="mt-5 border-red-200 bg-red-50/20">
+      <h2 className="mb-2 text-lg font-bold text-red-700">Xóa quán ăn</h2>
+      <p className="mb-4 text-sm text-[#76645d]">Hành động này sẽ xóa vĩnh viễn quán ăn cùng toàn bộ món ăn và dữ liệu liên quan khỏi hệ thống.</p>
+      <DeleteRestaurantForm id={id} name={restaurant.name} />
     </AdminCard>
   </>;
 }

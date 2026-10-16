@@ -115,6 +115,14 @@ export function ProfileEditor({
               }
               await updateProfile(formData);
             } catch (err: unknown) {
+              if (
+                typeof err === "object" &&
+                err !== null &&
+                ((err as { digest?: string }).digest?.startsWith("NEXT_REDIRECT") ||
+                  (err as { message?: string }).message === "NEXT_REDIRECT")
+              ) {
+                throw err;
+              }
               setFormatError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi lưu thông tin.");
               setIsSubmitting(false);
             }
@@ -129,7 +137,7 @@ export function ProfileEditor({
               <div className="flex items-start gap-2">
                 <span className="text-base font-bold text-red-600">⚠️</span>
                 <div>
-                  <p className="font-bold">Không thể tải ảnh:</p>
+                  <p className="font-bold">Lỗi:</p>
                   <p className="mt-0.5">{formatError}</p>
                 </div>
               </div>
