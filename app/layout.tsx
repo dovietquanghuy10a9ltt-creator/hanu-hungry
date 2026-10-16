@@ -12,7 +12,22 @@ const crayonette = localFont({ src: "./fonts/CrayonetteDJR.woff2", variable: "--
 const hemgjord = localFont({ src: "./fonts/HemgjordLettering.otf", variable: "--font-hemgjord", display: "swap", weight: "400", fallback: ["var(--font-crayonette)", "Georgia", "serif"] });
 const cdaMely = localFont({ src: "./fonts/CDAMeLyDisplay-Bold.woff2", variable: "--font-cda-mely", display: "swap", weight: "700", fallback: ["Arial", "sans-serif"] });
 
-export const metadata: Metadata = { title: { default: siteConfig.name, template: `%s | ${siteConfig.name}` }, description: siteConfig.description };
+export const metadata: Metadata = {
+  title: { default: siteConfig.name, template: `%s | ${siteConfig.name}` },
+  description: siteConfig.description,
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+      { url: "/brand/logo.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/brand/logo.png" },
+    ],
+    shortcut: "/favicon.ico",
+  },
+};
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" className={`${hermeneus.variable} ${calistoga.variable} ${hennyPenny.variable} ${crayonette.variable} ${hemgjord.variable} ${cdaMely.variable}`}>
