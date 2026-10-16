@@ -11,6 +11,7 @@ import {
   updateCategoryAction, updateDishAction, updateRestaurantAction,
 } from "@/features/admin/actions";
 import { ImageUploadField } from "./ImageUploadField";
+import { BlogContentEditor } from "./BlogContentEditor";
 
 const initial: AdminActionState = { status: "idle", message: "" };
 const input = "mt-1.5 min-h-11 w-full rounded-xl border border-[#e5d7d2] bg-white px-3 py-2 text-base text-[#28201e] outline-none focus:border-[#c51f30] focus:ring-2 focus:ring-[#c51f30]/15";
@@ -264,7 +265,7 @@ export function BlogForm({ post }: { post?: BlogFormValue }) {
     <TextField name="title" title="Tiêu đề" defaultValue={post?.title} required />
     <TextField name="slug" title="Slug không dấu" defaultValue={post?.slug} required placeholder="ten-bai-viet" />
     <TextArea name="excerpt" title="Tóm tắt" defaultValue={post?.excerpt} />
-    <TextArea name="content" title="Nội dung" defaultValue={post?.content} rows={14} required />
+    <BlogContentEditor defaultValue={post?.content} required />
     <ImageUploadField name="image" urlFieldName="cover_image_url" title="Ảnh bìa bài viết" defaultUrl={post?.cover_image_url} description="Tải ảnh bìa bài viết từ máy (JPG, PNG, WEBP, GIF tối đa 5MB)." />
     <div className="grid gap-4 sm:grid-cols-2">
       <TextField name="seo_title" title="SEO title" defaultValue={post?.seo_title} />

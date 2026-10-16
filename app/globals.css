@@ -45,7 +45,7 @@ h1,h2,h3,h4,.brand-display,.section-title { font-family: var(--font-heading), Ge
 .text-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-red); border-bottom: 1px solid currentColor; gap: 12px; }
 .restaurant-card { display: flex; flex-direction: column; min-width: 0; min-height: 250px; overflow: hidden; background: #fffdf8; border: 1px solid var(--color-line); border-radius: .8rem; transition: transform .25s, border-color .25s, box-shadow .25s; }
 .restaurant-card:hover { transform: translateY(-4px); border-color: #b52a3470; box-shadow: 0 8px 0 #ede4d8; }
-.restaurant-category { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--color-red); }
+.restaurant-category { font-family: var(--font-cda-mely), "CDA Mê Ly Display", "CDA Mely Display", sans-serif; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-red); font-weight: 700; }
 .restaurant-name { font-size: 1.55rem; line-height: 1.2; overflow-wrap: anywhere; }
 .card-arrow { flex-shrink: 0; display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--color-line); border-radius: 50%; color: var(--color-red); transition: background .2s; }
 .restaurant-card:hover .card-arrow { background: var(--color-red); color: white; }
@@ -109,7 +109,24 @@ h1,h2,h3,h4,.brand-display,.section-title { font-family: var(--font-heading), Ge
   font-display: swap;
 }
 
-.cosmic-heading { font-family: var(--font-crayonette), "Crayonette DJR", "Crayonette", var(--font-cosmic), Georgia, serif; font-weight: 400; color: var(--color-red); font-size: clamp(1.1rem, 3vw, 1.65rem); letter-spacing: .01em; }
+@font-face {
+  font-family: "Hemgjord Lettering";
+  src: url("/fonts/HemgjordLettering.otf") format("opentype"),
+       local("Hemgjord Lettering"),
+       local("Hemgiord Lettering");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CDA Mê Ly Display";
+  src: url("/fonts/CDAMeLyDisplay-Bold.woff2") format("woff2"),
+       local("CDA Mê Ly Display"),
+       local("CDA Mely Display");
+  font-weight: 700;
+  font-display: swap;
+}
+
+.cosmic-heading { font-family: var(--font-hemgjord), "Hemgjord Lettering", "Hemgiord Lettering", var(--font-crayonette), "Crayonette DJR", var(--font-cosmic), Georgia, serif; font-weight: 400; color: var(--color-red); font-size: clamp(1.2rem, 3.2vw, 1.85rem); letter-spacing: .02em; }
 .gacha-intro h1 { font-size: clamp(2.5rem, 6vw, 4.3rem); line-height: 1.1; letter-spacing: -.035em; margin-top: 18px; }
 .gacha-intro>p:last-child { margin: 18px auto 0; max-width: 480px; color: var(--color-muted); line-height: 1.6; }
 .gacha-mode { position: relative; z-index: 20; display: flex; justify-content: center; gap: 6px; width: fit-content; margin: 28px auto 0; padding: 6px; border: 1px solid var(--color-line); background: #f0e7da; border-radius: 99px; }

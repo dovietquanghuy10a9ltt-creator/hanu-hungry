@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeBlogHtml } from "@/features/blog/sanitize";
 
 type Props = { params: Promise<{ slug: string }> };
 type BlogPost = {
@@ -39,6 +40,44 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound();
   const paragraphs = post.content.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
   return (
-    <article className="mx-auto max-w-3xl space-y-6"><Link href="/blog" className="text-sm font-bold text-[var(--color-red)]">← Tất cả bài viết</Link><header><p className="eyebrow">Blog Hanu Hungry</p><h1 className="mt-2 break-words text-3xl font-black leading-tight sm:text-5xl">{post.title}</h1>{post.published_at && <time className="mt-4 block text-sm text-[var(--color-muted)]" dateTime={post.published_at}>{new Intl.DateTimeFormat("vi-VN", { dateStyle: "long", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(post.published_at))}</time>}{post.excerpt && <p className="mt-4 text-lg leading-7 text-[var(--color-muted)]">{post.excerpt}</p>}</header>{post.cover_image_url && <div className="relative aspect-[16/9] overflow-hidden rounded-[1.5rem]"><Image src={post.cover_image_url} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 768px" unoptimized /></div>}<div className="card space-y-5 p-5 text-base leading-8 sm:p-8">{paragraphs.map((paragraph, index) => paragraph.startsWith("## ") ? <h2 key={index} className="pt-3 text-xl font-extrabold leading-snug">{paragraph.slice(3)}</h2> : <p key={index} className="whitespace-pre-wrap break-words">{paragraph}</p>)}</div></article>
+    <article className="mx-auto max-w-3xl space-y-6">
+      <div>
+        <Link href="/blog" className="text-sm font-bold text-[var(--color-red)] hover:underline">
+          ← Tất cả bài viết
+        </Link>
+      </div>
+      <header>
+        <p className="eyebrow">Blog Hanu Hungry</p>
+        <h1 className="mt-2 break-words text-3xl font-black leading-tight sm:text-5xl">
+          {post.title}
+        </h1>
+        {post.published_at && (
+          <time className="mt-4 block text-sm text-[var(--color-muted)]" dateTime={post.published_at}>
+            {new Intl.DateTimeFormat("vi-VN", { dateStyle: "long", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(post.published_at))}
+          </time>
+        )}
+        {post.excerpt && <p className="mt-4 text-lg leading-7 text-[var(--color-muted)]">{post.excerpt}</p>}
+      </header>
+      {post.cover_image_url && (
+        <div className="relative aspect-[16/9] overflow-hidden rounded-[1.5rem]">
+          <Image src={post.cover_image_url} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 768px" unoptimized />
+        </div>
+      )}
+      <div className="card space-y-5 p-5 text-base leading-8 sm:p-8">
+        {paragraphs.map((paragraph, index) =>
+          paragraph.startsWith("## ") ? (
+            <h2 key={index} className="pt-3 text-xl font-extrabold leading-snug text-[#bd2030]">
+              {paragraph.slice(3)}
+            </h2>
+          ) : (
+            <div
+              key={index}
+              className="whitespace-pre-wrap break-words leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(paragraph) }}
+            />
+          )
+        )}
+      </div>
+    </article>
   );
 }

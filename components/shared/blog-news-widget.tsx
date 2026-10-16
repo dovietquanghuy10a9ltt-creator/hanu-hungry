@@ -22,7 +22,10 @@ export function BlogNewsWidget({
   if (!posts.length) return null;
 
   return (
-    <aside className={`rounded-2xl border border-[var(--color-line)] bg-[#fffdf8] p-5 sm:p-6 shadow-sm ${className}`}>
+    <aside
+      className={`rounded-2xl border border-[var(--color-line)] bg-[#fffdf8] p-5 sm:p-6 shadow-sm ${className}`}
+      style={{ fontFamily: '"Times New Roman", Times, "Liberation Serif", serif' }}
+    >
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3.5">
         <h2 className="text-xl font-black uppercase tracking-tight text-[var(--color-ink)] sm:text-2xl">
           {title}
