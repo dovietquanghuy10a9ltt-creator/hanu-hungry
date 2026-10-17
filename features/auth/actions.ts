@@ -215,27 +215,38 @@ export async function forgotPasswordAction(
       .eq("student_code", studentCode)
       .maybeSingle();
     if (profileError) throw profileError;
-    if (profile) {
-      const { data, error: userError } = await admin.auth.admin.getUserById(profile.id);
-      if (userError) throw userError;
-      if (normalizeEmail(data.user.email ?? "") === email) {
-        const supabase = await createClient();
-        const callback = new URL("/auth/callback?next=%2Freset-password", siteUrl());
-        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: callback.toString(),
-        });
-        if (resetError) throw resetError;
-      }
+    if (!profile) {
+      return error("Email hoặc MSSV không chính xác. Vui lòng kiểm tra lại.");
     }
-  } catch {
-    // A provider rate limit can occur only for a matching account. Keep the same
-    // response for matches, mismatches and provider errors to prevent enumeration.
+
+    const { data, error: userError } = await admin.auth.admin.getUserById(profile.id);
+    if (userError || !data?.user) {
+      return error("Email hoặc MSSV không chính xác. Vui lòng kiểm tra lại.");
+    }
+
+    if (normalizeEmail(data.user.email ?? "") !== email) {
+      return error("Email hoặc MSSV không chính xác. Vui lòng kiểm tra lại.");
+    }
+
+    const supabase = await createClient();
+    const callback = new URL("/auth/callback?next=%2Freset-password", siteUrl());
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: callback.toString(),
+    });
+    if (resetError) {
+      console.error("[auth] resetPasswordForEmail error:", resetError.message);
+      return error("Không thể gửi mã OTP lúc này. Vui lòng thử lại sau.");
+    }
+
+    return {
+      status: "success",
+      message: "",
+      data: { email },
+    };
+  } catch (err: unknown) {
+    console.error("[auth] forgotPasswordAction error:", err instanceof Error ? err.message : err);
+    return error("Email hoặc MSSV không chính xác. Vui lòng kiểm tra lại.");
   }
-  return {
-    status: "success",
-    message: "Nếu email và MSSV khớp, mã OTP đã được gửi đến email đó.",
-    data: { email },
-  };
 }
 
 export async function verifyRecoveryOtpAction(
@@ -246,7 +257,7 @@ export async function verifyRecoveryOtpAction(
   const otp = field(form, "otp").trim().replace(/\s+/g, "");
 
   if (!isValidEmail(email)) return error("Email không hợp lệ.");
-  if (!/^[0-9]{6}$/.test(otp)) return error("Mã OTP phải gồm đúng 6 chữ số.");
+  if (!/^[0-9]{6,8}$/.test(otp)) return error("Vui lòng nhập đủ mã OTP.");
 
   const rateLimit = await checkRateLimit({
     action: `otp:${email}`,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import type { AuthActionState } from "@/features/auth/actions";
@@ -200,6 +200,52 @@ export function RegisterForm() {
 
 function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => void }) {
   const [state, action] = useActionState(verifyRecoveryOtpAction, initialState);
+  const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleChange = (index: number, val: string) => {
+    const cleaned = val.replace(/[^0-9]/g, "");
+    if (!cleaned) {
+      const next = [...digits];
+      next[index] = "";
+      setDigits(next);
+      return;
+    }
+    const char = cleaned[cleaned.length - 1];
+    const next = [...digits];
+    next[index] = char;
+    setDigits(next);
+
+    if (index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (!digits[index] && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/[^0-9]/g, "").slice(0, 6);
+    if (!pasted) return;
+    const next = [...digits];
+    for (let i = 0; i < 6; i++) {
+      next[i] = pasted[i] || "";
+    }
+    setDigits(next);
+    const targetIdx = Math.min(pasted.length, 5);
+    inputRefs.current[targetIdx]?.focus();
+  };
+
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Nhập mã OTP</h2>
@@ -208,22 +254,29 @@ function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => v
       </p>
       <form action={action} className="mt-7 space-y-5">
         <input type="hidden" name="email" value={email} />
-        <label className={labelClass}>
-          Mã OTP (6 chữ số)
-          <input
-            name="otp"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]{6}"
-            minLength={6}
-            maxLength={6}
-            autoComplete="one-time-code"
-            required
-            placeholder="123456"
-            className={`${inputClass} text-center tracking-[0.35em] text-2xl font-black font-mono`}
-            autoFocus
-          />
-        </label>
+        <input type="hidden" name="otp" value={digits.join("")} />
+
+        <div>
+          <label className={`${labelClass} text-center mb-3`}>Nhập 6 chữ số mã OTP</label>
+          <div className="flex items-center justify-center gap-2 sm:gap-3" onPaste={handlePaste}>
+            {digits.map((digit, idx) => (
+              <input
+                key={idx}
+                ref={(el) => { inputRefs.current[idx] = el; }}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={1}
+                value={digit}
+                autoFocus={idx === 0}
+                onChange={(e) => handleChange(idx, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(idx, e)}
+                className="h-12 w-11 sm:h-14 sm:w-13 rounded-xl border-2 border-[#d9cece] bg-white text-center font-mono text-2xl font-black text-[#1f1b1a] shadow-sm transition focus:border-[#c51f30] focus:ring-2 focus:ring-[#c51f30]/20 focus:outline-none"
+              />
+            ))}
+          </div>
+        </div>
+
         <FormMessage state={state} />
         <SubmitButton>Xác nhận OTP</SubmitButton>
       </form>
