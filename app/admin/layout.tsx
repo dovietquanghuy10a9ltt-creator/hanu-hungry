@@ -12,6 +12,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     ["/admin/dishes", "Món ăn"],
     ["/admin/categories", "Category"],
     ["/admin/blog", "Blog"],
+    ["/admin/messages", "Lời nhắn góp ý"],
   ];
   return <main className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] w-full overflow-x-hidden">
     <header className="border-b border-[var(--color-line)] bg-white px-4 py-3 sm:px-8 sm:py-4">

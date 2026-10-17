@@ -62,10 +62,7 @@ const FAQS: FaqItem[] = [
 ];
 
 export default function SupportPage() {
-  const [openIds, setOpenIds] = useState<Record<string, boolean>>({
-    "data-source": true,
-    "forgot-password": true,
-  });
+  const [openIds, setOpenIds] = useState<Record<string, boolean>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>("Tất cả");
 
   const categories = ["Tất cả", "Khám phá quán ăn", "Gacha & Giải trí", "Tài khoản sinh viên", "Đóng góp & Hỗ trợ"];

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { sendContactNotificationEmail } from "@/lib/email/contact-mailer";
 
 export async function sendContactMessage(formData: FormData) {
   if (String(formData.get("website") || "")) return;
@@ -14,18 +15,35 @@ export async function sendContactMessage(formData: FormData) {
     throw new Error("Vui lòng kiểm tra tên, email và nội dung liên hệ.");
   }
   const { user } = await requireUser();
+
+  // Giới hạn tối đa 3 lượt gửi mỗi ngày (1 ngày = 86400 giây)
+  // Không hiển thị lỗi hay giới hạn với người dùng (nếu vượt quá sẽ âm thầm bỏ qua và vẫn báo gửi thành công)
   const rateLimit = await checkRateLimit({
     action: "contact",
     identifier: user.id,
     maxAttempts: 3,
-    windowSeconds: 300,
-    blockSeconds: 300,
+    windowSeconds: 86400,
+    blockSeconds: 86400,
   });
+
   if (!rateLimit.allowed) {
-    throw new Error(rateLimit.message);
+    console.warn(`[contact] User ${user.id} exceeded daily limit (3 submissions/day). Silently dropping submission.`);
+    redirect("/contact?sent=1");
   }
+
   const supabase = await createClient();
   const { error } = await supabase.from("contact_messages").insert({ user_id: user.id, name, email, message });
-  if (error) throw new Error("Không thể gửi liên hệ. Vui lòng thử lại.");
+  if (error) {
+    console.error("[contact] Error inserting into contact_messages:", error.message);
+    throw new Error("Không thể gửi liên hệ. Vui lòng thử lại.");
+  }
+
+  // Gửi email thông báo tới hanuhungry.mcr@gmail.com (nếu có cấu hình SMTP)
+  try {
+    await sendContactNotificationEmail({ name, email, message, userId: user.id });
+  } catch (err) {
+    console.error("[contact] Error sending notification email:", err);
+  }
+
   redirect("/contact?sent=1");
 }
