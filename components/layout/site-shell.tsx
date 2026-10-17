@@ -8,6 +8,9 @@ import { SocialIconsRow, CONTACT_INFO } from "@/components/shared/social-links";
 import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
 import { StreakIndicator, type StreakData } from "@/components/shared/streak-indicator";
 import { historyStats, localDayOrdinal } from "@/features/history/stats";
+import { PetalsFalling } from "@/components/decorations/PetalsFalling";
+import { WomensDayGiftModal } from "@/components/decorations/WomensDayGiftModal";
+import { FloralBackground } from "@/components/decorations/FloralBackground";
 
 export async function SiteShell({ children }: { children: ReactNode }) {
   const account = await getCurrentProfile();
@@ -62,12 +65,16 @@ export async function SiteShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]">
+    <div className="relative min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]">
+      <FloralBackground />
       <header className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[#faf7ef]/95 backdrop-blur">
         <div className="mx-auto flex min-h-14 sm:min-h-16 w-full max-w-7xl items-center justify-between gap-1.5 sm:gap-3 px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex min-h-11 sm:min-h-12 shrink-0 items-center gap-1.5 sm:gap-2" aria-label="Hanu Hungry - Trang chủ">
             <Image src="/brand/logo.png" alt="" width={40} height={40} className="h-7 w-7 object-contain sm:h-10 sm:w-10" priority />
             <span className="brand-display text-[1.15rem] leading-none text-[var(--color-red)] sm:text-[1.65rem]">Hanu Hungry</span>
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-100 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[11px] font-black text-rose-700 border border-rose-200 shadow-2xs animate-pulse">
+              🌸 20/10
+            </span>
           </Link>
           {user && <Navigation isAdmin={isAdmin} signedIn={true} />}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -165,6 +172,8 @@ export async function SiteShell({ children }: { children: ReactNode }) {
 
       {user && <Navigation mobile signedIn={true} isAdmin={isAdmin} />}
       {user && <SmartCheckInRecall />}
+      <PetalsFalling />
+      {user && <WomensDayGiftModal />}
     </div>
   );
 }

@@ -48,13 +48,18 @@ export function RestaurantExplorer({
       <form
         action="/restaurants"
         onSubmit={(event) => event.preventDefault()}
-        className="rounded-2xl border border-[var(--color-line)] bg-[#f1eadd] p-4 sm:p-5 space-y-3.5 shadow-xs"
+        className="rounded-2xl border-2 border-rose-200/90 bg-gradient-to-br from-[#fff7f8] via-[#f5ede3] to-[#fff5f0] p-4 sm:p-5 space-y-3.5 shadow-sm"
       >
         {/* Header với label và nút Xóa bộ lọc ở góc phải */}
         <div className="flex items-center justify-between">
-          <label htmlFor="search-restaurant-q" className="text-xs sm:text-sm font-bold text-[var(--color-ink)]">
-            Tên quán hoặc món
-          </label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="search-restaurant-q" className="text-xs sm:text-sm font-bold text-[var(--color-ink)]">
+              Tên quán hoặc món
+            </label>
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100/90 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-rose-700 border border-rose-200 shadow-2xs">
+              🌸 Gợi ý 20/10
+            </span>
+          </div>
           {hasFilter && (
             <button
               type="button"
@@ -80,7 +85,7 @@ export function RestaurantExplorer({
             name="q"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Thử gõ ‘b’ để tìm bún, bánh…"
+            placeholder="Thử gõ ‘cafe sống ảo’, ‘trà sữa’, ‘lẩu’ hoặc món bạn thích… 🌸"
             autoComplete="off"
             style={{ paddingLeft: "42px" }}
             className="field w-full text-sm !pl-11"

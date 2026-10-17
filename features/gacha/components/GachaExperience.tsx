@@ -174,7 +174,14 @@ export function GachaExperience({
 
   return (
     <div className="gacha-experience">
-      <div className="flex justify-center mt-6 mb-2">
+      <div className="flex justify-center mt-5 mb-3">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50/90 px-3.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs">
+          <span>🌸</span>
+          <span>Đặc biệt 20/10: Để vũ trụ chọn món chiều nàng!</span>
+          <span className="animate-pulse">✨</span>
+        </span>
+      </div>
+      <div className="flex justify-center mb-2">
         <label htmlFor="gacha-mode-select" className="sr-only">Chế độ Gacha</label>
         <div className="relative inline-flex items-center">
           <select
@@ -226,6 +233,11 @@ export function GachaExperience({
                   />
                 </div>
               )}
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs animate-floral-bloom">
+                <span className="text-sm">🌸</span>
+                <span>Tín hiệu 20/10: Món này sẽ làm nàng mỉm cười hôm nay!</span>
+                <span className="text-sm">✨</span>
+              </div>
               <p className="eyebrow">Vũ trụ chọn cho bạn</p>
               <h2 className="mt-3 break-words text-3xl leading-tight sm:text-4xl">
                 {result.dish?.name || result.restaurant.name}
@@ -257,8 +269,8 @@ export function GachaExperience({
               }}
               title={phase === "idle" ? "Bấm vào thẻ để quay" : undefined}
             >
-              <div className={`reel-symbol ${phase === "rolling" ? "is-spinning" : ""}`} aria-hidden="true">
-                ✦
+              <div className={`reel-symbol ${phase === "rolling" ? "is-spinning text-rose-600" : "animate-petal-float"}`} aria-hidden="true">
+                {phase === "rolling" ? "🌸" : "✦"}
               </div>
               <p className={`reel-name ${phase === "rolling" ? "is-rolling" : ""}`} aria-hidden={phase === "rolling"}>
                 {phase === "rolling" ? reelName : "Hôm nay, để vũ trụ chọn."}
