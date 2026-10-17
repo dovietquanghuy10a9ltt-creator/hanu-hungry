@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 const GREETINGS = [
@@ -42,28 +42,171 @@ const GREETINGS = [
   },
 ];
 
+const CONFETTI_COLORS = [
+  "#f43f5e", // Rose
+  "#ec4899", // Pink
+  "#fb7185", // Light rose
+  "#f59e0b", // Amber gold
+  "#fbbf24", // Yellow
+  "#10b981", // Emerald
+  "#06b6d4", // Cyan
+  "#8b5cf6", // Purple
+  "#f97316", // Orange
+  "#ffffff", // White shine
+];
+
+const FLOWER_EMOJIS = ["🌸", "🌺", "🌷", "💐", "✨", "🎉", "💖"];
+
+interface BurstParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  color: string;
+  rotation: number;
+  rotationSpeed: number;
+  wobble: number;
+  wobbleSpeed: number;
+  opacity: number;
+  decay: number;
+  type: "confetti" | "flower";
+  flowerChar?: string;
+}
+
 export function WomensDayGiftModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [greetingIndex, setGreetingIndex] = useState(0);
   const [isRotating, setIsRotating] = useState(false);
-  const [showSparkles, setShowSparkles] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const particlesRef = useRef<BurstParticle[]>([]);
+  const animFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Pick a random greeting on first load
+    // Pick random initial greeting
     setGreetingIndex(Math.floor(Math.random() * GREETINGS.length));
   }, []);
 
+  function fireBurst(count = 95) {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const originX = rect.width / 2;
+    const originY = rect.height * 0.45;
+
+    const newParticles: BurstParticle[] = [];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 16 + 5;
+      const isFlower = Math.random() > 0.65;
+
+      newParticles.push({
+        x: originX + (Math.random() - 0.5) * 40,
+        y: originY + (Math.random() - 0.5) * 30,
+        vx: Math.cos(angle) * speed * (0.8 + Math.random() * 0.4),
+        vy: Math.sin(angle) * speed - (Math.random() * 7 + 4), // biased upwards
+        size: isFlower ? Math.random() * 8 + 16 : Math.random() * 6 + 6,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 0.2,
+        wobble: Math.random() * Math.PI,
+        wobbleSpeed: Math.random() * 0.1 + 0.05,
+        opacity: 1,
+        decay: Math.random() * 0.008 + 0.008,
+        type: isFlower ? "flower" : "confetti",
+        flowerChar: isFlower
+          ? FLOWER_EMOJIS[Math.floor(Math.random() * FLOWER_EMOJIS.length)]
+          : undefined,
+      });
+    }
+
+    particlesRef.current = [...particlesRef.current, ...newParticles];
+
+    if (!animFrameRef.current) {
+      runAnimation();
+    }
+  }
+
+  function runAnimation() {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      animFrameRef.current = null;
+      return;
+    }
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      animFrameRef.current = null;
+      return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const active: BurstParticle[] = [];
+    for (const p of particlesRef.current) {
+      p.vx *= 0.96;
+      p.vy *= 0.96;
+      p.vy += 0.28; // gravity
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotationSpeed;
+      p.wobble += p.wobbleSpeed;
+      p.opacity -= p.decay;
+
+      if (p.opacity > 0 && p.y < canvas.height + 50) {
+        active.push(p);
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = Math.max(0, p.opacity);
+
+        if (p.type === "flower" && p.flowerChar) {
+          ctx.font = `${p.size}px serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(p.flowerChar, 0, 0);
+        } else {
+          // Confetti rectangle with 3D wobble
+          ctx.scale(Math.cos(p.wobble), 1);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size, p.size, p.size * 1.6);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    particlesRef.current = active;
+
+    if (active.length > 0) {
+      animFrameRef.current = requestAnimationFrame(runAnimation);
+    } else {
+      animFrameRef.current = null;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
   function handleOpen() {
     setIsOpen(true);
-    setShowSparkles(true);
+    // Fire festive floral & confetti explosion right as card opens
+    setTimeout(() => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      fireBurst(110);
+    }, 150);
   }
 
   function handleNextGreeting() {
     setIsRotating(true);
+    fireBurst(45); // Mini celebration burst when cycling
     setTimeout(() => {
       setGreetingIndex((prev) => (prev + 1) % GREETINGS.length);
       setIsRotating(false);
-    }, 200);
+    }, 180);
   }
 
   const currentGreeting = GREETINGS[greetingIndex];
@@ -104,6 +247,15 @@ export function WomensDayGiftModal() {
           />
         </button>
       </div>
+
+      {/* Confetti & Floral Explosion Canvas */}
+      {isOpen && (
+        <canvas
+          ref={canvasRef}
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-[60] h-full w-full select-none"
+        />
+      )}
 
       {/* Greeting Modal Popup */}
       {isOpen && (
@@ -164,16 +316,18 @@ export function WomensDayGiftModal() {
 
               {/* Action Buttons */}
               <div className="pt-2 flex flex-col gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleNextGreeting}
-                  className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-rose-700 hover:text-rose-900 transition py-1 cursor-pointer"
-                >
-                  <span>✨ Đổi lời chúc khác</span>
-                  <span className="text-[11px] text-rose-400">
-                    ({greetingIndex + 1}/{GREETINGS.length})
-                  </span>
-                </button>
+                {/* Compact 1/6 Button as requested */}
+                <div className="flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={handleNextGreeting}
+                    title="Xem lời chúc tiếp theo"
+                    aria-label={`Xem lời chúc tiếp theo (${greetingIndex + 1}/${GREETINGS.length})`}
+                    className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50/90 hover:bg-rose-100 hover:border-rose-400 px-4 py-1 text-xs font-black text-rose-700 shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    {greetingIndex + 1}/{GREETINGS.length}
+                  </button>
+                </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
                   <Link
@@ -217,4 +371,3 @@ export function WomensDayGiftModal() {
     </>
   );
 }
-

@@ -65,7 +65,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="relative min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]">
+    <div className="relative min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]" suppressHydrationWarning>
       <FloralBackground />
       <header className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[#faf7ef]/95 backdrop-blur">
         <div className="mx-auto flex min-h-14 sm:min-h-16 w-full max-w-7xl items-center justify-between gap-1.5 sm:gap-3 px-4 sm:px-6 lg:px-8">
