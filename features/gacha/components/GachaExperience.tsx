@@ -177,24 +177,25 @@ export function GachaExperience({
       <div className="flex justify-center mt-6 mb-2">
         <label htmlFor="gacha-mode-select" className="sr-only">Chế độ Gacha</label>
         <div className="relative inline-flex items-center">
-          <div className="flex items-center gap-2 rounded-full border border-[#d2bca3] bg-[#fffdf8] px-4 py-2.5 shadow-xs hover:border-[var(--color-red)] transition">
-            <span className="text-xl leading-none select-none" aria-hidden="true">
-              {mode === "restaurant" ? "🏪" : mode === "food" ? "🍜" : "🧋"}
-            </span>
-            <span className="text-xs font-bold text-[var(--color-muted)]">Chế độ:</span>
-            <select
-              id="gacha-mode-select"
-              value={mode}
-              disabled={phase === "rolling"}
-              onChange={(e) => changeMode(e.target.value as GachaMode)}
-              className="bg-transparent font-bold text-sm sm:text-base text-[var(--color-ink)] focus:outline-none cursor-pointer pr-4"
-            >
-              <option value="restaurant">🏪 Gacha theo quán</option>
-              <option value="food">🍜 Gacha theo đồ ăn</option>
-              <option value="drink">🧋 Gacha theo đồ uống</option>
-            </select>
-            <span className="pointer-events-none text-xs text-[var(--color-muted)] select-none">▼</span>
-          </div>
+          <select
+            id="gacha-mode-select"
+            value={mode}
+            disabled={phase === "rolling"}
+            onChange={(e) => changeMode(e.target.value as GachaMode)}
+            style={{
+              WebkitAppearance: "none",
+              MozAppearance: "none",
+              appearance: "none",
+            }}
+            className="rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] pl-5 pr-10 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-none cursor-pointer transition"
+          >
+            <option value="restaurant">🏪 Gacha theo quán</option>
+            <option value="food">🍜 Gacha theo đồ ăn</option>
+            <option value="drink">🧋 Gacha theo đồ uống</option>
+          </select>
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
+            ▼
+          </span>
         </div>
       </div>
 

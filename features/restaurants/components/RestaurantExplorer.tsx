@@ -69,7 +69,7 @@ export function RestaurantExplorer({
         {/* Dòng 1: Thanh tìm kiếm */}
         <div className="relative">
           <span
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-[var(--color-muted)]"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-[var(--color-muted)] select-none"
             aria-hidden="true"
           >
             ⌕
@@ -82,12 +82,13 @@ export function RestaurantExplorer({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Thử gõ ‘b’ để tìm bún, bánh…"
             autoComplete="off"
-            className="field w-full pl-9 text-sm"
+            style={{ paddingLeft: "42px" }}
+            className="field w-full text-sm !pl-11"
           />
         </div>
 
         {/* Dòng 2: 2 dropdown chọn Danh mục và Quán ăn nhiều nhất */}
-        <div className="grid grid-cols-2 gap-3 pt-0.5">
+        <div className="grid grid-cols-2 gap-2.5 pt-0.5">
           <div>
             <label htmlFor="search-restaurant-category" className="block text-xs font-bold text-[var(--color-ink)] mb-1">
               Danh mục
@@ -98,7 +99,14 @@ export function RestaurantExplorer({
                 name="category"
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="field w-full text-xs sm:text-sm py-2 px-3 pr-7 truncate cursor-pointer bg-white"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                  paddingRight: "26px",
+                  paddingLeft: "10px",
+                }}
+                className="field w-full text-xs sm:text-sm py-2 cursor-pointer bg-white"
               >
                 <option value="">Tất cả danh mục</option>
                 {categories.map((item) => (
@@ -107,7 +115,9 @@ export function RestaurantExplorer({
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-muted)]">▼</span>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-muted)] select-none" aria-hidden="true">
+                ▼
+              </span>
             </div>
           </div>
 
@@ -121,12 +131,21 @@ export function RestaurantExplorer({
                 name="sort"
                 value={sortBy}
                 onChange={(event) => setSortBy(event.target.value)}
-                className="field w-full text-xs sm:text-sm py-2 px-3 pr-7 truncate cursor-pointer bg-white"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                  paddingRight: "26px",
+                  paddingLeft: "10px",
+                }}
+                className="field w-full text-xs sm:text-sm py-2 cursor-pointer bg-white"
               >
                 <option value="">Tất cả quán</option>
-                <option value="most_eaten">🔥 Ăn nhiều nhất (Hệ thống)</option>
+                <option value="most_eaten">🔥 Ăn nhiều nhất</option>
               </select>
-              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-muted)]">▼</span>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-muted)] select-none" aria-hidden="true">
+                ▼
+              </span>
             </div>
           </div>
         </div>

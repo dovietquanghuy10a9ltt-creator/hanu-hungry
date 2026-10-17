@@ -974,6 +974,11 @@ export function AdminInteractiveAnalytics({
                   id="admin-period-select"
                   value={period}
                   onChange={(e) => setPeriod(e.target.value as PeriodOption)}
+                  style={{
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                    appearance: "none",
+                  }}
                   className="w-full sm:w-auto rounded-xl border border-[var(--color-line)] bg-[var(--color-pale)] px-4 py-2.5 text-xs sm:text-sm font-bold text-[var(--color-ink)] hover:bg-[#ebdccc] focus:border-[var(--color-red)] focus:outline-none cursor-pointer pr-9 shadow-xs"
                 >
                   <option value="week">📅 Tuần vừa qua</option>
@@ -981,7 +986,7 @@ export function AdminInteractiveAnalytics({
                   <option value="year">📅 Năm vừa qua</option>
                   <option value="custom">🗓️ Chọn theo lịch</option>
                 </select>
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)]">▼</span>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">▼</span>
               </div>
             </div>
           </div>
