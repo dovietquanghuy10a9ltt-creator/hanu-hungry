@@ -11,6 +11,7 @@ import {
   registerAction,
   resetPasswordAction,
   verifyRecoveryOtpAction,
+  resendRecoveryOtpAction,
 } from "@/features/auth/actions";
 
 const initialState: AuthActionState = { status: "idle", message: "" };
@@ -201,7 +202,29 @@ export function RegisterForm() {
 function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => void }) {
   const [state, action] = useActionState(verifyRecoveryOtpAction, initialState);
   const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [countdown, setCountdown] = useState<number>(60);
+  const [resendStatus, setResendStatus] = useState<AuthActionState | null>(null);
+  const [isResending, setIsResending] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const hiddenOtpRef = useRef<HTMLInputElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
+
+  const triggerAutoSubmit = (fullOtp: string) => {
+    if (fullOtp.length === 6) {
+      if (hiddenOtpRef.current) hiddenOtpRef.current.value = fullOtp;
+      setTimeout(() => {
+        formRef.current?.requestSubmit();
+      }, 50);
+    }
+  };
 
   const handleChange = (index: number, val: string) => {
     const cleaned = val.replace(/[^0-9]/g, "");
@@ -218,6 +241,8 @@ function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => v
 
     if (index < 5) {
       inputRefs.current[index + 1]?.focus();
+    } else if (index === 5) {
+      triggerAutoSubmit(next.join(""));
     }
   };
 
@@ -242,19 +267,44 @@ function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => v
       next[i] = pasted[i] || "";
     }
     setDigits(next);
-    const targetIdx = Math.min(pasted.length, 5);
-    inputRefs.current[targetIdx]?.focus();
+    if (pasted.length === 6) {
+      triggerAutoSubmit(pasted);
+    } else {
+      const targetIdx = Math.min(pasted.length, 5);
+      inputRefs.current[targetIdx]?.focus();
+    }
+  };
+
+  const handleResend = async () => {
+    if (countdown > 0 || isResending) return;
+    setIsResending(true);
+    setResendStatus(null);
+    try {
+      const res = await resendRecoveryOtpAction(email);
+      setResendStatus(res);
+      if (res.status === "success") {
+        setCountdown(60);
+        setDigits(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+      }
+    } catch {
+      setResendStatus({ status: "error", message: "Có lỗi khi gửi lại mã OTP." });
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Nhập mã OTP</h2>
       <p className="mt-2 text-sm leading-relaxed text-[#756561]">
-        Mã xác nhận 6 số đã được gửi đến email <strong className="text-[#1f1b1a]">{email}</strong>. Vui lòng kiểm tra hộp thư (hoặc mục Spam).
+        Mã xác nhận 6 số đã được gửi đến email <strong className="text-[#1f1b1a]">{email}</strong>.
       </p>
-      <form action={action} className="mt-7 space-y-5">
+      <p className="mt-1 text-xs text-[#b51b2c] font-medium">Mã có hiệu lực trong 5 phút.</p>
+
+      <form ref={formRef} action={action} className="mt-6 space-y-5">
         <input type="hidden" name="email" value={email} />
-        <input type="hidden" name="otp" value={digits.join("")} />
+        <input ref={hiddenOtpRef} type="hidden" name="otp" value={digits.join("")} />
 
         <div>
           <label className={`${labelClass} text-center mb-3`}>Nhập 6 chữ số mã OTP</label>
@@ -277,9 +327,36 @@ function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => v
           </div>
         </div>
 
+        <div className="flex items-center justify-center text-sm pt-1">
+          {countdown > 0 ? (
+            <span className="text-[#756561]">
+              Gửi lại mã sau <strong className="font-mono text-[#b51b2c]">{countdown}s</strong>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={isResending}
+              className="font-bold text-[#b51b2c] hover:underline disabled:opacity-50 cursor-pointer"
+            >
+              {isResending ? "Đang gửi lại..." : "Gửi lại mã OTP"}
+            </button>
+          )}
+        </div>
+
+        {resendStatus && (
+          <p
+            role={resendStatus.status === "error" ? "alert" : "status"}
+            className={`rounded-xl px-4 py-2.5 text-center text-xs leading-relaxed ${resendStatus.status === "error" ? "bg-red-50 text-red-800" : "bg-green-50 text-green-800"}`}
+          >
+            {resendStatus.message}
+          </p>
+        )}
+
         <FormMessage state={state} />
         <SubmitButton>Xác nhận OTP</SubmitButton>
       </form>
+
       <div className="mt-6 flex items-center justify-between text-sm">
         <button
           type="button"

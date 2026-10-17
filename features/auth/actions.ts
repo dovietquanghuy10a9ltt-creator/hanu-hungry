@@ -304,6 +304,41 @@ export async function verifyRecoveryOtpAction(
   return { status: "success", message: "Xác thực OTP thành công!" };
 }
 
+export async function resendRecoveryOtpAction(email: string): Promise<AuthActionState> {
+  const normalized = normalizeEmail(email);
+  if (!isValidEmail(normalized)) return error("Email không hợp lệ.");
+
+  const rateLimit = await checkRateLimit({
+    action: `resend_otp:${normalized}`,
+    maxAttempts: 3,
+    windowSeconds: 60,
+    blockSeconds: 60,
+  });
+  if (!rateLimit.allowed) {
+    return error("Vui lòng đợi 60 giây trước khi yêu cầu gửi lại mã.");
+  }
+
+  try {
+    const supabase = await createClient();
+    const callback = new URL("/auth/callback?next=%2Freset-password", siteUrl());
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(normalized, {
+      redirectTo: callback.toString(),
+    });
+    if (resetError) {
+      console.error("[auth] resendRecoveryOtpAction error:", resetError.message);
+      return error("Không thể gửi lại mã OTP lúc này. Vui lòng thử lại sau.");
+    }
+
+    return {
+      status: "success",
+      message: "Mã OTP mới đã được gửi vào email của bạn!",
+    };
+  } catch (err: unknown) {
+    console.error("[auth] resendRecoveryOtpAction error:", err instanceof Error ? err.message : err);
+    return error("Có lỗi xảy ra khi gửi lại mã OTP. Vui lòng thử lại sau.");
+  }
+}
+
 export async function resetPasswordAction(
   _state: AuthActionState,
   form: FormData,
