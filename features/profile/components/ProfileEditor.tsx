@@ -27,6 +27,7 @@ export function ProfileEditor({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -249,7 +250,7 @@ export function ProfileEditor({
                   type="button"
                   onClick={() => {
                     setShowActionSheet(false);
-                    handleRemoveAvatar();
+                    setShowDeleteConfirm(true);
                   }}
                   className="flex w-full items-center gap-3.5 rounded-xl px-3 py-3 text-left font-semibold text-red-600 hover:bg-red-50 transition active:scale-[0.98]"
                 >
@@ -300,6 +301,47 @@ export function ProfileEditor({
                 ☺
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* Confirmation Modal for Avatar Deletion */}
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 transition-all"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl text-center space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 text-2xl">
+              ⚠️
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Xóa ảnh đại diện?</h3>
+              <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
+                Bạn có chắc chắn muốn xóa ảnh đại diện không? Ảnh sẽ được gỡ bỏ và quay về biểu tượng mặc định.
+              </p>
+            </div>
+            <div className="flex gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  handleRemoveAvatar();
+                }}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition"
+              >
+                Xác nhận xóa
+              </button>
+            </div>
           </div>
         </div>
       )}

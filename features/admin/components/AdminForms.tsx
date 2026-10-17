@@ -156,7 +156,7 @@ export function CategoryForm({ category }: { category?: { id: string; name: stri
 
 export function DeleteCategoryForm({ id }: { id: string }) {
   const [state, action] = useActionState(deleteCategoryAction, initial);
-  return <form action={action} onSubmit={(event) => { if (!window.confirm("Xóa category và gỡ phân loại khỏi các quán?")) event.preventDefault(); }} className="flex flex-wrap items-center gap-2">
+  return <form action={action} onSubmit={(event) => { if (!window.confirm("Bạn có chắc chắn muốn xóa danh mục này không? Phân loại sẽ bị gỡ khỏi các quán liên quan.")) event.preventDefault(); }} className="flex flex-wrap items-center gap-2">
     <input type="hidden" name="id" value={id} />
     <Submit muted>Xóa category</Submit>
     <Message state={state} />
@@ -295,7 +295,7 @@ export function BlogStatusForm({ id, status }: { id: string; status: "draft" | "
 
 export function DeleteBlogForm({ id }: { id: string }) {
   const [state, action] = useActionState(deleteBlogAction, initial);
-  return <form action={action} onSubmit={(event) => { if (!window.confirm("Xóa vĩnh viễn bài Blog này?")) event.preventDefault(); }} className="flex flex-wrap items-center gap-3">
+  return <form action={action} onSubmit={(event) => { if (!window.confirm("Bạn có chắc chắn muốn xóa bài viết Blog này không?")) event.preventDefault(); }} className="flex flex-wrap items-center gap-3">
     <input type="hidden" name="id" value={id} />
     <Submit muted>Xóa bài</Submit>
     <Message state={state} />

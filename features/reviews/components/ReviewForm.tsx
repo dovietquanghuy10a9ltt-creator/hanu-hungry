@@ -139,7 +139,15 @@ export function ReviewForm({ restaurantId, ownReview }: ReviewFormProps) {
 
       {/* Delete Own Review Form */}
       {isEditing && ownReview && (
-        <form action={deleteReview} className="border-t border-[var(--color-line)] pt-3">
+        <form
+          action={deleteReview}
+          onSubmit={(e) => {
+            if (!window.confirm("Bạn có chắc chắn muốn xóa đánh giá này không?")) {
+              e.preventDefault();
+            }
+          }}
+          className="border-t border-[var(--color-line)] pt-3"
+        >
           <input type="hidden" name="id" value={ownReview.id} />
           <input type="hidden" name="restaurantId" value={restaurantId} />
           <button

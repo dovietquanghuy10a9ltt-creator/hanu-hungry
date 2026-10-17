@@ -179,28 +179,31 @@ export function GachaExperience({
           type="button"
           aria-pressed={mode === "restaurant"}
           disabled={phase === "rolling"}
-          className={mode === "restaurant" ? "is-active" : ""}
+          className={`inline-flex items-center justify-center gap-1.5 ${mode === "restaurant" ? "is-active" : ""}`}
           onClick={() => changeMode("restaurant")}
         >
-          Gacha theo quán
+          <span className="text-base sm:text-lg leading-none" aria-hidden="true">🏪</span>
+          <span>Theo quán</span>
         </button>
         <button
           type="button"
           aria-pressed={mode === "food"}
           disabled={phase === "rolling"}
-          className={mode === "food" ? "is-active" : ""}
+          className={`inline-flex items-center justify-center gap-1.5 ${mode === "food" ? "is-active" : ""}`}
           onClick={() => changeMode("food")}
         >
-          Gacha theo đồ ăn
+          <span className="text-base sm:text-lg leading-none" aria-hidden="true">🍜</span>
+          <span>Theo đồ ăn</span>
         </button>
         <button
           type="button"
           aria-pressed={mode === "drink"}
           disabled={phase === "rolling"}
-          className={mode === "drink" ? "is-active" : ""}
+          className={`inline-flex items-center justify-center gap-1.5 ${mode === "drink" ? "is-active" : ""}`}
           onClick={() => changeMode("drink")}
         >
-          Gacha theo đồ uống
+          <span className="text-base sm:text-lg leading-none" aria-hidden="true">🧋</span>
+          <span>Theo đồ uống</span>
         </button>
       </div>
 
