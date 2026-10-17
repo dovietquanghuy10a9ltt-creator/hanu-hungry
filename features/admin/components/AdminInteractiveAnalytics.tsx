@@ -660,28 +660,31 @@ export function AdminInteractiveAnalytics({
         </AdminCard>
       </div>
 
-      {/* Main Tab Navigation Bar (Placed prominently at top) */}
-      <div className="rounded-2xl border border-[var(--color-line)] bg-white p-3 shadow-xs">
-        <div className="flex flex-wrap items-center gap-2">
-          {[
-            { id: "accounts", label: `👥 Danh sách tài khoản (${accounts.length})` },
-            { id: "dishes", label: "🍜 Món ăn nhiều nhất" },
-            { id: "restaurants", label: "🏪 Quán ghé thăm nhiều nhất" },
-            { id: "users", label: "🏆 Ai ăn nhiều nhất" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id as MetricTab)}
-              className={`rounded-full px-4 py-2 text-xs sm:text-sm font-bold transition cursor-pointer ${
-                activeTab === tab.id
-                  ? "bg-[var(--color-red)] text-white shadow-xs"
-                  : "border border-[var(--color-line)] bg-[var(--color-pale)] text-[var(--color-ink)] hover:bg-[#ebdccc]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      {/* Main Tab Navigation Bar (Dropdown for mobile optimization) */}
+      <div className="rounded-2xl border border-[var(--color-line)] bg-white p-3.5 shadow-xs">
+        <label htmlFor="admin-main-tab-select" className="block text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider mb-1.5">
+          Mục thống kê & Quản lý
+        </label>
+        <div className="relative">
+          <select
+            id="admin-main-tab-select"
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value as MetricTab)}
+            style={{
+              WebkitAppearance: "none",
+              MozAppearance: "none",
+              appearance: "none",
+            }}
+            className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-pale)] py-2.5 pl-4 pr-10 text-sm font-bold text-[var(--color-ink)] hover:bg-[#ebdccc] focus:border-[var(--color-red)] focus:outline-none cursor-pointer shadow-xs transition"
+          >
+            <option value="accounts">👥 Danh sách tài khoản ({accounts.length})</option>
+            <option value="dishes">🍜 Món ăn nhiều nhất</option>
+            <option value="restaurants">🏪 Quán ghé thăm nhiều nhất</option>
+            <option value="users">🏆 Ai ăn nhiều nhất</option>
+          </select>
+          <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
+            ▼
+          </span>
         </div>
       </div>
 
