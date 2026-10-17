@@ -299,10 +299,16 @@ function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => v
 export function ForgotPasswordForm() {
   const [state, action] = useActionState(forgotPasswordAction, initialState);
   const [step, setStep] = useState<"request" | "otp">("request");
+  const [emailValue, setEmailValue] = useState("");
+  const [studentCodeValue, setStudentCodeValue] = useState("");
+  const studentCodeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (state.status === "success" && state.data?.email) {
       setStep("otp");
+    } else if (state.status === "error") {
+      setStudentCodeValue("");
+      studentCodeInputRef.current?.focus();
     }
   }, [state]);
 
@@ -316,10 +322,34 @@ export function ForgotPasswordForm() {
       <p className="mt-2 text-sm leading-relaxed text-[#756561]">Nhập email và MSSV thuộc tài khoản của bạn để nhận mã OTP đặt lại mật khẩu.</p>
       <form action={action} className="mt-7 space-y-5">
         <label className={labelClass}>Email
-          <input name="email" type="email" inputMode="email" autoComplete="email" required className={inputClass} placeholder="tenban@email.com" defaultValue={state.data?.email} />
+          <input
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            required
+            className={inputClass}
+            placeholder="tenban@email.com"
+            value={emailValue}
+            onChange={(e) => setEmailValue(e.target.value)}
+          />
         </label>
         <label className={labelClass}>MSSV
-          <input name="student_code" type="text" inputMode="numeric" pattern="[0-9]{10}" minLength={10} maxLength={10} title="MSSV gồm đúng 10 chữ số" required className={inputClass} placeholder="10 chữ số" />
+          <input
+            ref={studentCodeInputRef}
+            name="student_code"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]{10}"
+            minLength={10}
+            maxLength={10}
+            title="MSSV gồm đúng 10 chữ số"
+            required
+            className={inputClass}
+            placeholder="10 chữ số"
+            value={studentCodeValue}
+            onChange={(e) => setStudentCodeValue(e.target.value)}
+          />
         </label>
         <FormMessage state={state} />
         <SubmitButton>Gửi mã OTP</SubmitButton>
