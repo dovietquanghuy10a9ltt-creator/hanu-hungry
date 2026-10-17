@@ -370,7 +370,6 @@ export async function changePasswordAction(
   const currentPassword = field(form, "current_password");
   const newPassword = field(form, "password");
   if (!currentPassword) return error("Vui lòng nhập mật khẩu hiện tại.");
-  if (currentPassword === newPassword) return error("Mật khẩu mới cần khác mật khẩu hiện tại.");
   const passwordError = validatePassword(newPassword);
   if (passwordError) return error(passwordError);
   if (newPassword !== field(form, "confirm_password")) {

@@ -36,13 +36,72 @@ function FormMessage({ state }: { state: AuthActionState }) {
   );
 }
 
-function PasswordField({ name, label, autoComplete = "new-password", minLength }: {
+function getPasswordStrength(password: string): {
+  label: string;
+  colorClass: string;
+  widthPercent: number;
+  textColor: string;
+} {
+  if (!password) {
+    return { label: "", colorClass: "bg-transparent", widthPercent: 0, textColor: "" };
+  }
+
+  const len = password.length;
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+  const varietyCount = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+
+  if (len < 6) {
+    return { label: "Rất yếu", colorClass: "bg-red-500", widthPercent: 20, textColor: "#ef4444" };
+  }
+
+  if (len < 8) {
+    return { label: "Yếu", colorClass: "bg-orange-500", widthPercent: 38, textColor: "#f97316" };
+  }
+
+  if (varietyCount <= 1) {
+    return { label: "Yếu", colorClass: "bg-orange-500", widthPercent: 40, textColor: "#f97316" };
+  }
+
+  if (varietyCount === 2) {
+    return { label: "Trung bình", colorClass: "bg-amber-400", widthPercent: 60, textColor: "#d97706" };
+  }
+
+  if (varietyCount === 3) {
+    if (hasSpecial || len >= 10) {
+      return { label: "Mạnh", colorClass: "bg-emerald-500", widthPercent: 82, textColor: "#059669" };
+    }
+    return { label: "Trung bình", colorClass: "bg-amber-400", widthPercent: 65, textColor: "#d97706" };
+  }
+
+  if (len >= 8) {
+    return { label: "Rất mạnh", colorClass: "bg-teal-600", widthPercent: 100, textColor: "#0d9488" };
+  }
+
+  return { label: "Mạnh", colorClass: "bg-emerald-500", widthPercent: 85, textColor: "#059669" };
+}
+
+function PasswordField({
+  name,
+  label,
+  autoComplete = "new-password",
+  minLength,
+  showStrength = false,
+}: {
   name: string;
   label: string;
   autoComplete?: string;
   minLength?: number;
+  showStrength?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
+  const [val, setVal] = useState("");
+
+  const strength = showStrength ? getPasswordStrength(val) : null;
+
   return (
     <label className={labelClass}>
       {label}
@@ -53,6 +112,8 @@ function PasswordField({ name, label, autoComplete = "new-password", minLength }
           autoComplete={autoComplete}
           minLength={minLength}
           required
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
           className="field w-full pr-12"
         />
         <button
@@ -63,13 +124,11 @@ function PasswordField({ name, label, autoComplete = "new-password", minLength }
           title={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
         >
           {visible ? (
-            /* Mắt mở */
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
               <circle cx="12" cy="12" r="3" />
             </svg>
           ) : (
-            /* Mắt nhắm / gạch chéo */
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
               <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
@@ -79,6 +138,23 @@ function PasswordField({ name, label, autoComplete = "new-password", minLength }
           )}
         </button>
       </span>
+
+      {strength && strength.label && (
+        <span className="mt-2 block space-y-1 transition-all">
+          <span className="flex items-center justify-between text-xs">
+            <span className="text-[var(--color-muted)] font-normal">Độ mạnh mật khẩu:</span>
+            <span className="font-bold transition-colors duration-200" style={{ color: strength.textColor }}>
+              {strength.label}
+            </span>
+          </span>
+          <span className="block h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+            <span
+              className={`block h-full ${strength.colorClass} transition-all duration-300 ease-out rounded-full`}
+              style={{ width: `${strength.widthPercent}%` }}
+            />
+          </span>
+        </span>
+      )}
     </label>
   );
 }
@@ -188,7 +264,7 @@ export function RegisterForm() {
         <label className={labelClass}>Email
           <input name="email" type="email" inputMode="email" autoComplete="email" required className={inputClass} placeholder="tenban@email.com" />
         </label>
-        <PasswordField name="password" label="Mật khẩu" minLength={8} />
+        <PasswordField name="password" label="Mật khẩu" minLength={8} showStrength />
         <PasswordField name="confirm_password" label="Nhập lại mật khẩu" minLength={8} />
         <p className="text-xs text-[#756561]">Mật khẩu cần ít nhất 8 ký tự. Tên hiển thị mặc định lấy từ phần trước @ trong email.</p>
         <FormMessage state={state} />
@@ -443,7 +519,7 @@ export function ResetPasswordForm() {
       <h2 className="text-2xl font-black sm:text-3xl">Đặt mật khẩu mới</h2>
       <p className="mt-2 text-sm leading-relaxed text-[#756561]">Mật khẩu mới cần ít nhất 8 ký tự.</p>
       <form action={action} className="mt-7 space-y-5">
-        <PasswordField name="password" label="Mật khẩu mới" minLength={8} />
+        <PasswordField name="password" label="Mật khẩu mới" minLength={8} showStrength />
         <PasswordField name="confirm_password" label="Nhập lại mật khẩu mới" minLength={8} />
         <FormMessage state={state} />
         <SubmitButton>Lưu mật khẩu mới</SubmitButton>
@@ -460,7 +536,7 @@ export function ChangePasswordForm() {
       <p className="mt-2 text-sm leading-relaxed text-[#756561]">Nhập mật khẩu hiện tại để xác nhận thay đổi.</p>
       <form action={action} className="mt-7 space-y-5">
         <PasswordField name="current_password" label="Mật khẩu hiện tại" autoComplete="current-password" />
-        <PasswordField name="password" label="Mật khẩu mới" minLength={8} />
+        <PasswordField name="password" label="Mật khẩu mới" minLength={8} showStrength />
         <PasswordField name="confirm_password" label="Nhập lại mật khẩu mới" minLength={8} />
         <FormMessage state={state} />
         <SubmitButton>Đổi mật khẩu</SubmitButton>

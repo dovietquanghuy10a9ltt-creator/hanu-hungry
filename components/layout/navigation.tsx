@@ -6,8 +6,12 @@ import { siteConfig } from "@/config/site";
 
 export function Navigation({ mobile = false, isAdmin = false, signedIn = false }: { mobile?: boolean; isAdmin?: boolean; signedIn?: boolean }) {
   const pathname = usePathname();
-  const items = [
+  const studentNavItems = [
     ...siteConfig.navigation,
+    { href: "/support", label: "Hỗ trợ", icon: "💬" },
+  ];
+  const items = [
+    ...(isAdmin ? siteConfig.navigation : studentNavItems),
     ...(mobile && signedIn ? [{ href: "/profile", label: "Cá nhân", icon: "◎" }] : []),
     ...(isAdmin ? [{ href: "/admin/analytics", label: "Quản trị", icon: "▦" }] : []),
   ];
