@@ -17,6 +17,7 @@ import {
 export type AuthActionState = {
   status: "idle" | "error" | "success";
   message: string;
+  data?: Record<string, string>;
 };
 
 function field(form: FormData, name: string): string {
@@ -232,8 +233,64 @@ export async function forgotPasswordAction(
   }
   return {
     status: "success",
-    message: "Nếu email và MSSV khớp, liên kết đặt lại mật khẩu sẽ được gửi đến email đó.",
+    message: "Nếu email và MSSV khớp, mã OTP đã được gửi đến email đó.",
+    data: { email },
   };
+}
+
+export async function verifyRecoveryOtpAction(
+  _state: AuthActionState,
+  form: FormData,
+): Promise<AuthActionState> {
+  const email = normalizeEmail(field(form, "email"));
+  const otp = field(form, "otp").trim().replace(/\s+/g, "");
+
+  if (!isValidEmail(email)) return error("Email không hợp lệ.");
+  if (!/^[0-9]{6}$/.test(otp)) return error("Mã OTP phải gồm đúng 6 chữ số.");
+
+  const rateLimit = await checkRateLimit({
+    action: `otp:${email}`,
+    maxAttempts: 5,
+    windowSeconds: 300,
+    blockSeconds: 300,
+  });
+  if (!rateLimit.allowed) {
+    return error(rateLimit.message);
+  }
+
+  let shouldRedirect = false;
+  try {
+    const supabase = await createClient();
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: "recovery",
+    });
+
+    if (verifyError) {
+      console.warn("[auth] verifyRecoveryOtpAction verifyError:", verifyError.message);
+      return error("Mã OTP không chính xác hoặc đã hết hạn. Vui lòng kiểm tra lại.");
+    }
+
+    const cookieStore = await cookies();
+    cookieStore.set("hanu_recovery", "1", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60,
+    });
+    shouldRedirect = true;
+  } catch (err: unknown) {
+    console.error("[auth] verifyRecoveryOtpAction error:", err instanceof Error ? err.message : err);
+    return error("Có lỗi xảy ra khi xác thực OTP. Vui lòng thử lại sau.");
+  }
+
+  if (shouldRedirect) {
+    redirect("/reset-password");
+  }
+
+  return { status: "success", message: "Xác thực OTP thành công!" };
 }
 
 export async function resetPasswordAction(

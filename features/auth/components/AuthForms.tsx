@@ -10,6 +10,7 @@ import {
   loginAction,
   registerAction,
   resetPasswordAction,
+  verifyRecoveryOtpAction,
 } from "@/features/auth/actions";
 
 const initialState: AuthActionState = { status: "idle", message: "" };
@@ -197,21 +198,78 @@ export function RegisterForm() {
   );
 }
 
+function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => void }) {
+  const [state, action] = useActionState(verifyRecoveryOtpAction, initialState);
+  return (
+    <>
+      <h2 className="text-2xl font-black sm:text-3xl">Nhập mã OTP</h2>
+      <p className="mt-2 text-sm leading-relaxed text-[#756561]">
+        Mã xác nhận 6 số đã được gửi đến email <strong className="text-[#1f1b1a]">{email}</strong>. Vui lòng kiểm tra hộp thư (hoặc mục Spam).
+      </p>
+      <form action={action} className="mt-7 space-y-5">
+        <input type="hidden" name="email" value={email} />
+        <label className={labelClass}>
+          Mã OTP (6 chữ số)
+          <input
+            name="otp"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]{6}"
+            minLength={6}
+            maxLength={6}
+            autoComplete="one-time-code"
+            required
+            placeholder="123456"
+            className={`${inputClass} text-center tracking-[0.35em] text-2xl font-black font-mono`}
+            autoFocus
+          />
+        </label>
+        <FormMessage state={state} />
+        <SubmitButton>Xác nhận OTP</SubmitButton>
+      </form>
+      <div className="mt-6 flex items-center justify-between text-sm">
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-[#756561] hover:text-[#1f1b1a] hover:underline"
+        >
+          ← Nhập lại email / MSSV
+        </button>
+        <Link href="/login" className="font-bold text-[#b51b2c] hover:underline">
+          Đăng nhập
+        </Link>
+      </div>
+    </>
+  );
+}
+
 export function ForgotPasswordForm() {
   const [state, action] = useActionState(forgotPasswordAction, initialState);
+  const [step, setStep] = useState<"request" | "otp">("request");
+
+  useEffect(() => {
+    if (state.status === "success" && state.data?.email) {
+      setStep("otp");
+    }
+  }, [state]);
+
+  if (step === "otp" && state.data?.email) {
+    return <OtpVerificationForm email={state.data.email} onBack={() => setStep("request")} />;
+  }
+
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Quên mật khẩu</h2>
-      <p className="mt-2 text-sm leading-relaxed text-[#756561]">Nhập email và MSSV thuộc cùng tài khoản để nhận liên kết đặt lại mật khẩu.</p>
+      <p className="mt-2 text-sm leading-relaxed text-[#756561]">Nhập email và MSSV thuộc tài khoản của bạn để nhận mã OTP đặt lại mật khẩu.</p>
       <form action={action} className="mt-7 space-y-5">
         <label className={labelClass}>Email
-          <input name="email" type="email" inputMode="email" autoComplete="email" required className={inputClass} />
+          <input name="email" type="email" inputMode="email" autoComplete="email" required className={inputClass} placeholder="tenban@email.com" defaultValue={state.data?.email} />
         </label>
         <label className={labelClass}>MSSV
-          <input name="student_code" type="text" inputMode="numeric" pattern="[0-9]{10}" minLength={10} maxLength={10} title="MSSV gồm đúng 10 chữ số" required className={inputClass} />
+          <input name="student_code" type="text" inputMode="numeric" pattern="[0-9]{10}" minLength={10} maxLength={10} title="MSSV gồm đúng 10 chữ số" required className={inputClass} placeholder="10 chữ số" />
         </label>
         <FormMessage state={state} />
-        <SubmitButton>Gửi liên kết đặt lại</SubmitButton>
+        <SubmitButton>Gửi mã OTP</SubmitButton>
       </form>
       <p className="mt-6 text-center text-sm"><Link href="/login" className="font-bold text-[#b51b2c] hover:underline">Quay lại đăng nhập</Link></p>
     </>
