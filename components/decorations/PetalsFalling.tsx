@@ -1,45 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-interface Petal {
-  x: number;
-  y: number;
-  size: number;
-  speedY: number;
-  speedX: number;
-  angle: number;
-  angularSpeed: number;
-  flipAngle: number;
-  flipSpeed: number;
-  opacity: number;
-  color: string;
-  type: "petal" | "blossom";
-}
-
-const PETAL_COLORS = [
-  "rgba(255, 183, 197, 0.85)", // Sakura pink
-  "rgba(255, 154, 179, 0.8)",  // Rose pink
-  "rgba(244, 114, 182, 0.75)", // Deep blossom
-  "rgba(251, 207, 232, 0.9)",  // Light pastel pink
-  "rgba(254, 205, 211, 0.85)", // Warm petal
+const PETALS = [
+  { id: 1, left: "7%", size: "18px", duration: "11s", delay: "0s", char: "🌸" },
+  { id: 2, left: "21%", size: "14px", duration: "14s", delay: "2.5s", char: "🌺" },
+  { id: 3, left: "36%", size: "16px", duration: "12s", delay: "5s", char: "🌸" },
+  { id: 4, left: "52%", size: "13px", duration: "15s", delay: "1.2s", char: "🌷" },
+  { id: 5, left: "67%", size: "17px", duration: "13s", delay: "4s", char: "🌸" },
+  { id: 6, left: "81%", size: "14px", duration: "16s", delay: "6.5s", char: "✨" },
+  { id: 7, left: "92%", size: "16px", duration: "12.5s", delay: "3s", char: "🌸" },
+  { id: 8, left: "44%", size: "15px", duration: "13.5s", delay: "7.5s", char: "💐" },
 ];
 
 export function PetalsFalling() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [enabled, setEnabled] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const animationFrameId = useRef<number | null>(null);
-  const petalsRef = useRef<Petal[]>([]);
 
-  // Check saved preference on mount
   useEffect(() => {
     setMounted(true);
     const saved = sessionStorage.getItem("hanu_petals_enabled");
     if (saved !== null) {
       setEnabled(saved === "true");
     } else {
-      // Respect prefers-reduced-motion
       const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       setEnabled(!prefersReduced);
     }
@@ -53,135 +36,30 @@ export function PetalsFalling() {
     });
   }
 
-  useEffect(() => {
-    if (!mounted || !enabled) {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
-      }
-      return;
-    }
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    function resize() {
-      if (!canvas) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    // Initialize petals (around 24 petals for smooth, non-intrusive effect)
-    const petalCount = window.innerWidth < 640 ? 16 : 26;
-    const petals: Petal[] = [];
-    for (let i = 0; i < petalCount; i++) {
-      petals.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 8 + 10,
-        speedY: Math.random() * 1.2 + 0.8,
-        speedX: Math.random() * 0.8 - 0.4,
-        angle: Math.random() * 360,
-        angularSpeed: (Math.random() - 0.5) * 0.03,
-        flipAngle: Math.random() * Math.PI,
-        flipSpeed: Math.random() * 0.03 + 0.015,
-        opacity: Math.random() * 0.35 + 0.55,
-        color: PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
-        type: Math.random() > 0.85 ? "blossom" : "petal",
-      });
-    }
-    petalsRef.current = petals;
-
-    let time = 0;
-
-    function drawPetal(ctx: CanvasRenderingContext2D, p: Petal) {
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.angle);
-      // Simulate 3D tumbling by scaling Y with cosine
-      ctx.scale(1, Math.cos(p.flipAngle));
-      ctx.globalAlpha = p.opacity;
-
-      if (p.type === "blossom") {
-        // Draw miniature cherry blossom flower (5 petals)
-        ctx.fillStyle = p.color;
-        const r = p.size * 0.45;
-        for (let i = 0; i < 5; i++) {
-          ctx.beginPath();
-          ctx.ellipse(0, -r, r * 0.5, r, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.rotate((Math.PI * 2) / 5);
-        }
-        // Center pistil
-        ctx.fillStyle = "#fff7ed";
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 0.35, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Draw individual curved petal
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(p.size * 0.5, -p.size * 0.5, p.size, -p.size * 0.3, p.size, 0);
-        ctx.bezierCurveTo(p.size, p.size * 0.3, p.size * 0.5, p.size * 0.5, 0, 0);
-        ctx.fill();
-      }
-
-      ctx.restore();
-    }
-
-    function loop() {
-      if (!canvas || !ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      time += 0.02;
-
-      for (const p of petalsRef.current) {
-        // Sway horizontally using sine wave
-        p.x += p.speedX + Math.sin(time + p.size) * 0.7;
-        p.y += p.speedY;
-        p.angle += p.angularSpeed;
-        p.flipAngle += p.flipSpeed;
-
-        // Wrap around when falling off bottom
-        if (p.y > canvas.height + 20) {
-          p.y = -20;
-          p.x = Math.random() * canvas.width;
-        }
-        // Wrap horizontally
-        if (p.x < -20) p.x = canvas.width + 20;
-        if (p.x > canvas.width + 20) p.x = -20;
-
-        drawPetal(ctx, p);
-      }
-
-      animationFrameId.current = requestAnimationFrame(loop);
-    }
-
-    animationFrameId.current = requestAnimationFrame(loop);
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
-    };
-  }, [mounted, enabled]);
-
   if (!mounted) return null;
 
   return (
     <>
       {enabled && (
-        <canvas
-          ref={canvasRef}
+        <div
           aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-30 h-full w-full select-none"
-        />
+          className="pointer-events-none fixed inset-0 z-20 overflow-hidden select-none"
+        >
+          {PETALS.map((p) => (
+            <span
+              key={p.id}
+              className="falling-petal"
+              style={{
+                left: p.left,
+                fontSize: p.size,
+                animationDuration: p.duration,
+                animationDelay: p.delay,
+              }}
+            >
+              {p.char}
+            </span>
+          ))}
+        </div>
       )}
 
       {/* Floating control button to toggle falling petals */}
@@ -189,29 +67,25 @@ export function PetalsFalling() {
         <button
           type="button"
           onClick={togglePetals}
-          title={enabled ? "Tắt hiệu ứng cánh hoa rơi" : "Bật hiệu ứng cánh hoa rơi 20/10"}
-          aria-label={enabled ? "Tắt hiệu ứng cánh hoa rơi" : "Bật hiệu ứng cánh hoa rơi 20/10"}
-          className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all duration-300 shadow-md backdrop-blur border ${
+          title={enabled ? "Tắt hiệu ứng hoa rơi" : "Bật hiệu ứng hoa rơi 20/10"}
+          aria-label={enabled ? "Tắt hiệu ứng hoa rơi" : "Bật hiệu ứng hoa rơi 20/10"}
+          className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all duration-200 shadow-sm border ${
             enabled
-              ? "bg-[#fff0f3]/90 text-[#b52a34] border-[#fbcfe8] hover:bg-[#ffe4e9]"
-              : "bg-[#fffdf8]/90 text-[var(--color-muted)] border-[var(--color-line)] hover:text-[var(--color-ink)]"
+              ? "bg-[#fff0f3] text-[#b52a34] border-[#fbcfe8] hover:bg-[#ffe4e9]"
+              : "bg-[#fffdf8] text-[var(--color-muted)] border-[var(--color-line)] hover:text-[var(--color-ink)]"
           }`}
         >
           <span
             aria-hidden="true"
-            className={`text-sm transition-transform duration-300 ${
-              enabled ? "animate-spin-slow inline-block" : "opacity-60"
-            }`}
-            style={{ animationDuration: "6s" }}
+            className="text-sm select-none"
           >
             🌸
           </span>
           <span className="hidden sm:inline">
-            {enabled ? "Hoa rơi 20/10: Bật" : "Hoa rơi: Tắt"}
+            {enabled ? "Hoa rơi: Bật" : "Hoa rơi: Tắt"}
           </span>
         </button>
       </div>
     </>
   );
 }
-

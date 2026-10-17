@@ -113,7 +113,7 @@ export function WomensDayGiftModal() {
         wobble: Math.random() * Math.PI,
         wobbleSpeed: Math.random() * 0.1 + 0.05,
         opacity: 1,
-        decay: Math.random() * 0.008 + 0.008,
+        decay: Math.random() * 0.014 + 0.014,
         type: isFlower ? "flower" : "confetti",
         flowerChar: isFlower
           ? FLOWER_EMOJIS[Math.floor(Math.random() * FLOWER_EMOJIS.length)]
@@ -144,9 +144,9 @@ export function WomensDayGiftModal() {
 
     const active: BurstParticle[] = [];
     for (const p of particlesRef.current) {
-      p.vx *= 0.96;
-      p.vy *= 0.96;
-      p.vy += 0.28; // gravity
+      p.vx *= 0.95;
+      p.vy *= 0.95;
+      p.vy += 0.3; // gravity
       p.x += p.vx;
       p.y += p.vy;
       p.rotation += p.rotationSpeed;
@@ -182,6 +182,7 @@ export function WomensDayGiftModal() {
     if (active.length > 0) {
       animFrameRef.current = requestAnimationFrame(runAnimation);
     } else {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -189,24 +190,23 @@ export function WomensDayGiftModal() {
 
   function handleOpen() {
     setIsOpen(true);
-    // Fire festive floral & confetti explosion right as card opens
     setTimeout(() => {
       const canvas = canvasRef.current;
       if (canvas) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       }
-      fireBurst(110);
-    }, 150);
+      fireBurst(42);
+    }, 120);
   }
 
   function handleNextGreeting() {
     setIsRotating(true);
-    fireBurst(45); // Mini celebration burst when cycling
+    fireBurst(20);
     setTimeout(() => {
       setGreetingIndex((prev) => (prev + 1) % GREETINGS.length);
       setIsRotating(false);
-    }, 180);
+    }, 150);
   }
 
   const currentGreeting = GREETINGS[greetingIndex];
