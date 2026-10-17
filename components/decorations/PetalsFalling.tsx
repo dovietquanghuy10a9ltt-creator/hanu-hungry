@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 
 const PETALS = [
-  { id: 1, left: "10%", size: "16px", duration: "16s", delay: "0s", char: "🌸" },
-  { id: 2, left: "30%", size: "14px", duration: "19s", delay: "4s", char: "🌸" },
-  { id: 3, left: "55%", size: "16px", duration: "17s", delay: "2s", char: "🌷" },
-  { id: 4, left: "75%", size: "15px", duration: "20s", delay: "7s", char: "🌸" },
-  { id: 5, left: "90%", size: "14px", duration: "18s", delay: "5s", char: "🌺" },
+  { id: 1, left: "8%", size: "16px", duration: "16s", delay: "0s", char: "🌸" },
+  { id: 2, left: "28%", size: "14px", duration: "19s", delay: "4s", char: "🌸" },
+  { id: 3, left: "45%", size: "15px", duration: "22s", delay: "9s", char: "✨" },
+  { id: 4, left: "62%", size: "16px", duration: "17s", delay: "2s", char: "🌷" },
+  { id: 5, left: "78%", size: "15px", duration: "20s", delay: "7s", char: "🌸" },
+  { id: 6, left: "92%", size: "14px", duration: "18s", delay: "5s", char: "🌺" },
 ];
 
 export function PetalsFalling() {

@@ -60,6 +60,9 @@ export function Navigation({ mobile = false, isAdmin = false, signedIn = false }
               </span>
             )}
             {item.label}
+            {item.href === "/gacha" && (
+              <span className="text-[10px] ml-0.5" aria-hidden="true">🌸</span>
+            )}
           </Link>
         );
       })}

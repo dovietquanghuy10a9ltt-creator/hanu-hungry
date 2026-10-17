@@ -33,7 +33,12 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
       <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
         <div className="flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
           <div className="space-y-6">
-            <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-black text-rose-700 border border-rose-200 shadow-2xs">
+                🌸 Mừng ngày 20/10
+              </span>
+            </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">
               Hanu Hungry
             </h1>

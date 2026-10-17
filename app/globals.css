@@ -15,6 +15,10 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; font-family: var(--font-body), Arial, sans-serif; font-size: 17px; width: 100%; overflow-x: hidden; background-color: var(--color-canvas); background-image: radial-gradient(circle at 100% 0%, rgba(254, 205, 211, 0.22) 0%, transparent 35%), radial-gradient(circle at 0% 0%, rgba(254, 243, 199, 0.18) 0%, transparent 30%); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #faf7ef; }
+::-webkit-scrollbar-thumb { background: #fbcfe8; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #f472b6; }
 button, input, textarea, select { font: inherit; }
 button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 button:disabled { cursor: wait; opacity: .65; }

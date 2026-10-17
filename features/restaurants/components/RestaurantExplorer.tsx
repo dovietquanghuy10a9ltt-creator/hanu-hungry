@@ -92,6 +92,36 @@ export function RestaurantExplorer({
           />
         </div>
 
+        {/* 20/10 Quick Filter Chips */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+          <span className="text-[11px] font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1">
+            🌸 Gợi ý 20/10:
+          </span>
+          {[
+            { label: "📸 Cafe chụp hoa", value: "cafe" },
+            { label: "🧋 Trà sữa", value: "trà sữa" },
+            { label: "🍰 Bánh ngọt", value: "bánh" },
+            { label: "🥘 Lẩu nướng", value: "lẩu" },
+            { label: "💖 Quán ấm cúng", value: "ấm cúng" },
+          ].map((chip) => {
+            const isActive = query.toLowerCase() === chip.value;
+            return (
+              <button
+                key={chip.label}
+                type="button"
+                onClick={() => setQuery(isActive ? "" : chip.value)}
+                className={`rounded-full px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-rose-600 text-white shadow-xs"
+                    : "bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200"
+                }`}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Dòng 2: 2 dropdown chọn Danh mục và Quán ăn nhiều nhất */}
         <div className="grid grid-cols-2 gap-2.5 pt-0.5">
           <div>

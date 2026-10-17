@@ -135,6 +135,12 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
             </p>
           </div>
 
+          {/* 20/10 festive note */}
+          <div className="rounded-xl bg-rose-50 border border-rose-200 p-2.5 text-center text-xs text-rose-700 font-semibold flex items-center justify-center gap-1.5">
+            <span>🌸</span>
+            <span>Check-in một bữa ăn dịp 20/10 để giữ ngọn lửa rực rỡ!</span>
+          </div>
+
           {/* 3. Duolingo Weekly 7-Day Calendar Tracker */}
           <div className="rounded-2xl border border-[var(--color-line)] bg-[#fcfaf7] p-3.5 space-y-2">
             <div className="flex items-center justify-between text-[11px] font-bold text-[var(--color-muted)] px-1 uppercase tracking-wider">

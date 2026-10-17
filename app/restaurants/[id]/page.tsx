@@ -44,13 +44,24 @@ export default async function RestaurantPage({ params }: Props) {
   const mapLink = mapsUrl(restaurant);
   const dishes = restaurant.dishes.filter((dish) => dish.is_active).sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
+  const isWomensDayPick =
+    categories.some((c) => /cà phê|cafe|đồ uống|trà sữa|bánh|lẩu|nướng/i.test(c)) ||
+    /cafe|tea|coffee|bánh|trà sữa|lẩu/i.test(restaurant.name);
+
   return (
     <div className="space-y-8">
       <div><Link href="/restaurants" className="text-sm font-bold text-[var(--color-red)]">← Tất cả quán</Link></div>
       <section className={restaurant.image_url ? "grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,.85fr)]" : "max-w-4xl"}>
         {restaurant.image_url && <div className="relative min-h-56 overflow-hidden rounded-xl sm:min-h-80"><Image src={restaurant.image_url} alt={`Không gian ${restaurant.name}`} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" unoptimized /></div>}
         <div className="card space-y-5 p-5 sm:p-7">
-          <div className="flex flex-wrap gap-2">{(categories.length ? categories : ["Chưa phân loại"]).map((category) => <span key={category} className="rounded-full bg-[var(--color-pale)] px-3 py-1.5 text-xs font-bold text-[var(--color-red)]">{category}</span>)}</div>
+          <div className="flex flex-wrap items-center gap-2">
+            {isWomensDayPick && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 border border-rose-300 px-3 py-1.5 text-xs font-black text-rose-700 shadow-2xs">
+                🌸 Điểm hẹn 20/10 lý tưởng
+              </span>
+            )}
+            {(categories.length ? categories : ["Chưa phân loại"]).map((category) => <span key={category} className="rounded-full bg-[var(--color-pale)] px-3 py-1.5 text-xs font-bold text-[var(--color-red)]">{category}</span>)}
+          </div>
           <div><p className="eyebrow">Khám phá quanh Hanu</p><h1 className="mt-2 break-words text-3xl font-black leading-tight sm:text-4xl">{restaurant.name}</h1></div>
           <div className="space-y-3 text-sm">
             <p><span className="font-bold">Khu vực:</span> {readableText(restaurant.area, "Chưa có dữ liệu khu vực")}</p>

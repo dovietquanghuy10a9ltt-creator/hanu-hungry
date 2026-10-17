@@ -27,9 +27,14 @@ export function BlogNewsWidget({
       style={{ fontFamily: '"Times New Roman", Times, "Liberation Serif", serif' }}
     >
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3.5">
-        <h2 className="text-xl font-black uppercase tracking-tight text-[var(--color-ink)] sm:text-2xl">
-          {title}
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-black uppercase tracking-tight text-[var(--color-ink)] sm:text-2xl">
+            {title}
+          </h2>
+          <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700 border border-rose-200">
+            🌸 20/10
+          </span>
+        </div>
         {showHeaderLink && (
           <Link href="/blog" className="text-xs font-bold text-[var(--color-red)] hover:underline sm:text-sm">
             Tất cả bài viết →

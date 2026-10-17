@@ -196,9 +196,9 @@ export function GachaExperience({
             }}
             className="rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] pl-5 pr-10 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-none cursor-pointer transition"
           >
-            <option value="restaurant">🏪 Gacha theo quán</option>
-            <option value="food">🍜 Gacha theo đồ ăn</option>
-            <option value="drink">🧋 Gacha theo đồ uống</option>
+            <option value="restaurant">🏪 Gacha theo quán 🌸</option>
+            <option value="food">🍜 Gacha theo đồ ăn 🍰</option>
+            <option value="drink">🧋 Gacha theo đồ uống (Trà sữa) ✨</option>
           </select>
           <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
             ▼
@@ -215,7 +215,12 @@ export function GachaExperience({
 
         <div className="gacha-ticket">
           <div className="ticket-top">
-            <span>Hanu Hungry</span>
+            <span className="flex items-center gap-1.5">
+              <span>Hanu Hungry</span>
+              <span className="rounded-full bg-rose-100 px-1.5 py-0.2 text-[8px] sm:text-[9px] font-black text-rose-700 border border-rose-200">
+                🌸 SPECIAL 20/10
+              </span>
+            </span>
             <span>LUCKY PICK / {mode === "restaurant" ? "QUÁN" : mode === "drink" ? "ĐỒ UỐNG" : "ĐỒ ĂN"}</span>
           </div>
 
@@ -270,7 +275,7 @@ export function GachaExperience({
               title={phase === "idle" ? "Bấm vào thẻ để quay" : undefined}
             >
               <div className={`reel-symbol ${phase === "rolling" ? "is-spinning text-rose-600" : "animate-petal-float"}`} aria-hidden="true">
-                {phase === "rolling" ? "🌸" : "✦"}
+                {phase === "rolling" ? "🌸" : "💐"}
               </div>
               <p className={`reel-name ${phase === "rolling" ? "is-rolling" : ""}`} aria-hidden={phase === "rolling"}>
                 {phase === "rolling" ? reelName : "Hôm nay, để vũ trụ chọn."}
@@ -284,8 +289,8 @@ export function GachaExperience({
           )}
 
           <div className="ticket-bottom" aria-hidden="true">
-            <span>FROM Hanu, WITH APPETITE</span>
-            <span>✦ ✦ ✦</span>
+            <span>FROM Hanu, WITH APPETITE & LOVE 💕</span>
+            <span>🌸 ✦ 🌸</span>
           </div>
         </div>
       </div>

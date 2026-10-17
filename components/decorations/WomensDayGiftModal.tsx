@@ -226,6 +226,9 @@ export function WomensDayGiftModal() {
           aria-label="Mở hộp quà chúc mừng 20/10"
           className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer"
         >
+          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-300 text-[9px] text-yellow-900 shadow-xs animate-ping" style={{ animationDuration: "3s" }} aria-hidden="true">
+            ✨
+          </span>
           <span aria-hidden="true" className="relative text-xl animate-bounce" style={{ animationDuration: "2s" }}>
             🎁
           </span>
