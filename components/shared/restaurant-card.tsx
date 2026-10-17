@@ -12,7 +12,7 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantSummary }
     {restaurant.image_url && (
       <div className="relative aspect-[16/10] overflow-hidden">
         {isWomensDayPick && (
-          <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1 rounded-full bg-rose-600/95 backdrop-blur px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-white shadow-sm">
+          <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1 rounded-full bg-rose-600 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-white shadow-xs">
             🌸 Điểm hẹn 20/10
           </span>
         )}

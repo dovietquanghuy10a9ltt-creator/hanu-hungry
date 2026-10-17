@@ -43,19 +43,16 @@ const GREETINGS = [
 ];
 
 const CONFETTI_COLORS = [
-  "#f43f5e", // Rose
-  "#ec4899", // Pink
-  "#fb7185", // Light rose
-  "#f59e0b", // Amber gold
-  "#fbbf24", // Yellow
-  "#10b981", // Emerald
-  "#06b6d4", // Cyan
-  "#8b5cf6", // Purple
-  "#f97316", // Orange
-  "#ffffff", // White shine
+  "#f43f5e",
+  "#ec4899",
+  "#fb7185",
+  "#f59e0b",
+  "#10b981",
+  "#06b6d4",
+  "#8b5cf6",
 ];
 
-const FLOWER_EMOJIS = ["🌸", "🌺", "🌷", "💐", "✨", "🎉", "💖"];
+const FLOWER_EMOJIS = ["🌸", "🌺", "🌷", "💐", "✨"];
 
 interface BurstParticle {
   x: number;
@@ -66,8 +63,6 @@ interface BurstParticle {
   color: string;
   rotation: number;
   rotationSpeed: number;
-  wobble: number;
-  wobbleSpeed: number;
   opacity: number;
   decay: number;
   type: "confetti" | "flower";
@@ -77,52 +72,48 @@ interface BurstParticle {
 export function WomensDayGiftModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [greetingIndex, setGreetingIndex] = useState(0);
-  const [isRotating, setIsRotating] = useState(false);
+  const [showBurst, setShowBurst] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const particlesRef = useRef<BurstParticle[]>([]);
   const animFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Pick random initial greeting
     setGreetingIndex(Math.floor(Math.random() * GREETINGS.length));
   }, []);
 
-  function fireBurst(count = 95) {
+  function fireBurst(count = 28) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
     const originX = rect.width / 2;
-    const originY = rect.height * 0.45;
+    const originY = rect.height * 0.42;
 
     const newParticles: BurstParticle[] = [];
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 16 + 5;
-      const isFlower = Math.random() > 0.65;
+      const speed = Math.random() * 10 + 4;
+      const isFlower = i % 3 === 0;
 
       newParticles.push({
-        x: originX + (Math.random() - 0.5) * 40,
-        y: originY + (Math.random() - 0.5) * 30,
-        vx: Math.cos(angle) * speed * (0.8 + Math.random() * 0.4),
-        vy: Math.sin(angle) * speed - (Math.random() * 7 + 4), // biased upwards
-        size: isFlower ? Math.random() * 8 + 16 : Math.random() * 6 + 6,
-        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-        rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 0.2,
-        wobble: Math.random() * Math.PI,
-        wobbleSpeed: Math.random() * 0.1 + 0.05,
+        x: originX,
+        y: originY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 4,
+        size: isFlower ? 16 : 7,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        rotation: 0,
+        rotationSpeed: (Math.random() - 0.5) * 0.15,
         opacity: 1,
-        decay: Math.random() * 0.014 + 0.014,
+        decay: 0.024,
         type: isFlower ? "flower" : "confetti",
         flowerChar: isFlower
-          ? FLOWER_EMOJIS[Math.floor(Math.random() * FLOWER_EMOJIS.length)]
+          ? FLOWER_EMOJIS[i % FLOWER_EMOJIS.length]
           : undefined,
       });
     }
 
-    particlesRef.current = [...particlesRef.current, ...newParticles];
-
+    particlesRef.current = newParticles;
     if (!animFrameRef.current) {
       runAnimation();
     }
@@ -146,14 +137,13 @@ export function WomensDayGiftModal() {
     for (const p of particlesRef.current) {
       p.vx *= 0.95;
       p.vy *= 0.95;
-      p.vy += 0.3; // gravity
+      p.vy += 0.32; // gravity
       p.x += p.vx;
       p.y += p.vy;
       p.rotation += p.rotationSpeed;
-      p.wobble += p.wobbleSpeed;
       p.opacity -= p.decay;
 
-      if (p.opacity > 0 && p.y < canvas.height + 50) {
+      if (p.opacity > 0 && p.y < canvas.height + 30) {
         active.push(p);
 
         ctx.save();
@@ -167,10 +157,8 @@ export function WomensDayGiftModal() {
           ctx.textBaseline = "middle";
           ctx.fillText(p.flowerChar, 0, 0);
         } else {
-          // Confetti rectangle with 3D wobble
-          ctx.scale(Math.cos(p.wobble), 1);
           ctx.fillStyle = p.color;
-          ctx.fillRect(-p.size / 2, -p.size, p.size, p.size * 1.6);
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
         }
 
         ctx.restore();
@@ -185,28 +173,45 @@ export function WomensDayGiftModal() {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      setShowBurst(false);
     }
   }
 
   function handleOpen() {
     setIsOpen(true);
+    setShowBurst(true);
+    // Fire burst ONLY once when opening the gift
     setTimeout(() => {
       const canvas = canvasRef.current;
       if (canvas) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       }
-      fireBurst(42);
-    }, 120);
+      fireBurst(28);
+
+      // Auto-cleanup burst after 1.3 seconds
+      setTimeout(() => {
+        if (animFrameRef.current) {
+          cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = null;
+        }
+        setShowBurst(false);
+      }, 1300);
+    }, 100);
   }
 
+  function handleClose() {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    setShowBurst(false);
+    setIsOpen(false);
+  }
+
+  // Instant switch on click - NO burst, NO lag, instant update!
   function handleNextGreeting() {
-    setIsRotating(true);
-    fireBurst(20);
-    setTimeout(() => {
-      setGreetingIndex((prev) => (prev + 1) % GREETINGS.length);
-      setIsRotating(false);
-    }, 150);
+    setGreetingIndex((prev) => (prev + 1) % GREETINGS.length);
   }
 
   const currentGreeting = GREETINGS[greetingIndex];
@@ -219,16 +224,9 @@ export function WomensDayGiftModal() {
           type="button"
           onClick={handleOpen}
           aria-label="Mở hộp quà chúc mừng 20/10"
-          className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-rose-400/50 active:scale-95 cursor-pointer"
+          className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer"
         >
-          {/* Pulsing ring animation */}
-          <span
-            aria-hidden="true"
-            className="absolute -inset-1 rounded-full bg-rose-400 opacity-40 blur-xs animate-ping"
-            style={{ animationDuration: "2.5s" }}
-          />
-
-          <span aria-hidden="true" className="relative text-xl animate-bounce" style={{ animationDuration: "1.8s" }}>
+          <span aria-hidden="true" className="relative text-xl animate-bounce" style={{ animationDuration: "2s" }}>
             🎁
           </span>
 
@@ -240,16 +238,11 @@ export function WomensDayGiftModal() {
               Mở quà <span className="text-[10px]">✨</span>
             </span>
           </span>
-
-          <span
-            aria-hidden="true"
-            className="relative flex h-2 w-2 rounded-full bg-amber-300 animate-pulse"
-          />
         </button>
       </div>
 
-      {/* Confetti & Floral Explosion Canvas */}
-      {isOpen && (
+      {/* Confetti & Floral Explosion Canvas (Only rendered during opening burst, unmounted after) */}
+      {isOpen && showBurst && (
         <canvas
           ref={canvasRef}
           aria-hidden="true"
@@ -263,23 +256,19 @@ export function WomensDayGiftModal() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="womens-day-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs transition-opacity duration-300"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 transition-opacity"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setIsOpen(false);
+            if (e.target === e.currentTarget) handleClose();
           }}
         >
-          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-rose-200 bg-[#fffdfa] shadow-2xl transition-all duration-300 transform scale-100">
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-rose-200 bg-[#fffdfa] shadow-xl">
             {/* Festive Top Ribbon */}
             <div className="relative bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-6 py-5 text-center text-white overflow-hidden">
-              {/* Decorative sparkles */}
-              <span className="absolute left-3 top-2 text-rose-200 text-lg opacity-80 animate-pulse" aria-hidden="true">
+              <span className="absolute left-3 top-2 text-rose-200 text-lg opacity-80" aria-hidden="true">
                 ✨
               </span>
-              <span className="absolute right-4 bottom-2 text-rose-200 text-base opacity-80 animate-pulse" aria-hidden="true">
+              <span className="absolute right-4 bottom-2 text-rose-200 text-base opacity-80" aria-hidden="true">
                 🌸
-              </span>
-              <span className="absolute left-8 bottom-1 text-rose-100 text-xs opacity-60" aria-hidden="true">
-                💐
               </span>
 
               <p className="text-[11px] font-extrabold uppercase tracking-widest text-rose-100">
@@ -292,11 +281,7 @@ export function WomensDayGiftModal() {
 
             {/* Body Content */}
             <div className="p-6 text-center space-y-4">
-              <div
-                className={`transition-opacity duration-200 ${
-                  isRotating ? "opacity-0 scale-95" : "opacity-100 scale-100"
-                }`}
-              >
+              <div>
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 border border-rose-200 text-3xl shadow-xs">
                   💐
                 </div>
@@ -305,7 +290,7 @@ export function WomensDayGiftModal() {
                   {currentGreeting.title}
                 </h3>
 
-                <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink)]">
+                <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink)] min-h-[4rem] flex items-center justify-center">
                   {currentGreeting.message}
                 </p>
 
@@ -316,14 +301,14 @@ export function WomensDayGiftModal() {
 
               {/* Action Buttons */}
               <div className="pt-2 flex flex-col gap-2.5">
-                {/* Compact 1/6 Button as requested */}
+                {/* Compact 1/6 Button: instant click, zero burst, zero lag */}
                 <div className="flex items-center justify-center">
                   <button
                     type="button"
                     onClick={handleNextGreeting}
                     title="Xem lời chúc tiếp theo"
                     aria-label={`Xem lời chúc tiếp theo (${greetingIndex + 1}/${GREETINGS.length})`}
-                    className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50/90 hover:bg-rose-100 hover:border-rose-400 px-4 py-1 text-xs font-black text-rose-700 shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50 hover:bg-rose-100 hover:border-rose-400 px-4 py-1 text-xs font-black text-rose-700 shadow-2xs transition-transform active:scale-95 cursor-pointer"
                   >
                     {greetingIndex + 1}/{GREETINGS.length}
                   </button>
@@ -332,14 +317,14 @@ export function WomensDayGiftModal() {
                 <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
                   <Link
                     href="/gacha"
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleClose}
                     className="flex items-center justify-center gap-1 rounded-xl bg-rose-600 px-3 py-2.5 font-bold text-white shadow-xs transition hover:bg-rose-700 active:translate-y-0.5"
                   >
                     <span>🎲 Gacha chiều nàng</span>
                   </Link>
                   <Link
                     href="/restaurants?q=cafe"
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleClose}
                     className="flex items-center justify-center gap-1 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2.5 font-bold text-rose-700 transition hover:bg-rose-100 active:translate-y-0.5"
                   >
                     <span>📸 Quán cafe chụp hoa</span>
@@ -348,7 +333,7 @@ export function WomensDayGiftModal() {
 
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleClose}
                   className="mt-1 text-xs text-[var(--color-muted)] hover:text-[var(--color-ink)] py-1 font-semibold transition cursor-pointer"
                 >
                   Đóng lại (Cảm ơn Hanu Hungry! 💕)
@@ -359,7 +344,7 @@ export function WomensDayGiftModal() {
             {/* Close Button top-right */}
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={handleClose}
               aria-label="Đóng hộp quà"
               className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition cursor-pointer"
             >
