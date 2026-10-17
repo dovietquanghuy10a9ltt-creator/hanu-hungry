@@ -10,7 +10,7 @@ export function QuickSearch({ catalog }: { catalog: CatalogRestaurant[] }) {
   const suggestions = dishSuggestions(catalog, query);
   return <div className="relative z-20" onFocus={() => setFocused(true)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     <form action="/restaurants" className="quick-search">
-      <span aria-hidden="true" className="search-symbol">⌕</span>
+      <span aria-hidden="true" className="text-xl sm:text-2xl leading-none select-none ml-2">🔍</span>
       <label htmlFor="home-search" className="sr-only">Tìm quán hoặc món ăn</label>
       <input id="home-search" type="search" name="q" value={query} onChange={(event) => setQuery(event.target.value)} autoComplete="off" placeholder="Gõ tên món bạn đang thèm…" className="min-w-0 flex-1 bg-transparent py-3 outline-none" aria-describedby={focused && suggestions.length ? "home-suggestions-title" : undefined} />
       <button className="button button-primary" type="submit" aria-label="Tìm quán">Tìm <span aria-hidden="true">↗</span></button>

@@ -5,7 +5,7 @@ import type { BlogPostSummary } from "@/features/blog/data";
 export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummary[] }) {
   const features = [
     {
-      tag: "⌕ Khám phá địa điểm",
+      tag: "🔍 Khám phá địa điểm",
       title: "Sổ địa điểm quanh trường",
       description: "Tra cứu danh sách quán ăn theo tên món, danh mục ẩm thực (cơm, bún phở, đồ ăn vặt, đồ uống...) hoặc khoảng giá min – max phù hợp túi tiền sinh viên.",
     },

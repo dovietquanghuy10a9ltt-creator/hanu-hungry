@@ -4,7 +4,7 @@ export const siteConfig = {
   tagline: "Ăn ngon quanh Hanu, khỏi lo nghĩ nhiều.",
   navigation: [
     { href: "/", label: "Trang chủ", icon: "⌂" },
-    { href: "/restaurants", label: "Khám phá", icon: "⌕" },
+    { href: "/restaurants", label: "Khám phá", icon: "🔍" },
     { href: "/gacha", label: "Gacha", icon: "✦" },
     { href: "/blog", label: "Blog", icon: "▤" },
   ],

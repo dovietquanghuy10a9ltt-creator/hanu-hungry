@@ -69,21 +69,10 @@ export function RestaurantExplorer({
         {/* Dòng 1: Thanh tìm kiếm */}
         <div className="relative">
           <span
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-muted)] select-none flex items-center justify-center"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-lg sm:text-xl select-none flex items-center justify-center leading-none"
             aria-hidden="true"
           >
-            <svg
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+            🔍
           </span>
           <input
             id="search-restaurant-q"
@@ -198,7 +187,7 @@ export function RestaurantExplorer({
         </div>
       ) : (
         <div className="empty-state">
-          <span aria-hidden="true">⌕</span>
+          <span aria-hidden="true" className="text-4xl">🔍</span>
           <h2>Chưa gặp đúng quán rồi</h2>
           <p>Thử từ khóa khác hoặc chuyển danh mục nhé.</p>
           <button className="button button-outline mt-5 cursor-pointer" onClick={reset}>

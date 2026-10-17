@@ -166,7 +166,7 @@ export default function SupportPage() {
             href="/restaurants"
             className="rounded-xl border border-[var(--color-line)] bg-[var(--color-pale)] px-5 py-2.5 text-sm font-bold text-[var(--color-ink)] hover:bg-[#eadbc9] transition inline-flex items-center gap-2"
           >
-            ⌕ Khám phá quán ăn
+            🔍 Khám phá quán ăn
           </Link>
         </div>
       </div>
