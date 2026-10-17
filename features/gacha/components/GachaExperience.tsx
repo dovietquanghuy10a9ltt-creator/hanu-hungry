@@ -174,37 +174,28 @@ export function GachaExperience({
 
   return (
     <div className="gacha-experience">
-      <div className="gacha-mode" aria-label="Chế độ Gacha">
-        <button
-          type="button"
-          aria-pressed={mode === "restaurant"}
-          disabled={phase === "rolling"}
-          className={`inline-flex items-center justify-center gap-1.5 ${mode === "restaurant" ? "is-active" : ""}`}
-          onClick={() => changeMode("restaurant")}
-        >
-          <span className="text-base sm:text-lg leading-none" aria-hidden="true">🏪</span>
-          <span>Theo quán</span>
-        </button>
-        <button
-          type="button"
-          aria-pressed={mode === "food"}
-          disabled={phase === "rolling"}
-          className={`inline-flex items-center justify-center gap-1.5 ${mode === "food" ? "is-active" : ""}`}
-          onClick={() => changeMode("food")}
-        >
-          <span className="text-base sm:text-lg leading-none" aria-hidden="true">🍜</span>
-          <span>Theo đồ ăn</span>
-        </button>
-        <button
-          type="button"
-          aria-pressed={mode === "drink"}
-          disabled={phase === "rolling"}
-          className={`inline-flex items-center justify-center gap-1.5 ${mode === "drink" ? "is-active" : ""}`}
-          onClick={() => changeMode("drink")}
-        >
-          <span className="text-base sm:text-lg leading-none" aria-hidden="true">🧋</span>
-          <span>Theo đồ uống</span>
-        </button>
+      <div className="flex justify-center mt-6 mb-2">
+        <label htmlFor="gacha-mode-select" className="sr-only">Chế độ Gacha</label>
+        <div className="relative inline-flex items-center">
+          <div className="flex items-center gap-2 rounded-full border border-[#d2bca3] bg-[#fffdf8] px-4 py-2.5 shadow-xs hover:border-[var(--color-red)] transition">
+            <span className="text-xl leading-none select-none" aria-hidden="true">
+              {mode === "restaurant" ? "🏪" : mode === "food" ? "🍜" : "🧋"}
+            </span>
+            <span className="text-xs font-bold text-[var(--color-muted)]">Chế độ:</span>
+            <select
+              id="gacha-mode-select"
+              value={mode}
+              disabled={phase === "rolling"}
+              onChange={(e) => changeMode(e.target.value as GachaMode)}
+              className="bg-transparent font-bold text-sm sm:text-base text-[var(--color-ink)] focus:outline-none cursor-pointer pr-4"
+            >
+              <option value="restaurant">🏪 Gacha theo quán</option>
+              <option value="food">🍜 Gacha theo đồ ăn</option>
+              <option value="drink">🧋 Gacha theo đồ uống</option>
+            </select>
+            <span className="pointer-events-none text-xs text-[var(--color-muted)] select-none">▼</span>
+          </div>
+        </div>
       </div>
 
       <div className={`cosmic-stage ${phase}`} aria-busy={phase === "rolling"}>

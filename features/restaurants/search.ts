@@ -1,7 +1,11 @@
 import type { RestaurantSummary } from "./types";
 
 export type CatalogDish = { id: string; name: string; price_min_vnd: number | null; price_max_vnd: number | null; price_text: string | null };
-export type CatalogRestaurant = RestaurantSummary & { category_slugs: string[]; dishes: CatalogDish[] };
+export type CatalogRestaurant = RestaurantSummary & {
+  category_slugs: string[];
+  dishes: CatalogDish[];
+  check_in_count?: number;
+};
 
 export function normalizeSearch(value: string): string {
   return value.normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim();
@@ -15,14 +19,26 @@ export function parseMaxPrice(value: string | undefined): number | undefined {
   return Number.isSafeInteger(price) && price > 0 && price <= 10000000 ? price : undefined;
 }
 
-export function filterCatalog(catalog: CatalogRestaurant[], query: string, category: string, maxPrice?: number) {
+export function filterCatalog(
+  catalog: CatalogRestaurant[],
+  query: string,
+  category: string,
+  maxPrice?: number,
+  sortBy?: string,
+) {
   const q = normalizeSearch(query);
-  return catalog.filter((restaurant) => {
+  const filtered = catalog.filter((restaurant) => {
     if (category && !restaurant.category_slugs.includes(category)) return false;
     const restaurantMatches = !q || normalizeSearch([restaurant.name, ...(restaurant.categories ?? [])].join(" ")).includes(q);
     const matchingDishes = restaurant.dishes.filter((dish) => (!q || restaurantMatches || normalizeSearch(dish.name).includes(q)) && (maxPrice === undefined || (dish.price_min_vnd !== null && dish.price_min_vnd <= maxPrice)));
     return maxPrice === undefined ? restaurantMatches || matchingDishes.length > 0 : matchingDishes.length > 0;
   });
+
+  if (sortBy === "most_eaten") {
+    return [...filtered].sort((a, b) => (b.check_in_count ?? 0) - (a.check_in_count ?? 0) || a.name.localeCompare(b.name, "vi"));
+  }
+
+  return filtered;
 }
 
 export function dishSuggestions(catalog: CatalogRestaurant[], query: string, maxPrice?: number) {

@@ -6,33 +6,176 @@ import { RestaurantCard } from "@/components/shared/restaurant-card";
 import { dishSuggestions, filterCatalog, parseMaxPrice, type CatalogRestaurant } from "@/features/restaurants/search";
 import { formatVnd } from "@/features/restaurants/format";
 
-export function RestaurantExplorer({ catalog, categories, initialQuery, initialCategory, initialPrice }: { catalog: CatalogRestaurant[]; categories: { id: string; name: string; slug: string }[]; initialQuery: string; initialCategory: string; initialPrice: string }) {
+export function RestaurantExplorer({
+  catalog,
+  categories,
+  initialQuery,
+  initialCategory,
+  initialSort = "",
+}: {
+  catalog: CatalogRestaurant[];
+  categories: { id: string; name: string; slug: string }[];
+  initialQuery: string;
+  initialCategory: string;
+  initialPrice?: string;
+  initialSort?: string;
+}) {
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
-  const [price, setPrice] = useState(initialPrice);
-  const maxPrice = parseMaxPrice(price);
-  const priceError = price !== "" && maxPrice === undefined;
-  const restaurants = filterCatalog(catalog, query, category, maxPrice);
-  const suggestions = dishSuggestions(restaurants, query, maxPrice);
+  const [sortBy, setSortBy] = useState(initialSort);
+  const restaurants = filterCatalog(catalog, query, category, undefined, sortBy);
+  const suggestions = dishSuggestions(restaurants, query);
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (query.trim()) params.set("q", query.trim());
     if (category) params.set("category", category);
-    if (maxPrice) params.set("maxPrice", String(maxPrice));
+    if (sortBy) params.set("sort", sortBy);
     const url = params.size ? `/restaurants?${params}` : "/restaurants";
     window.history.replaceState(null, "", url);
-  }, [query, category, maxPrice]);
-  const reset = () => { setQuery(""); setCategory(""); setPrice(""); };
-  return <div className="space-y-7">
-    <form action="/restaurants" onSubmit={(event) => event.preventDefault()} className="explore-filters">
-      <label className="filter-label md:col-span-2">Tên quán hoặc món<span className="input-wrap"><span aria-hidden="true">⌕</span><input type="search" name="q" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Thử gõ ‘b’ để tìm bún, bánh…" autoComplete="off" className="field" /></span></label>
-      <label className="filter-label">Danh mục<select name="category" value={category} onChange={(event) => setCategory(event.target.value)} className="field mt-2"><option value="">Tất cả danh mục</option>{categories.map((item) => <option key={item.id} value={item.slug}>{item.name}</option>)}</select></label>
-      <label className="filter-label">Ngân sách tối đa<span className="input-wrap price-input"><input type="text" name="maxPrice" inputMode="numeric" value={price} onChange={(event) => setPrice(event.target.value.replace(/[^0-9]/g, "").slice(0, 8))} placeholder="Ví dụ: 70000" className="field" aria-invalid={priceError} aria-describedby="price-help" /><span>đ</span></span></label>
-      <div className="flex flex-wrap items-center justify-between gap-3 md:col-span-4"><div className="flex flex-wrap items-center gap-2"><span className="text-xs text-[var(--color-muted)]">Gợi ý ngân sách</span>{[30000,50000,70000].map((value) => <button type="button" key={value} onClick={() => setPrice(price === String(value) ? "" : String(value))} aria-pressed={maxPrice === value} className={`budget-chip ${maxPrice === value ? "is-active" : ""}`}>{formatVnd(value)}</button>)}</div><button type="button" onClick={reset} className="text-sm text-[var(--color-red)] underline underline-offset-4">Xóa bộ lọc</button></div>
-      <p id="price-help" className={`text-xs md:col-span-4 ${priceError ? "text-red-700" : "text-[var(--color-muted)]"}`}>{priceError ? "Nhập giá từ 1 đến 10.000.000 đ." : maxPrice ? `Tìm món có giá từ ${formatVnd(maxPrice)} trở xuống. Kết quả cập nhật ngay khi bạn gõ.` : "Kết quả cập nhật ngay khi bạn gõ, không cần bấm tìm kiếm."}</p>
-    </form>
-    {suggestions.length > 0 && <section className="dish-match-section"><div className="flex items-baseline justify-between gap-3"><h2 className="text-xl">Món khớp từ khóa</h2><span className="text-xs text-[var(--color-muted)]">Ghé quán để xem thực đơn</span></div><div className="mt-3 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">{suggestions.map((dish) => <Link key={dish.id} href={`/restaurants/${dish.restaurantId}`} className="dish-match"><div><strong>{dish.name}</strong><small>{dish.restaurantName}</small></div><span aria-hidden="true">↗</span></Link>)}</div></section>}
-    <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3"><p aria-live="polite" role="status" className="text-sm"><strong className="text-[var(--color-red)]">{restaurants.length}</strong> quán phù hợp{query && <> với “{query}”</>}</p><span className="text-xs text-[var(--color-muted)]">Quanh Đại học Hà Nội</span></div>
-    {restaurants.length ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{restaurants.map((restaurant) => <RestaurantCard key={restaurant.id} restaurant={restaurant} />)}</div> : <div className="empty-state"><span aria-hidden="true">⌕</span><h2>Chưa gặp đúng quán rồi</h2><p>Thử từ khóa khác hoặc nới ngân sách một chút nhé.</p><button className="button button-outline mt-5" onClick={reset}>Xóa bộ lọc</button></div>}
-  </div>;
+  }, [query, category, sortBy]);
+
+  const reset = () => {
+    setQuery("");
+    setCategory("");
+    setSortBy("");
+  };
+
+  const hasFilter = Boolean(query || category || sortBy);
+
+  return (
+    <div className="space-y-7">
+      <form
+        action="/restaurants"
+        onSubmit={(event) => event.preventDefault()}
+        className="rounded-2xl border border-[var(--color-line)] bg-[#f1eadd] p-4 sm:p-5 space-y-3.5 shadow-xs"
+      >
+        {/* Header với label và nút Xóa bộ lọc ở góc phải */}
+        <div className="flex items-center justify-between">
+          <label htmlFor="search-restaurant-q" className="text-xs sm:text-sm font-bold text-[var(--color-ink)]">
+            Tên quán hoặc món
+          </label>
+          {hasFilter && (
+            <button
+              type="button"
+              onClick={reset}
+              className="text-xs font-bold text-[var(--color-red)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+            >
+              <span>✕</span> Xóa bộ lọc
+            </button>
+          )}
+        </div>
+
+        {/* Dòng 1: Thanh tìm kiếm */}
+        <div className="relative">
+          <span
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-[var(--color-muted)]"
+            aria-hidden="true"
+          >
+            ⌕
+          </span>
+          <input
+            id="search-restaurant-q"
+            type="search"
+            name="q"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Thử gõ ‘b’ để tìm bún, bánh…"
+            autoComplete="off"
+            className="field w-full pl-9 text-sm"
+          />
+        </div>
+
+        {/* Dòng 2: 2 dropdown chọn Danh mục và Quán ăn nhiều nhất */}
+        <div className="grid grid-cols-2 gap-3 pt-0.5">
+          <div>
+            <label htmlFor="search-restaurant-category" className="block text-xs font-bold text-[var(--color-ink)] mb-1">
+              Danh mục
+            </label>
+            <div className="relative">
+              <select
+                id="search-restaurant-category"
+                name="category"
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                className="field w-full text-xs sm:text-sm py-2 px-3 pr-7 truncate cursor-pointer bg-white"
+              >
+                <option value="">Tất cả danh mục</option>
+                {categories.map((item) => (
+                  <option key={item.id} value={item.slug}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-muted)]">▼</span>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="search-restaurant-sort" className="block text-xs font-bold text-[var(--color-ink)] mb-1">
+              Xếp theo quán
+            </label>
+            <div className="relative">
+              <select
+                id="search-restaurant-sort"
+                name="sort"
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value)}
+                className="field w-full text-xs sm:text-sm py-2 px-3 pr-7 truncate cursor-pointer bg-white"
+              >
+                <option value="">Tất cả quán</option>
+                <option value="most_eaten">🔥 Ăn nhiều nhất (Hệ thống)</option>
+              </select>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-muted)]">▼</span>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      {suggestions.length > 0 && (
+        <section className="dish-match-section">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-xl">Món khớp từ khóa</h2>
+            <span className="text-xs text-[var(--color-muted)]">Ghé quán để xem thực đơn</span>
+          </div>
+          <div className="mt-3 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
+            {suggestions.map((dish) => (
+              <Link key={dish.id} href={`/restaurants/${dish.restaurantId}`} className="dish-match">
+                <div>
+                  <strong>{dish.name}</strong>
+                  <small>{dish.restaurantName}</small>
+                </div>
+                <span aria-hidden="true">↗</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
+        <p aria-live="polite" role="status" className="text-sm">
+          <strong className="text-[var(--color-red)]">{restaurants.length}</strong> quán phù hợp{query && <> với “{query}”</>}
+          {sortBy === "most_eaten" && <span className="ml-1 text-xs text-[var(--color-muted)]">(sắp xếp theo lượt ăn trên hệ thống)</span>}
+        </p>
+        <span className="text-xs text-[var(--color-muted)]">Quanh Đại học Hà Nội</span>
+      </div>
+
+      {restaurants.length ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {restaurants.map((restaurant) => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <span aria-hidden="true">⌕</span>
+          <h2>Chưa gặp đúng quán rồi</h2>
+          <p>Thử từ khóa khác hoặc chuyển danh mục nhé.</p>
+          <button className="button button-outline mt-5 cursor-pointer" onClick={reset}>
+            Xóa bộ lọc
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }

@@ -966,27 +966,23 @@ export function AdminInteractiveAnalytics({
               </p>
             </div>
 
-            {/* Preset Buttons */}
-            <div className="flex flex-wrap items-center gap-2">
-              {[
-                { id: "week", label: "Tuần vừa qua" },
-                { id: "month", label: "Tháng vừa qua" },
-                { id: "year", label: "Năm vừa qua" },
-                { id: "custom", label: "Chọn theo lịch" },
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setPeriod(opt.id as PeriodOption)}
-                  className={`rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold transition cursor-pointer ${
-                    period === opt.id
-                      ? "bg-[var(--color-red)] text-white shadow-xs"
-                      : "border border-[var(--color-line)] bg-[var(--color-pale)] text-[var(--color-ink)] hover:bg-[#ebdccc]"
-                  }`}
+            {/* Preset Dropdown Select */}
+            <div className="w-full sm:w-auto">
+              <label htmlFor="admin-period-select" className="sr-only">Khoảng thời gian thống kê</label>
+              <div className="relative">
+                <select
+                  id="admin-period-select"
+                  value={period}
+                  onChange={(e) => setPeriod(e.target.value as PeriodOption)}
+                  className="w-full sm:w-auto rounded-xl border border-[var(--color-line)] bg-[var(--color-pale)] px-4 py-2.5 text-xs sm:text-sm font-bold text-[var(--color-ink)] hover:bg-[#ebdccc] focus:border-[var(--color-red)] focus:outline-none cursor-pointer pr-9 shadow-xs"
                 >
-                  {opt.label}
-                </button>
-              ))}
+                  <option value="week">📅 Tuần vừa qua</option>
+                  <option value="month">📅 Tháng vừa qua</option>
+                  <option value="year">📅 Năm vừa qua</option>
+                  <option value="custom">🗓️ Chọn theo lịch</option>
+                </select>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)]">▼</span>
+              </div>
             </div>
           </div>
 
