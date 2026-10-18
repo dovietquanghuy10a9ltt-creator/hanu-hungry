@@ -74,9 +74,20 @@ interface BurstParticle {
 interface WomensDayGiftModalProps {
   userId?: string;
   userEmail?: string;
+  isAdmin?: boolean;
 }
 
-export function WomensDayGiftModal({ userId, userEmail }: WomensDayGiftModalProps = {}) {
+function checkIsTestAdmin(userEmail?: string, isAdmin?: boolean) {
+  if (isAdmin) return true;
+  const lower = userEmail?.toLowerCase() ?? "";
+  if (lower.includes("2404060021") || lower.includes("1234567890")) return true;
+  if (typeof document !== "undefined") {
+    if (document.cookie.includes("2404060021") || document.cookie.includes("1234567890")) return true;
+  }
+  return false;
+}
+
+export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGiftModalProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
   const [step, setStep] = useState<"cat_intro" | "wishes">("cat_intro");
@@ -95,9 +106,7 @@ export function WomensDayGiftModal({ userId, userEmail }: WomensDayGiftModalProp
 
   // Check claimed status from localStorage and preload assets on mount
   useEffect(() => {
-    const isSpecialAdmin =
-      userEmail?.toLowerCase().includes("2404060021") ||
-      (typeof document !== "undefined" && document.cookie.includes("2404060021"));
+    const isSpecialAdmin = checkIsTestAdmin(userEmail, isAdmin);
 
     if (isSpecialAdmin) {
       setIsClaimed(false);
@@ -368,9 +377,7 @@ export function WomensDayGiftModal({ userId, userEmail }: WomensDayGiftModalProp
     setIsOpen(false);
 
     // Mark as claimed for regular users (admin 2404060021 stays unlocked for testing)
-    const isSpecialAdmin =
-      userEmail?.toLowerCase().includes("2404060021") ||
-      (typeof document !== "undefined" && document.cookie.includes("2404060021"));
+    const isSpecialAdmin = checkIsTestAdmin(userEmail, isAdmin);
 
     if (!isSpecialAdmin) {
       setIsClaimed(true);
