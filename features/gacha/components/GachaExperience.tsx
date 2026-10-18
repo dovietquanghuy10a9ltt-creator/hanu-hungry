@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { rollGacha, type GachaResult } from "@/features/gacha/actions";
 import { formatCardPrice, formatPrice } from "@/features/restaurants/format";
 import { isDrinkDish, pickRandom } from "@/features/gacha/random";
@@ -296,9 +297,12 @@ export function GachaExperience({
       </div>
 
       <div className="gacha-controls">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.94 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
           type="button"
-          className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none"
+          className="button button-primary gacha-roll cursor-pointer shadow-md select-none touch-manipulation"
           onClick={roll}
           disabled={phase === "rolling"}
         >
@@ -307,7 +311,7 @@ export function GachaExperience({
           </span>
           {phase === "rolling" ? "Đang bắt tín hiệu…" : phase === "result" ? "Quay thêm một lần" : "Quay một vòng"}
           <span aria-hidden="true">↗</span>
-        </button>
+        </motion.button>
         <p className="mt-3 text-xs text-[var(--color-muted)]">
           {phase === "result"
             ? "Hợp duyên thì ghé. Chưa hợp thì quay tiếp."

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PETALS = [
   { id: 1, left: "8%", size: "16px", duration: "16s", delay: "0s", char: "🌸" },
@@ -17,10 +18,15 @@ export function PetalsFalling() {
 
   useEffect(() => {
     setMounted(true);
-    const saved = sessionStorage.getItem("hanu_petals_enabled");
-    if (saved !== null) {
-      setEnabled(saved === "true");
-    } else {
+    try {
+      const saved = sessionStorage.getItem("hanu_petals_enabled");
+      if (saved !== null) {
+        setEnabled(saved === "true");
+      } else {
+        setEnabled(true);
+      }
+    } catch {
+      // Safe fallback if sessionStorage is restricted (e.g. Safari Private Mode / Webview)
       setEnabled(true);
     }
   }, []);
@@ -28,7 +34,11 @@ export function PetalsFalling() {
   function togglePetals() {
     setEnabled((prev) => {
       const next = !prev;
-      sessionStorage.setItem("hanu_petals_enabled", String(next));
+      try {
+        sessionStorage.setItem("hanu_petals_enabled", String(next));
+      } catch {
+        // Safe fallback
+      }
       return next;
     });
   }
@@ -37,36 +47,45 @@ export function PetalsFalling() {
 
   return (
     <>
-      {enabled && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-20 overflow-hidden select-none"
-        >
-          {PETALS.map((p) => (
-            <span
-              key={p.id}
-              className="falling-petal"
-              style={{
-                left: p.left,
-                fontSize: p.size,
-                animationDuration: p.duration,
-                animationDelay: p.delay,
-              }}
-            >
-              {p.char}
-            </span>
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {enabled && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            aria-hidden="true"
+            className="pointer-events-none fixed inset-0 z-20 overflow-hidden select-none"
+          >
+            {PETALS.map((p) => (
+              <span
+                key={p.id}
+                className="falling-petal"
+                style={{
+                  left: p.left,
+                  fontSize: p.size,
+                  animationDuration: p.duration,
+                  animationDelay: p.delay,
+                }}
+              >
+                {p.char}
+              </span>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Floating control button to toggle falling petals */}
-      <div className="fixed left-3 bottom-[84px] md:bottom-6 z-50">
-        <button
+      {/* Floating control button to toggle falling petals - elevated to z-[60] with safe bottom margin */}
+      <div className="fixed left-3 bottom-[calc(78px+env(safe-area-inset-bottom,0px))] md:bottom-6 z-[60] select-none touch-manipulation">
+        <motion.button
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.92 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
           type="button"
           onClick={togglePetals}
           title={enabled ? "Tắt hiệu ứng hoa rơi" : "Bật hiệu ứng hoa rơi 20/10"}
           aria-label={enabled ? "Tắt hiệu ứng hoa rơi" : "Bật hiệu ứng hoa rơi 20/10"}
-          className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all duration-200 shadow-md border touch-manipulation cursor-pointer select-none ${
+          className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors duration-200 shadow-md border touch-manipulation cursor-pointer select-none ${
             enabled
               ? "bg-[#fff0f3] text-[#b52a34] border-[#fbcfe8] hover:bg-[#ffe4e9]"
               : "bg-[#fffdf8] text-[var(--color-muted)] border-[var(--color-line)] hover:text-[var(--color-ink)]"
@@ -78,10 +97,10 @@ export function PetalsFalling() {
           >
             🌸
           </span>
-          <span className="text-[11px] sm:text-xs">
+          <span className="text-[11px] sm:text-xs font-semibold">
             {enabled ? "Tắt hoa" : "Bật hoa"}
           </span>
-        </button>
+        </motion.button>
       </div>
     </>
   );

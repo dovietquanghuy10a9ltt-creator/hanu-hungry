@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import { siteConfig } from "@/config/site";
 
 function NavIcon({ href }: { href: string }) {
@@ -48,24 +49,31 @@ export function Navigation({ mobile = false, isAdmin = false, signedIn = false }
       {items.map((item) => {
         const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
-          <Link
+          <motion.div
             key={item.href}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={`${mobile ? "mobile-nav-link" : "nav-link"} ${active ? "is-active" : ""}`}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className={mobile ? "flex-1 flex justify-center" : "inline-flex"}
           >
-            {mobile && (
-              <span aria-hidden="true" className="flex items-center justify-center leading-none">
-                <NavIcon href={item.href} />
-              </span>
-            )}
-            <span className="inline-flex items-center justify-center whitespace-nowrap leading-tight">
-              {item.label}
-              {item.href === "/gacha" && (
-                <span className="text-[10px] ml-0.5 select-none" aria-hidden="true">🌸</span>
+            <Link
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={`${mobile ? "mobile-nav-link w-full" : "nav-link"} ${active ? "is-active" : ""}`}
+            >
+              {mobile && (
+                <span aria-hidden="true" className="flex items-center justify-center leading-none">
+                  <NavIcon href={item.href} />
+                </span>
               )}
-            </span>
-          </Link>
+              <span className="inline-flex items-center justify-center whitespace-nowrap leading-tight">
+                {item.label}
+                {item.href === "/gacha" && (
+                  <span className="text-[10px] ml-0.5 select-none" aria-hidden="true">🌸</span>
+                )}
+              </span>
+            </Link>
+          </motion.div>
         );
       })}
     </nav>
