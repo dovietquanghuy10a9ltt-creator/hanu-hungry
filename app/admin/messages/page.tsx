@@ -35,16 +35,6 @@ export default async function AdminMessagesPage() {
         </div>
       </div>
 
-      {/* Helpful tip for Gmail forwarding */}
-      <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4 sm:p-5 text-sm text-amber-900 space-y-1.5 shadow-2xs">
-        <p className="font-bold flex items-center gap-1.5 text-base">
-          <span>💡</span> Đồng bộ email về hòm thư hanuhungry.mcr@gmail.com
-        </p>
-        <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
-          Mỗi khi người dùng gửi form, tin nhắn sẽ luôn được lưu trữ an toàn tại trang này. Để đồng thời nhận email thông báo trực tiếp về <strong>hanuhungry.mcr@gmail.com</strong>, bạn chỉ cần cấu hình biến môi trường <code>GMAIL_USER</code> và <code>GMAIL_APP_PASSWORD</code> (Mật khẩu ứng dụng Gmail) trong file <code>.env.local</code>.
-        </p>
-      </div>
-
       {items.length === 0 ? (
         <div className="card p-12 text-center space-y-3">
           <span className="text-4xl select-none" aria-hidden="true">📭</span>
@@ -103,3 +93,4 @@ export default async function AdminMessagesPage() {
     </div>
   );
 }
+

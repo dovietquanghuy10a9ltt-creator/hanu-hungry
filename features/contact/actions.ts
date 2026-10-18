@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/security/rate-limit";
-import { sendContactNotificationEmail } from "@/lib/email/contact-mailer";
 
 export async function sendContactMessage(formData: FormData) {
   if (String(formData.get("website") || "")) return;
@@ -36,13 +35,6 @@ export async function sendContactMessage(formData: FormData) {
   if (error) {
     console.error("[contact] Error inserting into contact_messages:", error.message);
     throw new Error("Không thể gửi liên hệ. Vui lòng thử lại.");
-  }
-
-  // Gửi email thông báo tới hanuhungry.mcr@gmail.com (nếu có cấu hình SMTP)
-  try {
-    await sendContactNotificationEmail({ name, email, message, userId: user.id });
-  } catch (err) {
-    console.error("[contact] Error sending notification email:", err);
   }
 
   redirect("/contact?sent=1");
