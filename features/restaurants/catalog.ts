@@ -63,4 +63,4 @@ export const listCatalog = cache(async function listCatalog(): Promise<CatalogRe
       check_in_count: checkInCounts.get(restaurant.id) ?? 0,
     };
   });
-}
+});
