@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
-// Âm lượng nhạc nền rất nhỏ, dịu êm như tiếng đàn du dương trong phòng đọc
-const TARGET_VOLUME = 0.08;
+// Âm lượng nhạc nền êm dịu, rõ ràng vừa vặn cho không khí lễ hội 20/10 (~35%)
+const TARGET_VOLUME = 0.35;
 
 const GREETINGS = [
   {
@@ -96,6 +96,7 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
   const [isClaimed] = useState(false);
   const [step, setStep] = useState<"cat_intro" | "wishes">("cat_intro");
   const [greetingIndex, setGreetingIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Progressive sentence opacity fade-in stage: 0 = title, 1 = sentence 1, 2 = sentence 2, 3 = highlight badge
   const [fadeStage, setFadeStage] = useState(0);
@@ -294,36 +295,63 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
       if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
 
       audio.currentTime = 0;
-      audio.volume = 0; // Starts from 0 volume
+      audio.muted = false;
+      // Start with a gentle audible level (0.05) so mobile WebKit/Android doesn't zero-clamp
+      audio.volume = 0.05;
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+            // Smoothly ramp volume up to TARGET_VOLUME over 0.5s (500ms)
+            const startTime = Date.now();
+            fadeTimerRef.current = setInterval(() => {
+              const elapsed = Date.now() - startTime;
+              if (elapsed >= 500) {
+                audio.volume = TARGET_VOLUME;
+                if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+              } else {
+                const ratio = elapsed / 500;
+                audio.volume = 0.05 + ratio * (TARGET_VOLUME - 0.05);
+              }
+            }, 30);
+          })
+          .catch((err) => {
+            console.warn("Autoplay was prevented by browser policy:", err);
+            setIsPlaying(false);
+          });
+      }
+    }
+  }
+
+  function toggleAudio() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio.muted = false;
+      audio.volume = TARGET_VOLUME;
       audio
         .play()
-        .then(() => {
-          // Fade in over 0.5s smoothly to whisper-soft TARGET_VOLUME
-          const startTime = Date.now();
-          fadeTimerRef.current = setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            if (elapsed >= 500) {
-              audio.volume = TARGET_VOLUME;
-              if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
-            } else {
-              audio.volume = (elapsed / 500) * TARGET_VOLUME;
-            }
-          }, 25);
-        })
-        .catch(() => {
-          // Graceful handling of mobile autoplay restrictions
-        });
+        .then(() => setIsPlaying(true))
+        .catch((err) => console.warn("Failed to play audio:", err));
     }
   }
 
   function handleAudioTimeUpdate() {
     const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
+    if (!audio || !audio.duration || Number.isNaN(audio.duration)) return;
 
-    // 0.5s cuối: âm lượng tự động nhỏ dần về 0
-    const remaining = audio.duration - audio.currentTime;
-    if (remaining <= 0.5 && remaining > 0) {
-      audio.volume = Math.max(0, (remaining / 0.5) * TARGET_VOLUME);
+    // Only apply fade-out at the very end if currentTime has played past 3 seconds
+    if (audio.currentTime > 3) {
+      const remaining = audio.duration - audio.currentTime;
+      if (remaining <= 0.5 && remaining >= 0) {
+        audio.volume = Math.max(0, (remaining / 0.5) * TARGET_VOLUME);
+      }
     }
   }
 
@@ -346,12 +374,12 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
         if (elapsed >= 500) {
           audio.pause();
           audio.currentTime = 0;
-          audio.volume = 0;
+          setIsPlaying(false);
           if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
         } else {
           audio.volume = Math.max(0, startVol * (1 - elapsed / 500));
         }
-      }, 25);
+      }, 30);
     }
 
     if (animFrameRef.current) {
@@ -373,11 +401,12 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
         ref={audioRef}
         src="/audio/womens-day-bgm.mp3"
         preload="auto"
+        playsInline
         onTimeUpdate={handleAudioTimeUpdate}
         onEnded={() => {
+          setIsPlaying(false);
           if (audioRef.current) {
             audioRef.current.currentTime = 0;
-            audioRef.current.volume = 0;
           }
         }}
       />
@@ -457,12 +486,24 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
 
             {/* Festive Top Ribbon */}
             <div className="relative z-10 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-6 py-4 text-center text-white overflow-hidden shadow-xs">
-              <span
-                className="absolute left-3 top-2 text-rose-200 text-lg opacity-80"
-                aria-hidden="true"
-              >
-                ✨
-              </span>
+              {/* Sound Toggle Button (Visible on Step 2) */}
+              {step === "wishes" && (
+                <button
+                  type="button"
+                  onClick={toggleAudio}
+                  title={isPlaying ? "Tắt nhạc nền" : "Bật nhạc nền"}
+                  aria-label={isPlaying ? "Tắt nhạc nền" : "Bật nhạc nền"}
+                  className="absolute left-3 top-3.5 z-20 flex items-center gap-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xs px-2.5 py-1 text-[11px] font-bold text-white transition active:scale-95 cursor-pointer touch-manipulation shadow-xs"
+                >
+                  <span className={isPlaying ? "animate-pulse" : ""}>
+                    {isPlaying ? "🔊" : "🔇"}
+                  </span>
+                  <span className="text-[10px] hidden sm:inline font-semibold">
+                    {isPlaying ? "Nhạc nền" : "Bật nhạc"}
+                  </span>
+                </button>
+              )}
+
               <span
                 className="absolute right-4 bottom-2 text-rose-200 text-base opacity-80"
                 aria-hidden="true"
