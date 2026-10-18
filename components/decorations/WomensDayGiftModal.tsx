@@ -71,7 +71,12 @@ interface BurstParticle {
   flowerChar?: string;
 }
 
-export function WomensDayGiftModal() {
+interface WomensDayGiftModalProps {
+  userId?: string;
+  userEmail?: string;
+}
+
+export function WomensDayGiftModal({ userId, userEmail }: WomensDayGiftModalProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
   const [step, setStep] = useState<"cat_intro" | "wishes">("cat_intro");
@@ -90,13 +95,26 @@ export function WomensDayGiftModal() {
 
   // Check claimed status from localStorage and preload assets on mount
   useEffect(() => {
-    try {
-      const claimed = localStorage.getItem("hanu_gift_20_10_claimed");
-      if (claimed === "true") {
-        setIsClaimed(true);
+    const isSpecialAdmin =
+      userEmail?.toLowerCase().includes("2404060021") ||
+      (typeof document !== "undefined" && document.cookie.includes("2404060021"));
+
+    if (isSpecialAdmin) {
+      setIsClaimed(false);
+      try {
+        localStorage.removeItem("hanu_gift_20_10_claimed");
+        if (userId) localStorage.removeItem(`hanu_gift_20_10_claimed_${userId}`);
+      } catch {}
+    } else {
+      try {
+        const storageKey = userId ? `hanu_gift_20_10_claimed_${userId}` : "hanu_gift_20_10_claimed";
+        const claimed = localStorage.getItem(storageKey) ?? localStorage.getItem("hanu_gift_20_10_claimed");
+        if (claimed === "true") {
+          setIsClaimed(true);
+        }
+      } catch {
+        // Ignore localStorage errors
       }
-    } catch {
-      // Ignore localStorage errors
     }
 
     // Preload all assets in advance
@@ -349,12 +367,26 @@ export function WomensDayGiftModal() {
     setShowBurst(false);
     setIsOpen(false);
 
-    // Mark as claimed in state and localStorage (only claimable once)
-    setIsClaimed(true);
-    try {
-      localStorage.setItem("hanu_gift_20_10_claimed", "true");
-    } catch {
-      // Ignore storage errors
+    // Mark as claimed for regular users (admin 2404060021 stays unlocked for testing)
+    const isSpecialAdmin =
+      userEmail?.toLowerCase().includes("2404060021") ||
+      (typeof document !== "undefined" && document.cookie.includes("2404060021"));
+
+    if (!isSpecialAdmin) {
+      setIsClaimed(true);
+      try {
+        const storageKey = userId ? `hanu_gift_20_10_claimed_${userId}` : "hanu_gift_20_10_claimed";
+        localStorage.setItem(storageKey, "true");
+        localStorage.setItem("hanu_gift_20_10_claimed", "true");
+      } catch {
+        // Ignore storage errors
+      }
+    } else {
+      setIsClaimed(false);
+      try {
+        localStorage.removeItem("hanu_gift_20_10_claimed");
+        if (userId) localStorage.removeItem(`hanu_gift_20_10_claimed_${userId}`);
+      } catch {}
     }
   }
 
