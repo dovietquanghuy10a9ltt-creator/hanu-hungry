@@ -77,6 +77,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                 {!isAdmin && (
                   <Link
                     href="/notifications"
+                    prefetch={false}
                     className="relative inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[var(--color-pale)] text-[var(--color-red)] transition hover:bg-[#eadbc9] hover:scale-105 active:scale-95"
                     aria-label={`Thông báo bài viết từ Admin${unreadNotificationsCount > 0 ? ` (${unreadNotificationsCount} chưa đọc)` : ""}`}
                     title="Thông báo bài viết từ Admin"
@@ -95,6 +96,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                 {isAdmin ? (
                   <Link
                     href="/profile"
+                    prefetch={false}
                     className="flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-full border border-[#f0c2c6] bg-[#fdf2f2] px-2.5 sm:px-4 text-xs sm:text-sm font-bold text-[var(--color-red)] shadow-xs transition hover:bg-[#fae6e6]"
                     title="Tài khoản Quản trị viên"
                   >
@@ -111,6 +113,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                 ) : (
                   <Link
                     href="/profile"
+                    prefetch={false}
                     className="flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-full bg-[var(--color-pale)] px-2.5 sm:px-4 text-xs sm:text-sm font-semibold text-[var(--color-red)] transition hover:bg-[#eadbc9]"
                   >
                     {profile?.avatar_url ? (

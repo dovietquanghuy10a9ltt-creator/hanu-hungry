@@ -201,7 +201,7 @@ export function ProfileEditor({
                 </button>
               )}
             </div>
-            <div className="relative mt-1.5 flex items-center">
+            <div className="mt-1.5">
               <input
                 ref={nameInputRef}
                 id="displayNameInput"
@@ -212,36 +212,13 @@ export function ProfileEditor({
                 minLength={1}
                 maxLength={100}
                 required
-                className={`field pr-10 ${
+                className={`field ${
                   !isEditingName
                     ? "bg-gray-100/80 text-gray-700 cursor-not-allowed select-none border-gray-200"
                     : "bg-white border-[var(--color-red)] ring-2 ring-[var(--color-red)]/20"
                 }`}
                 placeholder="Nhập tên hiển thị của bạn"
               />
-              <button
-                type="button"
-                onClick={() => {
-                  if (!isEditingName) {
-                    setIsEditingName(true);
-                    setTimeout(() => nameInputRef.current?.focus(), 50);
-                  } else {
-                    setName(displayName);
-                    setIsEditingName(false);
-                  }
-                }}
-                className="absolute right-2.5 p-1.5 text-gray-400 hover:text-[var(--color-red)] transition"
-                title={isEditingName ? "Hủy chỉnh sửa" : "Bấm vào bút để sửa tên"}
-                aria-label={isEditingName ? "Hủy chỉnh sửa tên" : "Sửa tên"}
-              >
-                {isEditingName ? (
-                  <span className="text-sm font-bold text-gray-500 hover:text-red-600">✕</span>
-                ) : (
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                )}
-              </button>
             </div>
           </div>
 

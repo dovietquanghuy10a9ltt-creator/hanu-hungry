@@ -32,16 +32,10 @@ export async function proxy(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isProtected = protectedPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
-  const hasAuthCookie = request.cookies.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+  const hasAuthCookie = request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
 
-  if (!hasAuthCookie) {
-    if (isProtected) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = "";
-      url.searchParams.set("next", path);
-      return NextResponse.redirect(url);
-    }
+  // Cho các route công khai (public) mà không có bất kỳ cookie Supabase nào, bỏ qua getUser để tăng tốc
+  if (!isProtected && !hasAuthCookie) {
     return response;
   }
 
