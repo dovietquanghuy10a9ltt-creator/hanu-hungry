@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
+
+const TARGET_VOLUME = 0.35; // Âm lượng êm ái, nhẹ nhàng, không bị to như bản gốc
 
 const GREETINGS = [
   {
@@ -85,6 +86,7 @@ export function WomensDayGiftModal() {
   const particlesRef = useRef<BurstParticle[]>([]);
   const animFrameRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fadeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check claimed status from localStorage and preload assets on mount
   useEffect(() => {
@@ -94,13 +96,16 @@ export function WomensDayGiftModal() {
         setIsClaimed(true);
       }
     } catch {
-      // Ignore localStorage errors (e.g. private mode)
+      // Ignore localStorage errors
     }
 
-    // Preload cat image and audio
+    // Preload all assets in advance
     if (typeof window !== "undefined") {
       const preloadImg = new window.Image();
       preloadImg.src = "/images/20-10/cat-flower.webp";
+
+      const preloadOverlay = new window.Image();
+      preloadOverlay.src = "/images/20-10/modal-bg-overlay.png";
 
       const preloadAudio = new window.Audio();
       preloadAudio.src = "/audio/womens-day-bgm.mp3";
@@ -131,9 +136,12 @@ export function WomensDayGiftModal() {
     return () => clearInterval(interval);
   }, [isOpen, step, greetingIndex]);
 
-  // Clean up audio on unmount
+  // Clean up audio & fade timers on unmount
   useEffect(() => {
     return () => {
+      if (fadeTimerRef.current) {
+        clearInterval(fadeTimerRef.current);
+      }
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
@@ -269,12 +277,41 @@ export function WomensDayGiftModal() {
     setStep("wishes");
     setGreetingIndex(0); // Starts at 1/6
 
-    // Start playing background music
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {
-        // Handle autoplay policy gracefully
-      });
+    const audio = audioRef.current;
+    if (audio) {
+      if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+
+      audio.currentTime = 0;
+      audio.volume = 0; // Starts at 0 volume
+      audio
+        .play()
+        .then(() => {
+          // Fade in over 0.5 seconds (500ms) smoothly from 0 to TARGET_VOLUME
+          const startTime = Date.now();
+          fadeTimerRef.current = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            if (elapsed >= 500) {
+              audio.volume = TARGET_VOLUME;
+              if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+            } else {
+              audio.volume = (elapsed / 500) * TARGET_VOLUME;
+            }
+          }, 25);
+        })
+        .catch(() => {
+          // Handle autoplay policy gracefully
+        });
+    }
+  }
+
+  function handleAudioTimeUpdate() {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+
+    // 0.5s cuối: âm lượng từ từ nhỏ dần về 0
+    const remaining = audio.duration - audio.currentTime;
+    if (remaining <= 0.5 && remaining > 0) {
+      audio.volume = Math.max(0, (remaining / 0.5) * TARGET_VOLUME);
     }
   }
 
@@ -285,10 +322,24 @@ export function WomensDayGiftModal() {
   }
 
   function handleCloseAndClaim() {
-    // Stop audio
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    const audio = audioRef.current;
+    if (audio) {
+      if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+
+      // Fade out over 0.5 seconds (500ms) smoothly
+      const startVol = audio.volume;
+      const startTime = Date.now();
+      fadeTimerRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= 500) {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = 0;
+          if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+        } else {
+          audio.volume = Math.max(0, startVol * (1 - elapsed / 500));
+        }
+      }, 25);
     }
 
     if (animFrameRef.current) {
@@ -313,14 +364,16 @@ export function WomensDayGiftModal() {
 
   return (
     <>
-      {/* Hidden Audio Player for 20/10 BGM */}
+      {/* Hidden Audio Player for 20/10 BGM with Fade handling */}
       <audio
         ref={audioRef}
         src="/audio/womens-day-bgm.mp3"
         preload="auto"
+        onTimeUpdate={handleAudioTimeUpdate}
         onEnded={() => {
           if (audioRef.current) {
             audioRef.current.currentTime = 0;
+            audioRef.current.volume = 0;
           }
         }}
       />
@@ -407,8 +460,19 @@ export function WomensDayGiftModal() {
             className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-rose-200 bg-[#fffdfa] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* 50% Opacity Decorative Background Overlay */}
+            <div
+              className="pointer-events-none absolute inset-0 z-0 bg-center bg-no-repeat bg-contain opacity-50"
+              style={{
+                backgroundImage: "url('/images/20-10/modal-bg-overlay.png')",
+                backgroundPosition: "center 62%",
+                backgroundSize: "85% auto",
+              }}
+              aria-hidden="true"
+            />
+
             {/* Festive Top Ribbon */}
-            <div className="relative bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-6 py-4 text-center text-white overflow-hidden shadow-xs">
+            <div className="relative z-10 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-6 py-4 text-center text-white overflow-hidden shadow-xs">
               <span
                 className="absolute left-3 top-2 text-rose-200 text-lg opacity-80"
                 aria-hidden="true"
@@ -435,7 +499,7 @@ export function WomensDayGiftModal() {
 
             {/* STEP 1: Con mèo cầm hoa tặng bạn */}
             {step === "cat_intro" && (
-              <div className="p-6 text-center space-y-4">
+              <div className="relative z-10 p-6 text-center space-y-4">
                 <div className="relative mx-auto flex justify-center items-center h-48 w-48 sm:h-52 sm:w-52">
                   <div
                     className="absolute inset-0 rounded-full bg-rose-200/30 blur-xl animate-pulse"
@@ -453,7 +517,7 @@ export function WomensDayGiftModal() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <span className="inline-block rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 border border-rose-200">
+                  <span className="inline-block rounded-full bg-rose-100/90 px-3 py-1 text-xs font-bold text-rose-700 border border-rose-200">
                     🐾 Bé mèo HANU có một món quà gửi bạn 💐
                   </span>
                   <h3 className="text-lg font-black text-rose-900 pt-1">
@@ -481,15 +545,7 @@ export function WomensDayGiftModal() {
 
             {/* STEP 2: Lời chúc từ 1 đến 6 (Phát nhạc nền & Chữ hiện chầm chậm) */}
             {step === "wishes" && (
-              <div className="p-6 text-center space-y-4">
-                {/* Audio Playing Indicator */}
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-full px-3 py-1 w-fit mx-auto shadow-2xs">
-                  <span className="animate-spin-slow inline-block" style={{ animationDuration: "3s" }}>
-                    🎵
-                  </span>
-                  <span>Đang phát: Mashup Chờ Chút & Nơi Này Có Anh 💕</span>
-                </div>
-
+              <div className="relative z-10 p-6 text-center space-y-4">
                 {/* Greeting Card Content */}
                 <div className="space-y-3 min-h-[14rem] flex flex-col justify-center">
                   <div className="mx-auto flex h-13 w-13 items-center justify-center rounded-full bg-rose-50 border border-rose-200 text-2xl shadow-xs">
@@ -541,33 +597,15 @@ export function WomensDayGiftModal() {
                       <span aria-hidden="true">➔</span>
                     </button>
                   ) : (
-                    /* When at 6/6: Only show Exit & Gacha when text has finished revealing */
+                    /* When at 6/6: ONLY show Đóng thiệp chúc when text has finished revealing */
                     canExit && (
-                      <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2">
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <Link
-                            href="/gacha"
-                            onClick={handleCloseAndClaim}
-                            className="flex items-center justify-center gap-1 rounded-xl bg-rose-600 px-3 py-2.5 font-bold text-white shadow-xs transition hover:bg-rose-700 active:translate-y-0.5"
-                          >
-                            <span>🎲 Gacha chiều nàng</span>
-                          </Link>
-
-                          <button
-                            type="button"
-                            onClick={handleCloseAndClaim}
-                            className="flex items-center justify-center gap-1 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2.5 font-bold text-rose-700 transition hover:bg-rose-100 active:translate-y-0.5 cursor-pointer"
-                          >
-                            <span>Hoàn tất & Nhận quà 💖</span>
-                          </button>
-                        </div>
-
+                      <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
                         <button
                           type="button"
                           onClick={handleCloseAndClaim}
-                          className="w-full text-xs text-[var(--color-muted)] hover:text-rose-700 py-1.5 font-semibold transition cursor-pointer"
+                          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 hover:from-rose-700 hover:to-pink-700 px-5 py-3 text-sm font-bold text-white shadow-md transition active:scale-98 cursor-pointer"
                         >
-                          Đóng thiệp chúc (Cảm ơn Hanu Hungry! 💕)
+                          <span>Đóng thiệp chúc (Cảm ơn Hanu Hungry! 💕)</span>
                         </button>
                       </div>
                     )
@@ -582,7 +620,7 @@ export function WomensDayGiftModal() {
                 type="button"
                 onClick={handleCloseAndClaim}
                 aria-label="Đóng hộp quà và nhận quà 20/10"
-                className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition cursor-pointer animate-in fade-in duration-300"
+                className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition cursor-pointer animate-in fade-in duration-300"
               >
                 ✕
               </button>
