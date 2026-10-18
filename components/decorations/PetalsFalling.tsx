@@ -21,8 +21,7 @@ export function PetalsFalling() {
     if (saved !== null) {
       setEnabled(saved === "true");
     } else {
-      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      setEnabled(!prefersReduced);
+      setEnabled(true);
     }
   }, []);
 
@@ -61,13 +60,13 @@ export function PetalsFalling() {
       )}
 
       {/* Floating control button to toggle falling petals */}
-      <div className="fixed left-3.5 bottom-20 md:bottom-6 z-40">
+      <div className="fixed left-3 bottom-[84px] md:bottom-6 z-50">
         <button
           type="button"
           onClick={togglePetals}
           title={enabled ? "Tắt hiệu ứng hoa rơi" : "Bật hiệu ứng hoa rơi 20/10"}
           aria-label={enabled ? "Tắt hiệu ứng hoa rơi" : "Bật hiệu ứng hoa rơi 20/10"}
-          className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all duration-200 shadow-sm border ${
+          className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all duration-200 shadow-md border touch-manipulation cursor-pointer select-none ${
             enabled
               ? "bg-[#fff0f3] text-[#b52a34] border-[#fbcfe8] hover:bg-[#ffe4e9]"
               : "bg-[#fffdf8] text-[var(--color-muted)] border-[var(--color-line)] hover:text-[var(--color-ink)]"
@@ -79,8 +78,8 @@ export function PetalsFalling() {
           >
             🌸
           </span>
-          <span className="hidden sm:inline">
-            {enabled ? "Hoa rơi: Bật" : "Hoa rơi: Tắt"}
+          <span className="text-[11px] sm:text-xs">
+            {enabled ? "Tắt hoa" : "Bật hoa"}
           </span>
         </button>
       </div>

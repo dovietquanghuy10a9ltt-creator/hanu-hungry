@@ -59,10 +59,12 @@ export function Navigation({ mobile = false, isAdmin = false, signedIn = false }
                 <NavIcon href={item.href} />
               </span>
             )}
-            {item.label}
-            {item.href === "/gacha" && (
-              <span className="text-[10px] ml-0.5" aria-hidden="true">🌸</span>
-            )}
+            <span className="inline-flex items-center justify-center whitespace-nowrap leading-tight">
+              {item.label}
+              {item.href === "/gacha" && (
+                <span className="text-[10px] ml-0.5 select-none" aria-hidden="true">🌸</span>
+              )}
+            </span>
           </Link>
         );
       })}
