@@ -3,13 +3,6 @@ import Link from "next/link";
 export function WomensDayBanner({ signedIn = true }: { signedIn?: boolean }) {
   const suggestions = [
     {
-      icon: "📸",
-      title: "Cafe sống ảo chụp hoa",
-      subtitle: "Không gian xinh xắn, check-in rạng ngời",
-      href: signedIn ? "/restaurants?q=cafe" : "/login",
-      badge: "Hot 20/10",
-    },
-    {
       icon: "🧋",
       title: "Trà sữa & Bánh ngọt",
       subtitle: "Chiều lòng nàng với vị ngọt ngào",
@@ -65,7 +58,7 @@ export function WomensDayBanner({ signedIn = true }: { signedIn?: boolean }) {
         </div>
 
         {/* Suggestion Cards */}
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {suggestions.map((item) => (
             <Link
               key={item.title}

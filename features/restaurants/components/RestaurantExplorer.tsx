@@ -85,7 +85,7 @@ export function RestaurantExplorer({
             name="q"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Thử gõ ‘cafe sống ảo’, ‘trà sữa’, ‘lẩu’ hoặc món bạn thích… 🌸"
+            placeholder="Thử gõ ‘trà sữa’, ‘lẩu nướng’ hoặc món bạn thích… 🌸"
             autoComplete="off"
             style={{ paddingLeft: "42px" }}
             className="field w-full text-sm !pl-11"
@@ -98,7 +98,6 @@ export function RestaurantExplorer({
             🌸 Gợi ý 20/10:
           </span>
           {[
-            { label: "📸 Cafe chụp hoa", value: "cafe" },
             { label: "🧋 Trà sữa", value: "trà sữa" },
             { label: "🍰 Bánh ngọt", value: "bánh" },
             { label: "🥘 Lẩu nướng", value: "lẩu" },

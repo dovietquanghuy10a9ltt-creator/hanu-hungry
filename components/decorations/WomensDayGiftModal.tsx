@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 const GREETINGS = [
@@ -31,7 +32,7 @@ const GREETINGS = [
   {
     title: "Hẹn hò hay tụ tập? Chiều hết! 🥘",
     message:
-      "Dù hôm nay là một buổi hẹn lãng mạn bên ly cafe thơm, hay bữa lẩu nướng rôm rả 'quẩy' hết mình cùng hội chị em, Hanu Hungry chúc bạn có một bữa ăn trọn vẹn và thật nhiều kỉ niệm đáng nhớ!",
+      "Dù hôm nay là một buổi hẹn ngọt ngào bên ly trà ấm, hay bữa lẩu nướng rôm rả 'quẩy' hết mình cùng hội chị em, Hanu Hungry chúc bạn có một bữa ăn trọn vẹn và thật nhiều kỉ niệm đáng nhớ!",
     highlight: "Ăn ngon quanh Hanu, khỏi lo nghĩ nhiều!",
   },
   {
@@ -71,14 +72,73 @@ interface BurstParticle {
 
 export function WomensDayGiftModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isClaimed, setIsClaimed] = useState(false);
+  const [step, setStep] = useState<"cat_intro" | "wishes">("cat_intro");
   const [greetingIndex, setGreetingIndex] = useState(0);
+
+  // Progressive text reveal state
+  const [revealedChars, setRevealedChars] = useState(0);
+  const [isTextFinished, setIsTextFinished] = useState(false);
+
   const [showBurst, setShowBurst] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const particlesRef = useRef<BurstParticle[]>([]);
   const animFrameRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Check claimed status from localStorage and preload assets on mount
   useEffect(() => {
-    setGreetingIndex(Math.floor(Math.random() * GREETINGS.length));
+    try {
+      const claimed = localStorage.getItem("hanu_gift_20_10_claimed");
+      if (claimed === "true") {
+        setIsClaimed(true);
+      }
+    } catch {
+      // Ignore localStorage errors (e.g. private mode)
+    }
+
+    // Preload cat image and audio
+    if (typeof window !== "undefined") {
+      const preloadImg = new window.Image();
+      preloadImg.src = "/images/20-10/cat-flower.webp";
+
+      const preloadAudio = new window.Audio();
+      preloadAudio.src = "/audio/womens-day-bgm.mp3";
+      preloadAudio.preload = "auto";
+    }
+  }, []);
+
+  // Text typewriter effect when on "wishes" step and greeting changes
+  useEffect(() => {
+    if (!isOpen || step !== "wishes") return;
+
+    const currentMessage = GREETINGS[greetingIndex].message;
+    setRevealedChars(0);
+    setIsTextFinished(false);
+
+    let charCount = 0;
+    const interval = setInterval(() => {
+      charCount += 2; // Reveals 2 characters per tick for smooth, pleasant reading pacing
+      if (charCount >= currentMessage.length) {
+        setRevealedChars(currentMessage.length);
+        setIsTextFinished(true);
+        clearInterval(interval);
+      } else {
+        setRevealedChars(charCount);
+      }
+    }, 28);
+
+    return () => clearInterval(interval);
+  }, [isOpen, step, greetingIndex]);
+
+  // Clean up audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
   }, []);
 
   function fireBurst(count = 28) {
@@ -178,9 +238,15 @@ export function WomensDayGiftModal() {
   }
 
   function handleOpen() {
+    if (isClaimed) return;
+
+    setStep("cat_intro");
+    setGreetingIndex(0); // Always start from 1/6 (index 0)
+    setRevealedChars(0);
+    setIsTextFinished(false);
     setIsOpen(true);
     setShowBurst(true);
-    // Fire burst ONLY once when opening the gift
+
     setTimeout(() => {
       const canvas = canvasRef.current;
       if (canvas) {
@@ -189,7 +255,6 @@ export function WomensDayGiftModal() {
       }
       fireBurst(28);
 
-      // Auto-cleanup burst after 1.3 seconds
       setTimeout(() => {
         if (animFrameRef.current) {
           cancelAnimationFrame(animFrameRef.current);
@@ -200,51 +265,122 @@ export function WomensDayGiftModal() {
     }, 100);
   }
 
-  function handleClose() {
+  function handleStartWishes() {
+    setStep("wishes");
+    setGreetingIndex(0); // Starts at 1/6
+
+    // Start playing background music
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {
+        // Handle autoplay policy gracefully
+      });
+    }
+  }
+
+  function handleNextGreeting() {
+    if (greetingIndex < GREETINGS.length - 1) {
+      setGreetingIndex((prev) => prev + 1);
+    }
+  }
+
+  function handleCloseAndClaim() {
+    // Stop audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
     }
     setShowBurst(false);
     setIsOpen(false);
-  }
 
-  // Instant switch on click - NO burst, NO lag, instant update!
-  function handleNextGreeting() {
-    setGreetingIndex((prev) => (prev + 1) % GREETINGS.length);
+    // Mark as claimed in state and localStorage (only claimable once)
+    setIsClaimed(true);
+    try {
+      localStorage.setItem("hanu_gift_20_10_claimed", "true");
+    } catch {
+      // Ignore storage errors
+    }
   }
 
   const currentGreeting = GREETINGS[greetingIndex];
+  const isLastGreeting = greetingIndex === GREETINGS.length - 1;
+  const canExit = isLastGreeting && isTextFinished;
 
   return (
     <>
-      {/* Floating Animated Gift Box Button */}
-      <div className="fixed right-3.5 bottom-20 md:bottom-6 z-40">
-        <button
-          type="button"
-          onClick={handleOpen}
-          aria-label="Mở hộp quà chúc mừng 20/10"
-          className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-300 text-[9px] text-yellow-900 shadow-xs animate-ping" style={{ animationDuration: "3s" }} aria-hidden="true">
-            ✨
-          </span>
-          <span aria-hidden="true" className="relative text-xl animate-bounce" style={{ animationDuration: "2s" }}>
-            🎁
-          </span>
+      {/* Hidden Audio Player for 20/10 BGM */}
+      <audio
+        ref={audioRef}
+        src="/audio/womens-day-bgm.mp3"
+        preload="auto"
+        onEnded={() => {
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+          }
+        }}
+      />
 
-          <span className="relative flex flex-col items-start leading-none pr-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-100">
-              Quà 20/10
+      {/* Floating Gift Box Button */}
+      <div className="fixed right-3.5 bottom-20 md:bottom-6 z-40">
+        {isClaimed ? (
+          <button
+            type="button"
+            disabled
+            aria-label="Đã nhận quà 20/10"
+            className="flex items-center gap-2 rounded-full border border-neutral-300 bg-neutral-100 px-3.5 py-2 text-neutral-400 cursor-not-allowed shadow-none select-none"
+          >
+            <span aria-hidden="true" className="text-lg opacity-60">
+              🎁
             </span>
-            <span className="text-xs font-black text-white flex items-center gap-1">
-              Mở quà <span className="text-[10px]">✨</span>
+            <span className="flex flex-col items-start leading-none pr-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                20 THÁNG 10
+              </span>
+              <span className="text-xs font-bold text-neutral-500">
+                Đã nhận quà 💖
+              </span>
             </span>
-          </span>
-        </button>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleOpen}
+            aria-label="Mở hộp quà chúc mừng 20/10"
+            className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <span
+              className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-300 text-[9px] text-yellow-900 shadow-xs animate-ping"
+              style={{ animationDuration: "3s" }}
+              aria-hidden="true"
+            >
+              ✨
+            </span>
+            <span
+              aria-hidden="true"
+              className="relative text-xl animate-bounce"
+              style={{ animationDuration: "2s" }}
+            >
+              🎁
+            </span>
+
+            <span className="relative flex flex-col items-start leading-none pr-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-100">
+                Quà 20/10
+              </span>
+              <span className="text-xs font-black text-white flex items-center gap-1">
+                Mở quà <span className="text-[10px]">✨</span>
+              </span>
+            </span>
+          </button>
+        )}
       </div>
 
-      {/* Confetti & Floral Explosion Canvas (Only rendered during opening burst, unmounted after) */}
+      {/* Confetti & Floral Explosion Canvas */}
       {isOpen && showBurst && (
         <canvas
           ref={canvasRef}
@@ -253,106 +389,204 @@ export function WomensDayGiftModal() {
         />
       )}
 
-      {/* Greeting Modal Popup */}
+      {/* Gift Modal Popup */}
       {isOpen && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="womens-day-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 transition-opacity"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) handleClose();
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 transition-opacity backdrop-blur-2xs"
+          onClick={() => {
+            // Only allow closing via backdrop if user is allowed to exit
+            if (canExit) {
+              handleCloseAndClaim();
+            }
           }}
         >
-          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-rose-200 bg-[#fffdfa] shadow-xl">
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-rose-200 bg-[#fffdfa] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Festive Top Ribbon */}
-            <div className="relative bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-6 py-5 text-center text-white overflow-hidden">
-              <span className="absolute left-3 top-2 text-rose-200 text-lg opacity-80" aria-hidden="true">
+            <div className="relative bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-6 py-4 text-center text-white overflow-hidden shadow-xs">
+              <span
+                className="absolute left-3 top-2 text-rose-200 text-lg opacity-80"
+                aria-hidden="true"
+              >
                 ✨
               </span>
-              <span className="absolute right-4 bottom-2 text-rose-200 text-base opacity-80" aria-hidden="true">
+              <span
+                className="absolute right-4 bottom-2 text-rose-200 text-base opacity-80"
+                aria-hidden="true"
+              >
                 🌸
               </span>
 
-              <p className="text-[11px] font-extrabold uppercase tracking-widest text-rose-100">
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-100">
                 20 THÁNG 10 · NGÀY PHỤ NỮ VIỆT NAM
               </p>
-              <h2 id="womens-day-title" className="text-xl sm:text-2xl font-black mt-1 text-white">
+              <h2
+                id="womens-day-title"
+                className="text-lg sm:text-xl font-black mt-0.5 text-white flex items-center justify-center gap-1.5"
+              >
                 Chúc Mừng Nàng Thơ HANU 🌸
               </h2>
             </div>
 
-            {/* Body Content */}
-            <div className="p-6 text-center space-y-4">
-              <div>
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 border border-rose-200 text-3xl shadow-xs">
-                  💐
+            {/* STEP 1: Con mèo cầm hoa tặng bạn */}
+            {step === "cat_intro" && (
+              <div className="p-6 text-center space-y-4">
+                <div className="relative mx-auto flex justify-center items-center h-48 w-48 sm:h-52 sm:w-52">
+                  <div
+                    className="absolute inset-0 rounded-full bg-rose-200/30 blur-xl animate-pulse"
+                    aria-hidden="true"
+                  />
+                  <Image
+                    src="/images/20-10/cat-flower.webp"
+                    alt="Bé mèo cầm hoa tặng bạn nhân ngày 20/10"
+                    width={220}
+                    height={220}
+                    priority
+                    unoptimized
+                    className="relative z-10 object-contain drop-shadow-md animate-in fade-in zoom-in-95 duration-500"
+                  />
                 </div>
 
-                <h3 className="mt-3 text-lg font-bold text-rose-900">
-                  {currentGreeting.title}
-                </h3>
+                <div className="space-y-1.5">
+                  <span className="inline-block rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 border border-rose-200">
+                    🐾 Bé mèo HANU có một món quà gửi bạn 💐
+                  </span>
+                  <h3 className="text-lg font-black text-rose-900 pt-1">
+                    Gửi tặng bạn một bó hoa tươi thắm nè!
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[var(--color-muted)] leading-relaxed max-w-sm mx-auto">
+                    Hanu Hungry chúc bạn một ngày 20/10 luôn tràn ngập tiếng cười, xinh đẹp, tự tin và ngập tràn hạnh phúc!
+                  </p>
+                </div>
 
-                <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink)] min-h-[4rem] flex items-center justify-center">
-                  {currentGreeting.message}
-                </p>
-
-                <p className="mt-3 inline-block rounded-full bg-rose-50 px-3.5 py-1 text-xs font-bold text-rose-600 border border-rose-200">
-                  {currentGreeting.highlight}
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col gap-2.5">
-                {/* Compact 1/6 Button: instant click, zero burst, zero lag */}
-                <div className="flex items-center justify-center">
+                <div className="pt-2">
                   <button
                     type="button"
-                    onClick={handleNextGreeting}
-                    title="Xem lời chúc tiếp theo"
-                    aria-label={`Xem lời chúc tiếp theo (${greetingIndex + 1}/${GREETINGS.length})`}
-                    className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50 hover:bg-rose-100 hover:border-rose-400 px-4 py-1 text-xs font-black text-rose-700 shadow-2xs transition-transform active:scale-95 cursor-pointer"
+                    onClick={handleStartWishes}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3 font-black text-white shadow-md transition-all hover:brightness-110 active:scale-98 cursor-pointer"
                   >
-                    {greetingIndex + 1}/{GREETINGS.length}
+                    <span>Nhận hoa & Mở thiệp chúc</span>
+                    <span className="text-lg animate-bounce" style={{ animationDuration: "1.5s" }}>
+                      💐
+                    </span>
                   </button>
                 </div>
+              </div>
+            )}
 
-                <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-                  <Link
-                    href="/gacha"
-                    onClick={handleClose}
-                    className="flex items-center justify-center gap-1 rounded-xl bg-rose-600 px-3 py-2.5 font-bold text-white shadow-xs transition hover:bg-rose-700 active:translate-y-0.5"
-                  >
-                    <span>🎲 Gacha chiều nàng</span>
-                  </Link>
-                  <Link
-                    href="/restaurants?q=cafe"
-                    onClick={handleClose}
-                    className="flex items-center justify-center gap-1 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2.5 font-bold text-rose-700 transition hover:bg-rose-100 active:translate-y-0.5"
-                  >
-                    <span>📸 Quán cafe chụp hoa</span>
-                  </Link>
+            {/* STEP 2: Lời chúc từ 1 đến 6 (Phát nhạc nền & Chữ hiện chầm chậm) */}
+            {step === "wishes" && (
+              <div className="p-6 text-center space-y-4">
+                {/* Audio Playing Indicator */}
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-full px-3 py-1 w-fit mx-auto shadow-2xs">
+                  <span className="animate-spin-slow inline-block" style={{ animationDuration: "3s" }}>
+                    🎵
+                  </span>
+                  <span>Đang phát: Mashup Chờ Chút & Nơi Này Có Anh 💕</span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="mt-1 text-xs text-[var(--color-muted)] hover:text-[var(--color-ink)] py-1 font-semibold transition cursor-pointer"
-                >
-                  Đóng lại (Cảm ơn Hanu Hungry! 💕)
-                </button>
-              </div>
-            </div>
+                {/* Greeting Card Content */}
+                <div className="space-y-3 min-h-[14rem] flex flex-col justify-center">
+                  <div className="mx-auto flex h-13 w-13 items-center justify-center rounded-full bg-rose-50 border border-rose-200 text-2xl shadow-xs">
+                    💐
+                  </div>
 
-            {/* Close Button top-right */}
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label="Đóng hộp quà"
-              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition cursor-pointer"
-            >
-              ✕
-            </button>
+                  {/* Title */}
+                  <h3 className="text-lg font-black text-rose-900 animate-in fade-in slide-in-from-top-2 duration-300">
+                    {currentGreeting.title}
+                  </h3>
+
+                  {/* Message revealed slowly letter by letter */}
+                  <div className="min-h-[4.5rem] flex items-center justify-center px-2">
+                    <p className="text-sm leading-relaxed text-[var(--color-ink)] text-left sm:text-center font-medium">
+                      {currentGreeting.message.slice(0, revealedChars)}
+                      {!isTextFinished && (
+                        <span className="inline-block w-1.5 h-3.5 bg-rose-500 ml-0.5 animate-pulse" />
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Highlight Badge - Appears when text is completed */}
+                  <div className="min-h-[2rem] flex items-center justify-center">
+                    {isTextFinished && (
+                      <span className="animate-in fade-in zoom-in-90 duration-400 rounded-full bg-rose-100/90 px-3.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs">
+                        {currentGreeting.highlight}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress & Navigation Buttons */}
+                <div className="pt-2 flex flex-col gap-2.5">
+                  {/* Progress Indicator */}
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50 px-3 py-0.5 text-xs font-black text-rose-700 shadow-2xs">
+                      Lời chúc {greetingIndex + 1}/{GREETINGS.length}
+                    </span>
+                  </div>
+
+                  {/* If not at the last greeting (1/6 to 5/6), only allow Next Greeting */}
+                  {!isLastGreeting ? (
+                    <button
+                      type="button"
+                      onClick={handleNextGreeting}
+                      className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 px-4 py-2.5 font-bold text-white shadow-xs transition hover:from-rose-600 hover:to-pink-700 active:translate-y-0.5 cursor-pointer"
+                    >
+                      <span>Xem lời chúc tiếp theo ({greetingIndex + 1}/6)</span>
+                      <span aria-hidden="true">➔</span>
+                    </button>
+                  ) : (
+                    /* When at 6/6: Only show Exit & Gacha when text has finished revealing */
+                    canExit && (
+                      <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2">
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <Link
+                            href="/gacha"
+                            onClick={handleCloseAndClaim}
+                            className="flex items-center justify-center gap-1 rounded-xl bg-rose-600 px-3 py-2.5 font-bold text-white shadow-xs transition hover:bg-rose-700 active:translate-y-0.5"
+                          >
+                            <span>🎲 Gacha chiều nàng</span>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={handleCloseAndClaim}
+                            className="flex items-center justify-center gap-1 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2.5 font-bold text-rose-700 transition hover:bg-rose-100 active:translate-y-0.5 cursor-pointer"
+                          >
+                            <span>Hoàn tất & Nhận quà 💖</span>
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleCloseAndClaim}
+                          className="w-full text-xs text-[var(--color-muted)] hover:text-rose-700 py-1.5 font-semibold transition cursor-pointer"
+                        >
+                          Đóng thiệp chúc (Cảm ơn Hanu Hungry! 💕)
+                        </button>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Top-Right Close Button: ONLY visible when canExit is true */}
+            {canExit && (
+              <button
+                type="button"
+                onClick={handleCloseAndClaim}
+                aria-label="Đóng hộp quà và nhận quà 20/10"
+                className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition cursor-pointer animate-in fade-in duration-300"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
       )}

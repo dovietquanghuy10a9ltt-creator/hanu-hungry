@@ -13,7 +13,7 @@ export function QuickSearch({ catalog }: { catalog: CatalogRestaurant[] }) {
       <form action="/restaurants" className="quick-search">
         <span aria-hidden="true" className="text-xl sm:text-2xl leading-none select-none ml-2">🔍</span>
         <label htmlFor="home-search" className="sr-only">Tìm quán hoặc món ăn</label>
-        <input id="home-search" type="search" name="q" value={query} onChange={(event) => setQuery(event.target.value)} autoComplete="off" placeholder="Gõ tên món, cafe sống ảo, lẩu 20/10… 🌸" className="min-w-0 flex-1 bg-transparent py-3 outline-none" aria-describedby={focused && suggestions.length ? "home-suggestions-title" : undefined} />
+        <input id="home-search" type="search" name="q" value={query} onChange={(event) => setQuery(event.target.value)} autoComplete="off" placeholder="Gõ tên món, trà sữa, lẩu nướng 20/10… 🌸" className="min-w-0 flex-1 bg-transparent py-3 outline-none" aria-describedby={focused && suggestions.length ? "home-suggestions-title" : undefined} />
         <button className="button button-primary bg-gradient-to-r from-rose-600 to-[#b52a34] hover:from-rose-700 hover:to-[#96232c]" type="submit" aria-label="Tìm quán">Tìm <span aria-hidden="true">↗</span></button>
       </form>
 
@@ -23,7 +23,6 @@ export function QuickSearch({ catalog }: { catalog: CatalogRestaurant[] }) {
           🌸 Gợi ý 20/10:
         </span>
         {[
-          { label: "📸 Cafe chụp hoa", q: "cafe" },
           { label: "🧋 Trà sữa", q: "trà sữa" },
           { label: "🍰 Bánh ngọt", q: "bánh" },
           { label: "🥘 Lẩu nướng", q: "lẩu" },
