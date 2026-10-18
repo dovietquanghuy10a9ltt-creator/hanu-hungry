@@ -1,3 +1,4 @@
+import { cache } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -18,14 +19,14 @@ type BlogPost = {
   seo_description: string | null;
 };
 
-async function getPost(slug: string): Promise<BlogPost | null> {
+const getPost = cache(async function getPost(slug: string): Promise<BlogPost | null> {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.from("blog_posts").select("id,slug,title,excerpt,content,cover_image_url,published_at,seo_title,seo_description")
     .eq("slug", slug).eq("status", "published").maybeSingle();
   if (error) throw new Error("Không thể tải bài viết.");
   return data as BlogPost | null;
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPost((await params).slug);

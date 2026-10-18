@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { updateProfile } from "@/features/profile/actions";
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif"];
@@ -24,11 +24,21 @@ export function ProfileEditor({
   const [previewUrl, setPreviewUrl] = useState<string | null>(avatarUrl);
   const [formatError, setFormatError] = useState<string | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [hasNewAvatar, setHasNewAvatar] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setName(displayName);
+    setIsEditingName(false);
+    setHasNewAvatar(false);
+    setRemoveAvatar(false);
+  }, [displayName, avatarUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,6 +66,7 @@ export function ProfileEditor({
     // Valid file
     setFormatError(null);
     setRemoveAvatar(false);
+    setHasNewAvatar(true);
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
   };
@@ -64,8 +75,13 @@ export function ProfileEditor({
     if (fileInputRef.current) fileInputRef.current.value = "";
     setPreviewUrl(null);
     setRemoveAvatar(true);
+    setHasNewAvatar(true);
     setFormatError(null);
   };
+
+  const isNameChanged = isEditingName && name.trim() !== displayName.trim() && name.trim().length > 0;
+  const isAvatarChanged = hasNewAvatar || removeAvatar;
+  const canSave = (isNameChanged || isAvatarChanged) && !isSubmitting;
 
   return (
     <div className="card grid gap-6 p-5 sm:p-7 md:grid-cols-[1fr_1.3fr]">
@@ -152,21 +168,85 @@ export function ProfileEditor({
           )}
 
           <div>
-            <label className="block text-sm font-bold text-[var(--color-ink)]">
-              Tên hiển thị
+            <div className="flex items-center justify-between">
+              <label htmlFor="displayNameInput" className="block text-sm font-bold text-[var(--color-ink)]">
+                Tên hiển thị
+              </label>
+              {!isEditingName ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditingName(true);
+                    setTimeout(() => nameInputRef.current?.focus(), 50);
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--color-red)] hover:underline cursor-pointer"
+                  title="Bấm để sửa tên hiển thị"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  <span>Chỉnh sửa</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setName(displayName);
+                    setIsEditingName(false);
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-red-600 cursor-pointer"
+                  title="Hủy chỉnh sửa"
+                >
+                  ✕ Hủy
+                </button>
+              )}
+            </div>
+            <div className="relative mt-1.5 flex items-center">
               <input
+                ref={nameInputRef}
+                id="displayNameInput"
                 name="displayName"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                readOnly={!isEditingName}
                 minLength={1}
                 maxLength={100}
                 required
-                className="field mt-1.5"
+                className={`field pr-10 ${
+                  !isEditingName
+                    ? "bg-gray-100/80 text-gray-700 cursor-not-allowed select-none border-gray-200"
+                    : "bg-white border-[var(--color-red)] ring-2 ring-[var(--color-red)]/20"
+                }`}
                 placeholder="Nhập tên hiển thị của bạn"
               />
-            </label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isEditingName) {
+                    setIsEditingName(true);
+                    setTimeout(() => nameInputRef.current?.focus(), 50);
+                  } else {
+                    setName(displayName);
+                    setIsEditingName(false);
+                  }
+                }}
+                className="absolute right-2.5 p-1.5 text-gray-400 hover:text-[var(--color-red)] transition"
+                title={isEditingName ? "Hủy chỉnh sửa" : "Bấm vào bút để sửa tên"}
+                aria-label={isEditingName ? "Hủy chỉnh sửa tên" : "Sửa tên"}
+              >
+                {isEditingName ? (
+                  <span className="text-sm font-bold text-gray-500 hover:text-red-600">✕</span>
+                ) : (
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                )}
+              </button>
+            </div>
             <p className="mt-1 text-xs text-[var(--color-muted)]">
-              Đổi tên hiển thị không ảnh hưởng đến MSSV đăng nhập.
+              {isEditingName
+                ? "Nhập tên mới rồi bấm nút \"Lưu thông tin cá nhân\" bên dưới để cập nhật."
+                : "Bấm vào biểu tượng cây bút ✏️ để chỉnh sửa tên hiển thị."}
             </p>
           </div>
 
@@ -190,11 +270,18 @@ export function ProfileEditor({
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="button button-primary w-full sm:w-auto"
+              disabled={!canSave}
+              className={`button button-primary w-full sm:w-auto transition-all ${
+                !canSave ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
+              }`}
             >
               {isSubmitting ? "Đang lưu..." : "Lưu thông tin cá nhân"}
             </button>
+            {!canSave && !isSubmitting && (
+              <p className="mt-1.5 text-xs text-gray-400">
+                (Chỉ khả dụng khi bạn chỉnh sửa tên hoặc thay đổi ảnh đại diện)
+              </p>
+            )}
           </div>
         </form>
       </div>

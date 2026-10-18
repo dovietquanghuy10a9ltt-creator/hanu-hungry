@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { RestaurantDetail, RestaurantSummary } from "./types";
 
@@ -33,7 +34,7 @@ export async function listCategories() {
   return data ?? [];
 }
 
-export async function getRestaurant(id: string): Promise<RestaurantDetail | null> {
+export const getRestaurant = cache(async function getRestaurant(id: string): Promise<RestaurantDetail | null> {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.from("restaurants")
@@ -45,4 +46,4 @@ export async function getRestaurant(id: string): Promise<RestaurantDetail | null
   }
   if (!data) return null;
   return data as unknown as RestaurantDetail;
-}
+});

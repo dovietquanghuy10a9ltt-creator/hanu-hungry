@@ -3,16 +3,17 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { SocialIconsRow, CONTACT_INFO } from "@/components/shared/social-links";
 import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
 import { StreakIndicator, type StreakData } from "@/components/shared/streak-indicator";
 import { historyStats, localDayOrdinal } from "@/features/history/stats";
 
 export async function SiteShell({ children }: { children: ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  let profile = null;
-  let isAdmin = false;
+  const account = await getCurrentProfile();
+  const user = account?.user ?? null;
+  const profile = account?.profile ?? null;
+  const isAdmin = profile?.role === "ADMIN";
   let unreadNotificationsCount = 0;
   let streakData: StreakData = {
     currentStreak: 0,
@@ -22,15 +23,12 @@ export async function SiteShell({ children }: { children: ReactNode }) {
   };
 
   if (user) {
-    const [profileRes, notifsRes, readsRes, checkInsRes] = await Promise.all([
-      supabase.from("profiles").select("display_name, role, avatar_url").eq("id", user.id).maybeSingle(),
+    const supabase = await createClient();
+    const [notifsRes, readsRes, checkInsRes] = await Promise.all([
       supabase.from("notifications").select("id").eq("audience", "ALL_USERS"),
       supabase.from("notification_reads").select("notification_id").eq("user_id", user.id),
       supabase.from("check_ins").select("restaurant_id, visited_at").eq("user_id", user.id),
     ]);
-
-    profile = profileRes.data;
-    isAdmin = profile?.role === "ADMIN";
 
     if (!isAdmin) {
       const readSet = new Set((readsRes.data ?? []).map((r) => r.notification_id));

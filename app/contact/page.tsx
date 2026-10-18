@@ -42,27 +42,6 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
         <form action={sendContactMessage} className="card space-y-4 p-5 sm:p-7">
           <h2 className="text-lg font-bold text-[var(--color-ink)]">Gửi lời nhắn trực tuyến</h2>
           <label className="block text-sm font-bold">
-            Tên của bạn
-            <input
-              name="name"
-              defaultValue={account.profile.display_name}
-              maxLength={150}
-              required
-              className="field mt-1.5"
-            />
-          </label>
-          <label className="block text-sm font-bold">
-            Email liên hệ
-            <input
-              type="email"
-              name="email"
-              defaultValue={account.user.email || ""}
-              maxLength={320}
-              required
-              className="field mt-1.5"
-            />
-          </label>
-          <label className="block text-sm font-bold">
             Nội dung
             <textarea
               name="message"
