@@ -32,15 +32,23 @@ export async function proxy(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isProtected = protectedPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
-  const hasAuthCookie = request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
 
-  // Cho các route công khai (public) mà không có bất kỳ cookie Supabase nào, bỏ qua getUser để tăng tốc
-  if (!isProtected && !hasAuthCookie) {
+  // Với các route công khai (trang chủ, khám phá, gacha, blog, hỗ trợ...), cho qua ngay lập tức không gọi mạng
+  if (!isProtected) {
     return response;
   }
 
+  const hasAuthCookie = request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
+  if (!hasAuthCookie) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
+  }
+
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user && isProtected) {
+  if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";

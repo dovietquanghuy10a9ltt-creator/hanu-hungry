@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,12 +11,12 @@ export type CheckIn = {
   dishes: { id: string; name: string } | null;
 };
 
-export async function getOwnCheckIns(): Promise<CheckIn[]> {
+export const getOwnCheckIns = cache(async function getOwnCheckIns(): Promise<CheckIn[]> {
   const { user } = await requireUser();
   const supabase = await createClient();
   const result: CheckIn[] = [];
   const pageSize = 500;
-  for (let start = 0; ; start += pageSize) {
+  for (let start = 0; start < 2000; start += pageSize) {
     const { data, error } = await supabase.from("check_ins")
       .select("id,restaurant_id,dish_id,visited_at,restaurants(id,name,area),dishes(id,name)")
       .eq("user_id", user.id)
@@ -27,4 +28,4 @@ export async function getOwnCheckIns(): Promise<CheckIn[]> {
     if (page.length < pageSize) break;
   }
   return result;
-}
+});

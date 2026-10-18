@@ -90,22 +90,31 @@ export default function SupportPage() {
         </p>
       </div>
 
-      {/* Category Filter Pills */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setSelectedCategory(cat)}
-            className={`rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition active:scale-95 ${
-              selectedCategory === cat
-                ? "bg-[var(--color-red)] text-white shadow-sm"
-                : "bg-white border border-[var(--color-line)] text-[var(--color-ink)] hover:bg-[var(--color-pale)]"
-            }`}
+      {/* Category Filter Dropdown */}
+      <div className="max-w-xs sm:max-w-sm mx-auto mb-8">
+        <label htmlFor="faqCategorySelect" className="block text-xs font-bold uppercase tracking-wider text-[var(--color-muted)] mb-2 text-center">
+          Chọn chủ đề hỏi đáp:
+        </label>
+        <div className="relative">
+          <select
+            id="faqCategorySelect"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full appearance-none rounded-2xl border-2 border-[var(--color-line)] bg-white px-4 py-3 pr-10 text-sm font-bold text-[var(--color-ink)] shadow-xs transition hover:border-[var(--color-red)]/50 focus:border-[var(--color-red)] focus:ring-2 focus:ring-[var(--color-red)]/20 outline-hidden cursor-pointer text-center sm:text-left"
           >
-            {cat}
-          </button>
-        ))}
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat === "Tất cả" ? "Tất cả chủ đề" : cat}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-[var(--color-red)] font-bold text-xs">
+            ▼
+          </div>
+        </div>
+        <p className="mt-2 text-center text-xs text-[var(--color-muted)]">
+          Đang hiển thị {filteredFaqs.length} câu hỏi thắc mắc
+        </p>
       </div>
 
       {/* FAQ Accordion List */}
