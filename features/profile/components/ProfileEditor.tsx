@@ -243,11 +243,6 @@ export function ProfileEditor({
                 )}
               </button>
             </div>
-            <p className="mt-1 text-xs text-[var(--color-muted)]">
-              {isEditingName
-                ? "Nhập tên mới rồi bấm nút \"Lưu thông tin cá nhân\" bên dưới để cập nhật."
-                : "Bấm vào biểu tượng cây bút ✏️ để chỉnh sửa tên hiển thị."}
-            </p>
           </div>
 
           <div>
@@ -277,11 +272,6 @@ export function ProfileEditor({
             >
               {isSubmitting ? "Đang lưu..." : "Lưu thông tin cá nhân"}
             </button>
-            {!canSave && !isSubmitting && (
-              <p className="mt-1.5 text-xs text-gray-400">
-                (Chỉ khả dụng khi bạn chỉnh sửa tên hoặc thay đổi ảnh đại diện)
-              </p>
-            )}
           </div>
         </form>
       </div>

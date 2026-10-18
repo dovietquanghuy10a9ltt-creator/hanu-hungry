@@ -30,8 +30,8 @@ export const metadata: Metadata = {
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${hermeneus.variable} ${calistoga.variable} ${hennyPenny.variable} ${crayonette.variable} ${hemgjord.variable} ${cdaMely.variable}`}>
-      <body className="min-h-screen antialiased">
+    <html lang="vi" suppressHydrationWarning className={`${hermeneus.variable} ${calistoga.variable} ${hennyPenny.variable} ${crayonette.variable} ${hemgjord.variable} ${cdaMely.variable}`}>
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-lg focus:bg-white focus:p-3">Tới nội dung chính</a>
         <SiteShell>{children}</SiteShell>
         <Analytics />
