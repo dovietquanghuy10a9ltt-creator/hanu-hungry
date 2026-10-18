@@ -24,15 +24,27 @@ export async function listRestaurants(filters: RestaurantFilters = {}): Promise<
   return (data ?? []) as RestaurantSummary[];
 }
 
-export async function listCategories() {
+export const listCategories = cache(async function listCategories() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("categories").select("id, name, slug").order("name");
+  let { data, error } = await supabase.from("categories").select("id, name, slug").order("name");
+  if (error) {
+    console.warn("[restaurants] listCategories error, attempting admin fallback:", error.message);
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const admin = createAdminClient();
+      const fallback = await admin.from("categories").select("id, name, slug").order("name");
+      if (!fallback.error && fallback.data) {
+        data = fallback.data;
+        error = null;
+      }
+    } catch {}
+  }
   if (error) {
     console.error("[restaurants] listCategories error:", error.message);
     throw new Error("Không thể tải danh mục. Vui lòng thử lại sau.");
   }
   return data ?? [];
-}
+});
 
 export const getRestaurant = cache(async function getRestaurant(id: string): Promise<RestaurantDetail | null> {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return null;

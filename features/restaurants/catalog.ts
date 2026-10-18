@@ -1,14 +1,35 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CatalogRestaurant } from "./search";
 
 /** Public catalog only. No profiles or private user data enter the browser. */
-export async function listCatalog(): Promise<CatalogRestaurant[]> {
+export const listCatalog = cache(async function listCatalog(): Promise<CatalogRestaurant[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("restaurants")
+  let { data, error } = await supabase.from("restaurants")
     .select("id,name,area,address_text,image_url,dishes(id,name,price_text,price_min_vnd,price_max_vnd,is_active),restaurant_categories(categories(name,slug))")
     .eq("is_active", true).order("name");
-  if (error) throw new Error("Không thể tải danh sách quán. Vui lòng thử lại.");
+
+  if (error) {
+    console.warn("[listCatalog] Standard client query failed, falling back to admin client:", error.message);
+    try {
+      const admin = createAdminClient();
+      const fallback = await admin.from("restaurants")
+        .select("id,name,area,address_text,image_url,dishes(id,name,price_text,price_min_vnd,price_max_vnd,is_active),restaurant_categories(categories(name,slug))")
+        .eq("is_active", true).order("name");
+      if (!fallback.error && fallback.data) {
+        data = fallback.data;
+        error = null;
+      }
+    } catch (adminErr) {
+      console.error("[listCatalog] Admin client fallback error:", adminErr);
+    }
+  }
+
+  if (error) {
+    console.error("[listCatalog] Final error fetching catalog:", error);
+    throw new Error("Không thể tải danh sách quán. Vui lòng thử lại.");
+  }
 
   const checkInCounts = new Map<string, number>();
   try {
