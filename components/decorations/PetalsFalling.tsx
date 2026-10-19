@@ -1,5 +1,12 @@
 "use client";
 
+// Tạm thời comment lại hiệu ứng hoa rơi theo yêu cầu của user
+export function PetalsFalling() {
+  return null;
+}
+
+/*
+// CODE DỰ PHÒNG KHI CẦN MỞ LẠI HIỆU ỨNG HOA RƠI:
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -12,7 +19,7 @@ const PETALS = [
   { id: 6, left: "92%", size: "14px", duration: "18s", delay: "5s", char: "🌺" },
 ];
 
-export function PetalsFalling() {
+export function PetalsFallingActive() {
   const [enabled, setEnabled] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -26,7 +33,6 @@ export function PetalsFalling() {
         setEnabled(true);
       }
     } catch {
-      // Safe fallback if sessionStorage is restricted (e.g. Safari Private Mode / Webview)
       setEnabled(true);
     }
   }, []);
@@ -75,7 +81,6 @@ export function PetalsFalling() {
         )}
       </AnimatePresence>
 
-      {/* Floating control button to toggle falling petals - elevated to z-[60] with safe bottom margin */}
       <div className="fixed left-3 bottom-[calc(78px+env(safe-area-inset-bottom,0px))] md:bottom-6 z-[60] select-none touch-manipulation">
         <motion.button
           whileHover={{ scale: 1.06 }}
@@ -91,10 +96,7 @@ export function PetalsFalling() {
               : "bg-[#fffdf8] text-[var(--color-muted)] border-[var(--color-line)] hover:text-[var(--color-ink)]"
           }`}
         >
-          <span
-            aria-hidden="true"
-            className="text-sm select-none"
-          >
+          <span aria-hidden="true" className="text-sm select-none">
             🌸
           </span>
           <span className="text-[11px] sm:text-xs font-semibold">
@@ -105,3 +107,4 @@ export function PetalsFalling() {
     </>
   );
 }
+*/

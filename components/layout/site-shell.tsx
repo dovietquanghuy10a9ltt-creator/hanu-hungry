@@ -193,7 +193,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
 
       {user && <Navigation mobile signedIn={true} isAdmin={isAdmin} />}
       {user && <SmartCheckInRecall />}
-      <PetalsFalling />
+      {/* <PetalsFalling /> - Tạm thời tắt hiệu ứng hoa rơi theo yêu cầu */}
       {user && <WomensDayGiftModal userId={user.id} userEmail={user.email} isAdmin={isAdmin} />}
     </div>
   );

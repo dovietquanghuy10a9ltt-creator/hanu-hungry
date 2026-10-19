@@ -263,8 +263,8 @@ export function GachaExperience({
             </div>
           ) : (
             <div
-              className={`reel-window ${phase === "idle" ? "cursor-pointer select-none" : ""}`}
-              onClick={phase === "idle" ? roll : undefined}
+              className={`reel-window ${phase === "idle" ? "cursor-pointer transition-transform active:scale-[0.99]" : ""}`}
+              onClick={phase === "idle" ? () => roll() : undefined}
               role={phase === "idle" ? "button" : undefined}
               tabIndex={phase === "idle" ? 0 : undefined}
               onKeyDown={(e) => {
@@ -297,13 +297,10 @@ export function GachaExperience({
       </div>
 
       <div className="gacha-controls">
-        <motion.button
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.94 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        <button
           type="button"
-          className="button button-primary gacha-roll cursor-pointer shadow-md select-none touch-manipulation"
-          onClick={roll}
+          className="button button-primary gacha-roll cursor-pointer shadow-md transition-transform active:scale-95"
+          onClick={() => roll()}
           disabled={phase === "rolling"}
         >
           <span aria-hidden="true" className={phase === "rolling" ? "spin-small inline-block" : "inline-block"}>
@@ -311,7 +308,7 @@ export function GachaExperience({
           </span>
           {phase === "rolling" ? "Đang bắt tín hiệu…" : phase === "result" ? "Quay thêm một lần" : "Quay một vòng"}
           <span aria-hidden="true">↗</span>
-        </motion.button>
+        </button>
         <p className="mt-3 text-xs text-[var(--color-muted)]">
           {phase === "result"
             ? "Hợp duyên thì ghé. Chưa hợp thì quay tiếp."

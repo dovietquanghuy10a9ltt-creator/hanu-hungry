@@ -49,31 +49,24 @@ export function Navigation({ mobile = false, isAdmin = false, signedIn = false }
       {items.map((item) => {
         const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
-          <motion.div
+          <Link
             key={item.href}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.94 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={mobile ? "flex-1 flex justify-center" : "inline-flex"}
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            className={`${mobile ? "mobile-nav-link flex-1" : "nav-link"} ${active ? "is-active" : ""} transition-transform active:scale-95`}
           >
-            <Link
-              href={item.href}
-              aria-current={active ? "page" : undefined}
-              className={`${mobile ? "mobile-nav-link w-full" : "nav-link"} ${active ? "is-active" : ""}`}
-            >
-              {mobile && (
-                <span aria-hidden="true" className="flex items-center justify-center leading-none">
-                  <NavIcon href={item.href} />
-                </span>
-              )}
-              <span className="inline-flex items-center justify-center whitespace-nowrap leading-tight">
-                {item.label}
-                {item.href === "/gacha" && (
-                  <span className="text-[10px] ml-0.5 select-none" aria-hidden="true">🌸</span>
-                )}
+            {mobile && (
+              <span aria-hidden="true" className="flex items-center justify-center leading-none">
+                <NavIcon href={item.href} />
               </span>
-            </Link>
-          </motion.div>
+            )}
+            <span className="inline-flex items-center justify-center whitespace-nowrap leading-tight">
+              {item.label}
+              {item.href === "/gacha" && (
+                <span className="text-[10px] ml-0.5" aria-hidden="true">🌸</span>
+              )}
+            </span>
+          </Link>
         );
       })}
     </nav>

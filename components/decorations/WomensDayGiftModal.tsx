@@ -413,15 +413,12 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
       />
 
       {/* Floating Gift Box Button - Elevated with z-[60] and safe bottom margin above mobile navbar */}
-      <div className="fixed right-3 bottom-[calc(78px+env(safe-area-inset-bottom,0px))] md:bottom-6 z-[60] select-none touch-manipulation">
-        <motion.button
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      <div className="fixed right-3 bottom-[calc(78px+env(safe-area-inset-bottom,0px))] md:bottom-6 z-[60]">
+        <button
           type="button"
-          onClick={handleOpen}
+          onClick={() => handleOpen()}
           aria-label="Mở hộp quà chúc mừng 20/10"
-          className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-lg cursor-pointer touch-manipulation"
+          className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-lg cursor-pointer transition-transform active:scale-95"
         >
           <span
             className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-300 text-[9px] text-yellow-900 shadow-xs animate-ping"
@@ -446,7 +443,7 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
               Mở quà <span className="text-[10px]">✨</span>
             </span>
           </span>
-        </motion.button>
+        </button>
       </div>
 
       {/* Confetti & Floral Explosion Canvas */}
