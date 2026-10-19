@@ -13,7 +13,25 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const restaurant = await getRestaurant(id);
-  return { title: restaurant?.name || "Quán ăn" };
+  if (!restaurant) return { title: "Quán ăn" };
+  const categories = restaurant.restaurant_categories
+    .map((item) => item.categories?.name)
+    .filter(Boolean)
+    .join(", ");
+  const description = `${restaurant.name} - ${restaurant.area || "quanh khu vực Đại học Hà Nội"}. ${categories ? `Phục vụ: ${categories}. ` : ""}Xem thực đơn, giá cả và đánh giá thực tế từ sinh viên HANU.`;
+  return {
+    title: restaurant.name,
+    description,
+    alternates: {
+      canonical: `https://hanuhungry.id.vn/restaurants/${restaurant.id}`,
+    },
+    openGraph: {
+      title: `${restaurant.name} | Hanu Hungry`,
+      description,
+      url: `https://hanuhungry.id.vn/restaurants/${restaurant.id}`,
+      images: restaurant.image_url ? [{ url: restaurant.image_url, alt: restaurant.name }] : undefined,
+    },
+  };
 }
 
 export default async function RestaurantPage({ params }: Props) {

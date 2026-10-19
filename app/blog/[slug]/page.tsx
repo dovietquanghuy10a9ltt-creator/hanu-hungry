@@ -30,9 +30,20 @@ const getPost = cache(async function getPost(slug: string): Promise<BlogPost | n
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPost((await params).slug);
+  const title = post?.seo_title ? { absolute: post.seo_title } : post?.title || "Bài viết";
+  const description = post?.seo_description || post?.excerpt || undefined;
   return {
-    title: post?.seo_title ? { absolute: post.seo_title } : post?.title || "Bài viết",
-    description: post?.seo_description || post?.excerpt || undefined,
+    title,
+    description,
+    alternates: post ? { canonical: `https://hanuhungry.id.vn/blog/${post.slug}` } : undefined,
+    openGraph: post
+      ? {
+          title: post.seo_title || post.title,
+          description: description,
+          url: `https://hanuhungry.id.vn/blog/${post.slug}`,
+          images: post.cover_image_url ? [{ url: post.cover_image_url, alt: post.title }] : undefined,
+        }
+      : undefined,
   };
 }
 

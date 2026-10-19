@@ -4,7 +4,20 @@ import type { Metadata } from "next";
 import { readableText } from "@/features/restaurants/format";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Blog" };
+export const metadata: Metadata = {
+  title: "Blog Review Ẩm thực",
+  description:
+    "Tổng hợp bài viết đánh giá chân thực, cẩm nang khám phá top quán ăn ngon, bổ, rẻ và kinh nghiệm ăn uống của cộng đồng sinh viên Đại học Hà Nội.",
+  alternates: {
+    canonical: "https://hanuhungry.id.vn/blog",
+  },
+  openGraph: {
+    title: "Blog Review Ẩm thực | Hanu Hungry",
+    description:
+      "Tổng hợp bài viết đánh giá chân thực, top quán ăn ngon và kinh nghiệm ăn uống quanh HANU.",
+    url: "https://hanuhungry.id.vn/blog",
+  },
+};
 
 export default async function BlogPage() {
   const supabase = await createClient();
