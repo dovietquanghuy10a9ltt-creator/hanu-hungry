@@ -118,7 +118,9 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                   >
                     {profile?.avatar_url ? (
                       <Image src={profile.avatar_url} alt="" width={24} height={24} unoptimized className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover shrink-0" />
-                    ) : null}
+                    ) : (
+                      <Image src="/icons/nav/profile.png" alt="" width={24} height={24} unoptimized className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-contain shrink-0" />
+                    )}
                     <span className="hidden sm:inline truncate max-w-[110px]">{profile?.display_name || user.email?.split("@")[0] || "Tài khoản"}</span>
                     <span className="sm:hidden text-xs font-bold">Hồ sơ</span>
                   </Link>
