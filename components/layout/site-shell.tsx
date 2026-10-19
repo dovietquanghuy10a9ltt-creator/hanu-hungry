@@ -170,7 +170,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
 
       {user && <Navigation mobile signedIn={true} isAdmin={isAdmin} />}
       {user && <SmartCheckInRecall />}
-      <WomensDayGiftModal userId={user?.id} userEmail={user?.email} isAdmin={isAdmin} />
+      {user && <WomensDayGiftModal userId={user.id} userEmail={user.email} isAdmin={isAdmin} />}
     </div>
   );
 }
