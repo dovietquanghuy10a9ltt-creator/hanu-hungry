@@ -174,28 +174,48 @@ export function GachaExperience({
 
   return (
     <div className="gacha-experience">
-      <div className="flex justify-center mt-6 mb-2">
-        <label htmlFor="gacha-mode-select" className="sr-only">Chế độ Gacha</label>
-        <div className="relative inline-flex items-center">
-          <select
-            id="gacha-mode-select"
-            value={mode}
-            disabled={phase === "rolling"}
-            onChange={(e) => changeMode(e.target.value as GachaMode)}
-            style={{
-              WebkitAppearance: "none",
-              MozAppearance: "none",
-              appearance: "none",
-            }}
-            className="rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] pl-5 pr-10 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-none cursor-pointer transition"
-          >
-            <option value="restaurant">🏪 Gacha theo quán</option>
-            <option value="food">🍜 Gacha theo đồ ăn</option>
-            <option value="drink">🧋 Gacha theo đồ uống</option>
-          </select>
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
-            ▼
-          </span>
+      <div className="flex justify-center mt-6 mb-3">
+        <div
+          role="tablist"
+          aria-label="Chế độ Gacha"
+          className="inline-flex items-center gap-1.5 rounded-2xl sm:rounded-full bg-[#f4ebe1] p-1.5 border border-[var(--color-line)] shadow-xs max-w-full overflow-x-auto touch-pan-x"
+        >
+          {(
+            [
+              { id: "restaurant", label: "Theo quán", icon: "/icons/gacha/restaurant.png" },
+              { id: "food", label: "Theo món ăn", icon: "/icons/gacha/food.png" },
+              { id: "drink", label: "Theo đồ uống", icon: "/icons/gacha/drink.png" },
+            ] as const
+          ).map((m) => {
+            const isSelected = mode === m.id;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                disabled={phase === "rolling"}
+                onClick={() => changeMode(m.id)}
+                className={`flex items-center gap-2 rounded-xl sm:rounded-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  isSelected
+                    ? "bg-white text-[var(--color-red)] shadow-xs border border-[#f0c2c6] scale-[1.02]"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-white/50"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <Image
+                  src={m.icon}
+                  alt=""
+                  width={24}
+                  height={24}
+                  unoptimized
+                  className={`h-6 w-6 object-contain transition-transform duration-200 ${
+                    isSelected ? "scale-110" : ""
+                  }`}
+                />
+                <span>{m.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface FaqItem {
   id: string;
@@ -79,8 +80,16 @@ export default function SupportPage() {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
       {/* Header */}
       <div className="text-center space-y-3 mb-10">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-pale)] px-4 py-1.5 text-xs font-bold text-[var(--color-red)] tracking-wide uppercase">
-          💬 Trung tâm Trợ giúp HANUers
+        <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-pale)] px-4 py-1.5 text-xs font-bold text-[var(--color-red)] tracking-wide uppercase">
+          <Image
+            src="/icons/nav/support.png"
+            alt=""
+            width={18}
+            height={18}
+            className="h-4.5 w-4.5 object-contain"
+            unoptimized
+          />
+          Trung tâm Trợ giúp HANUers
         </span>
         <h1 className="text-3xl sm:text-4xl font-black text-[var(--color-ink)] tracking-tight">
           Hỏi Đáp & Hỗ Trợ
@@ -172,7 +181,15 @@ export default function SupportPage() {
             href="/restaurants"
             className="rounded-xl border border-[var(--color-line)] bg-[var(--color-pale)] px-5 py-2.5 text-sm font-bold text-[var(--color-ink)] hover:bg-[#eadbc9] transition inline-flex items-center gap-2"
           >
-            🔍 Khám phá quán ăn
+            <Image
+              src="/icons/nav/explore.png"
+              alt=""
+              width={18}
+              height={18}
+              className="h-4.5 w-4.5 object-contain"
+              unoptimized
+            />
+            Khám phá quán ăn
           </Link>
         </div>
       </div>
