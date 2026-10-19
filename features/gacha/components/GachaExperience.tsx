@@ -175,14 +175,7 @@ export function GachaExperience({
 
   return (
     <div className="gacha-experience">
-      <div className="flex justify-center mt-5 mb-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50/90 px-3.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs">
-          <span>🌸</span>
-          <span>Đặc biệt 20/10: Để vũ trụ chọn món chiều nàng!</span>
-          <span className="animate-pulse">✨</span>
-        </span>
-      </div>
-      <div className="flex justify-center mb-2">
+      <div className="flex justify-center mt-6 mb-2">
         <label htmlFor="gacha-mode-select" className="sr-only">Chế độ Gacha</label>
         <div className="relative inline-flex items-center">
           <select
@@ -197,9 +190,9 @@ export function GachaExperience({
             }}
             className="rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] pl-5 pr-10 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-none cursor-pointer transition"
           >
-            <option value="restaurant">🏪 Gacha theo quán 🌸</option>
-            <option value="food">🍜 Gacha theo đồ ăn 🍰</option>
-            <option value="drink">🧋 Gacha theo đồ uống (Trà sữa) ✨</option>
+            <option value="restaurant">🏪 Gacha theo quán</option>
+            <option value="food">🍜 Gacha theo đồ ăn</option>
+            <option value="drink">🧋 Gacha theo đồ uống</option>
           </select>
           <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
             ▼
@@ -216,12 +209,7 @@ export function GachaExperience({
 
         <div className="gacha-ticket">
           <div className="ticket-top">
-            <span className="flex items-center gap-1.5">
-              <span>Hanu Hungry</span>
-              <span className="rounded-full bg-rose-100 px-1.5 py-0.2 text-[8px] sm:text-[9px] font-black text-rose-700 border border-rose-200">
-                🌸 SPECIAL 20/10
-              </span>
-            </span>
+            <span>Hanu Hungry</span>
             <span>LUCKY PICK / {mode === "restaurant" ? "QUÁN" : mode === "drink" ? "ĐỒ UỐNG" : "ĐỒ ĂN"}</span>
           </div>
 
@@ -239,11 +227,6 @@ export function GachaExperience({
                   />
                 </div>
               )}
-              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs animate-floral-bloom">
-                <span className="text-sm">🌸</span>
-                <span>Tín hiệu 20/10: Món này sẽ làm nàng mỉm cười hôm nay!</span>
-                <span className="text-sm">✨</span>
-              </div>
               <p className="eyebrow">Vũ trụ chọn cho bạn</p>
               <h2 className="mt-3 break-words text-3xl leading-tight sm:text-4xl">
                 {result.dish?.name || result.restaurant.name}
@@ -275,8 +258,8 @@ export function GachaExperience({
               }}
               title={phase === "idle" ? "Bấm vào thẻ để quay" : undefined}
             >
-              <div className={`reel-symbol ${phase === "rolling" ? "is-spinning text-rose-600" : "animate-petal-float"}`} aria-hidden="true">
-                {phase === "rolling" ? "🌸" : "💐"}
+              <div className={`reel-symbol ${phase === "rolling" ? "is-spinning" : ""}`} aria-hidden="true">
+                ✦
               </div>
               <p className={`reel-name ${phase === "rolling" ? "is-rolling" : ""}`} aria-hidden={phase === "rolling"}>
                 {phase === "rolling" ? reelName : "Hôm nay, để vũ trụ chọn."}
@@ -290,8 +273,8 @@ export function GachaExperience({
           )}
 
           <div className="ticket-bottom" aria-hidden="true">
-            <span>FROM Hanu, WITH APPETITE & LOVE 💕</span>
-            <span>🌸 ✦ 🌸</span>
+            <span>FROM Hanu, WITH APPETITE</span>
+            <span>✦ ✳ ✦</span>
           </div>
         </div>
       </div>

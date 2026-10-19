@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { BlogNewsWidget } from "@/components/shared/blog-news-widget";
 import type { BlogPostSummary } from "@/features/blog/data";
-import { WomensDayBanner } from "@/components/decorations/WomensDayBanner";
 
 export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummary[] }) {
   const features = [
@@ -35,9 +34,6 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-2">
               <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-black text-rose-700 border border-rose-200 shadow-2xs">
-                🌸 Mừng ngày 20/10
-              </span>
             </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">
               Hanu Hungry
@@ -75,10 +71,7 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
         </div>
 
         {/* Poster banner phong cách ảnh 4 */}
-        <div className="hero-poster relative hidden md:flex flex-col justify-between">
-          <span className="absolute -top-3 -right-2 inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-black text-rose-600 shadow-md border border-rose-200 animate-bounce">
-            🌸 20/10
-          </span>
+        <div className="hero-poster hidden md:flex flex-col justify-between">
           <div className="poster-top">
             <span>HÀ NỘI</span>
             <span>ĂN GÌ / 01</span>
@@ -95,8 +88,6 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
           </Link>
         </div>
       </section>
-
-      <WomensDayBanner signedIn={false} />
 
       {/* Main features + Blog News Widget (Ảnh 1) */}
       <section className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,1.1fr)]">

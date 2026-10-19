@@ -8,7 +8,6 @@ import { SocialIconsRow, CONTACT_INFO } from "@/components/shared/social-links";
 import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
 import { StreakIndicator, type StreakData } from "@/components/shared/streak-indicator";
 import { historyStats, localDayOrdinal } from "@/features/history/stats";
-import { PetalsFalling } from "@/components/decorations/PetalsFalling";
 import { WomensDayGiftModal } from "@/components/decorations/WomensDayGiftModal";
 
 export async function SiteShell({ children }: { children: ReactNode }) {
@@ -66,21 +65,10 @@ export async function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)]" suppressHydrationWarning>
       <header className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[#faf7ef] shadow-2xs">
-        {/* Festive 20/10 Announcement Bar */}
-        <div className="bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-3 py-1 text-center text-[11px] sm:text-xs font-bold text-white shadow-2xs select-none">
-          <div className="mx-auto flex max-w-7xl items-center justify-center gap-1.5 sm:gap-2">
-            <span className="animate-spin-slow inline-block" style={{ animationDuration: "8s" }}>🌸</span>
-            <span>Mừng ngày Phụ nữ Việt Nam 20/10 · Chúc phái đẹp HANU luôn rạng ngời & hạnh phúc!</span>
-            <span className="hidden sm:inline">💐✨</span>
-          </div>
-        </div>
         <div className="mx-auto flex min-h-14 sm:min-h-16 w-full max-w-7xl items-center justify-between gap-1.5 sm:gap-3 px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex min-h-11 sm:min-h-12 shrink-0 items-center gap-1.5 sm:gap-2" aria-label="Hanu Hungry - Trang chủ">
             <Image src="/brand/logo.png" alt="" width={40} height={40} className="h-7 w-7 object-contain sm:h-10 sm:w-10" priority />
             <span className="brand-display text-[1.15rem] leading-none text-[var(--color-red)] sm:text-[1.65rem]">Hanu Hungry</span>
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-100 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[11px] font-black text-rose-700 border border-rose-200 shadow-2xs animate-pulse">
-              🌸 20/10
-            </span>
           </Link>
           {user && <Navigation isAdmin={isAdmin} signedIn={true} />}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -119,7 +107,6 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                       ) : (
                         <span className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-[var(--color-red)] text-white text-[10px]">👑</span>
                       )}
-                      <span className="absolute -bottom-1 -right-1 text-[8px] leading-none" aria-hidden="true">🌸</span>
                     </div>
                     <span className="hidden sm:inline truncate max-w-[110px] sm:max-w-[150px]">{profile?.display_name || user.email?.split("@")[0] || "Admin"}</span>
                     <span className="inline-flex items-center rounded-full bg-[var(--color-red)] px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-white shadow-xs shrink-0">
@@ -136,7 +123,6 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                       {profile?.avatar_url ? (
                         <img src={profile.avatar_url} alt="" className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover" />
                       ) : null}
-                      <span className="absolute -bottom-1 -right-1 text-[8px] leading-none" aria-hidden="true">🌸</span>
                     </div>
                     <span className="hidden sm:inline truncate max-w-[110px]">{profile?.display_name || user.email?.split("@")[0] || "Tài khoản"}</span>
                     <span className="sm:hidden text-xs font-bold">Hồ sơ</span>
@@ -156,15 +142,6 @@ export async function SiteShell({ children }: { children: ReactNode }) {
       <main id="main-content" className="mx-auto min-h-[calc(100vh-15rem)] w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-28 pt-4 sm:pt-6 md:pb-14 md:pt-10 overflow-x-clip">
         {children}
       </main>
-
-      {/* Decorative 20/10 Greeting Ribbon Above Footer */}
-      <div className="border-t border-b border-rose-200/80 bg-gradient-to-r from-rose-50 via-pink-50 to-amber-50 py-3.5 px-4 text-center select-none">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 text-xs sm:text-sm font-bold text-rose-800">
-          <span className="animate-petal-float inline-block">🌸</span>
-          <span>Hanu Hungry chúc toàn thể các bạn nữ HANU một ngày 20/10 ngập tràn hoa, quà và những bữa ăn ấm áp!</span>
-          <span className="animate-petal-float inline-block" style={{ animationDelay: "1.5s" }}>🌷</span>
-        </div>
-      </div>
 
       <footer className="border-t border-[var(--color-line)] bg-[#f1eadd] pb-24 md:pb-0">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 text-sm text-[var(--color-muted)] sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
@@ -193,8 +170,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
 
       {user && <Navigation mobile signedIn={true} isAdmin={isAdmin} />}
       {user && <SmartCheckInRecall />}
-      {/* <PetalsFalling /> - Tạm thời tắt hiệu ứng hoa rơi theo yêu cầu */}
-      {user && <WomensDayGiftModal userId={user.id} userEmail={user.email} isAdmin={isAdmin} />}
+      <WomensDayGiftModal userId={user?.id} userEmail={user?.email} isAdmin={isAdmin} />
     </div>
   );
 }

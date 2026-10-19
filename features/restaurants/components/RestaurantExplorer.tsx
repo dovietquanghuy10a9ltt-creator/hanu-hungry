@@ -48,18 +48,13 @@ export function RestaurantExplorer({
       <form
         action="/restaurants"
         onSubmit={(event) => event.preventDefault()}
-        className="rounded-2xl border-2 border-rose-200/90 bg-gradient-to-br from-[#fff7f8] via-[#f5ede3] to-[#fff5f0] p-4 sm:p-5 space-y-3.5 shadow-sm"
+        className="rounded-2xl border border-[var(--color-line)] bg-[#f1eadd] p-4 sm:p-5 space-y-3.5 shadow-xs"
       >
         {/* Header với label và nút Xóa bộ lọc ở góc phải */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <label htmlFor="search-restaurant-q" className="text-xs sm:text-sm font-bold text-[var(--color-ink)]">
-              Tên quán hoặc món
-            </label>
-            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100/90 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-rose-700 border border-rose-200 shadow-2xs">
-              🌸 Gợi ý 20/10
-            </span>
-          </div>
+          <label htmlFor="search-restaurant-q" className="text-xs sm:text-sm font-bold text-[var(--color-ink)]">
+            Tên quán hoặc món
+          </label>
           {hasFilter && (
             <button
               type="button"
@@ -85,40 +80,11 @@ export function RestaurantExplorer({
             name="q"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Thử gõ ‘trà sữa’, ‘lẩu nướng’ hoặc món bạn thích… 🌸"
+            placeholder="Thử gõ ‘b’ để tìm bún, bánh…"
             autoComplete="off"
             style={{ paddingLeft: "42px" }}
             className="field w-full text-sm !pl-11"
           />
-        </div>
-
-        {/* 20/10 Quick Filter Chips */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-          <span className="text-[11px] font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1">
-            🌸 Gợi ý 20/10:
-          </span>
-          {[
-            { label: "🧋 Trà sữa", value: "trà sữa" },
-            { label: "🍰 Bánh ngọt", value: "bánh" },
-            { label: "🥘 Lẩu nướng", value: "lẩu" },
-            { label: "💖 Quán ấm cúng", value: "ấm cúng" },
-          ].map((chip) => {
-            const isActive = query.toLowerCase() === chip.value;
-            return (
-              <button
-                key={chip.label}
-                type="button"
-                onClick={() => setQuery(isActive ? "" : chip.value)}
-                className={`rounded-full px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-rose-600 text-white shadow-xs"
-                    : "bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200"
-                }`}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
         </div>
 
         {/* Dòng 2: 2 dropdown chọn Danh mục và Quán ăn nhiều nhất */}

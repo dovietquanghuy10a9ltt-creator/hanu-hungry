@@ -9,22 +9,28 @@ const TARGET_VOLUME = 0.35;
 
 const GREETINGS = [
   {
+    icon: "🌸",
+    tag: "Nàng Thơ HANU",
     title: "Gửi một nửa rạng ngời của HANU 🌸",
     lines: [
-      "Chúc bạn một ngày 20/10 ngập tràn niềm vui, nụ cười luôn tỏa nắng trên con đường Triều Khúc - Phùng Khoang.",
-      "Chúc cho mọi bài thi của bạn đều rực rỡ điểm A và luôn tìm được quán ăn ngon làm bừng sáng cả ngày!",
+      "Chúc bạn luôn ngập tràn niềm vui, nụ cười rạng rỡ tỏa nắng trên con đường Triều Khúc - Phùng Khoang.",
+      "Chúc cho mọi bài thi của bạn đều rực rỡ điểm A và luôn tìm được những quán ăn ngon làm bừng sáng cả ngày!",
     ],
     highlight: "Luôn xinh đẹp, tự tin và rạng rỡ nhé!",
   },
   {
+    icon: "🧋",
+    tag: "Trà Sữa & Món Ngon",
     title: "Chiều chuộng vị giác hôm nay 🧋",
     lines: [
-      "20/10 là ngày đặc biệt của riêng bạn! Đừng ngần ngại tự thưởng cho mình một ly trà sữa full topping ngọt ngào.",
+      "Hôm nay là ngày đặc biệt của riêng bạn! Đừng ngần ngại tự thưởng cho mình một ly trà sữa full topping ngọt ngào.",
       "Và một bữa ăn ấm bụng thật ngon cùng hội bạn thân hay người thương nhé!",
     ],
     highlight: "Hôm nay, bạn xứng đáng được yêu chiều nhất!",
   },
   {
+    icon: "✨",
+    tag: "Tín Hiệu Vũ Trụ",
     title: "Tín hiệu vũ trụ dành riêng cho bạn ✨",
     lines: [
       "Vũ trụ Hanu Hungry gửi tới bạn lời chúc ngọt ngào nhất: Ăn ngon không lo béo, học bài không lo deadline dí.",
@@ -33,6 +39,8 @@ const GREETINGS = [
     highlight: "Mỗi ngày đến trường là một ngày vui!",
   },
   {
+    icon: "💐",
+    tag: "Bông Hoa Tươi Thắm",
     title: "Bông hoa tươi thắm nhất HANU 💐",
     lines: [
       "Cảm ơn các bạn nữ HANU vì đã luôn mang đến nguồn năng lượng tươi vui, đáng yêu và ấm áp cho khuôn viên trường.",
@@ -41,6 +49,8 @@ const GREETINGS = [
     highlight: "Chúc bạn luôn hạnh phúc và yêu đời!",
   },
   {
+    icon: "🥘",
+    tag: "Tụ Tập & Hẹn Hò",
     title: "Hẹn hò hay tụ tập? Chiều hết! 🥘",
     lines: [
       "Dù hôm nay là một buổi hẹn ngọt ngào bên ly trà ấm, hay bữa lẩu nướng rôm rả 'quẩy' hết mình cùng hội chị em.",
@@ -49,9 +59,11 @@ const GREETINGS = [
     highlight: "Ăn ngon quanh Hanu, khỏi lo nghĩ nhiều!",
   },
   {
+    icon: "🍰",
+    tag: "Ngọt Ngào Mỗi Ngày",
     title: "Ngọt ngào như chiếc bánh Macaron 🍰",
     lines: [
-      "Chúc bạn ngày 20/10 ngọt ngào hơn cả ly bingsu xoài và ấm áp hơn tô mì cay mùa se lạnh.",
+      "Chúc bạn luôn ngọt ngào hơn cả ly bingsu xoài và ấm áp hơn tô mì cay mùa se lạnh.",
       "Hãy luôn mỉm cười và tỏa sáng rực rỡ theo cách riêng của bạn nhé!",
     ],
     highlight: "Bạn chính là phiên bản tuyệt vời nhất!",
@@ -89,6 +101,33 @@ interface WomensDayGiftModalProps {
   userId?: string;
   userEmail?: string;
   isAdmin?: boolean;
+}
+
+function createParticles(count: number, originX: number, originY: number): BurstParticle[] {
+  const newParticles: BurstParticle[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 10 + 4;
+    const isFlower = i % 3 === 0;
+
+    newParticles.push({
+      x: originX,
+      y: originY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 4,
+      size: isFlower ? 16 : 7,
+      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+      rotation: 0,
+      rotationSpeed: (Math.random() - 0.5) * 0.15,
+      opacity: 1,
+      decay: 0.024,
+      type: isFlower ? "flower" : "confetti",
+      flowerChar: isFlower
+        ? FLOWER_EMOJIS[i % FLOWER_EMOJIS.length]
+        : undefined,
+    });
+  }
+  return newParticles;
 }
 
 export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGiftModalProps = {}) {
@@ -173,31 +212,7 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
     const originX = rect.width / 2;
     const originY = rect.height * 0.42;
 
-    const newParticles: BurstParticle[] = [];
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 10 + 4;
-      const isFlower = i % 3 === 0;
-
-      newParticles.push({
-        x: originX,
-        y: originY,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 4,
-        size: isFlower ? 16 : 7,
-        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-        rotation: 0,
-        rotationSpeed: (Math.random() - 0.5) * 0.15,
-        opacity: 1,
-        decay: 0.024,
-        type: isFlower ? "flower" : "confetti",
-        flowerChar: isFlower
-          ? FLOWER_EMOJIS[i % FLOWER_EMOJIS.length]
-          : undefined,
-      });
-    }
-
-    particlesRef.current = newParticles;
+    particlesRef.current = createParticles(count, originX, originY);
     if (!animFrameRef.current) {
       runAnimation();
     }
@@ -362,6 +377,18 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
     }
   }
 
+  function handlePrevGreeting() {
+    if (greetingIndex > 0) {
+      setGreetingIndex((prev) => prev - 1);
+    }
+  }
+
+  function handleJumpGreeting(index: number) {
+    if (index >= 0 && index < GREETINGS.length) {
+      setGreetingIndex(index);
+    }
+  }
+
   function handleCloseAndClaim() {
     const audio = audioRef.current;
     if (audio) {
@@ -417,11 +444,11 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
         <button
           type="button"
           onClick={() => handleOpen()}
-          aria-label="Mở hộp quà chúc mừng 20/10"
-          className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-lg cursor-pointer transition-transform active:scale-95"
+          aria-label="Mở hộp quà tặng"
+          className="relative group flex items-center gap-2 rounded-full border-2 border-rose-300/90 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-3.5 py-2 text-white shadow-xl shadow-rose-500/25 cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-rose-500/40"
         >
           <span
-            className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-300 text-[9px] text-yellow-900 shadow-xs animate-ping"
+            className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-300 text-[10px] text-amber-950 shadow-sm animate-ping"
             style={{ animationDuration: "3s" }}
             aria-hidden="true"
           >
@@ -437,7 +464,7 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
 
           <span className="relative flex flex-col items-start leading-none pr-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-rose-100">
-              Quà 20/10
+              Hộp quà
             </span>
             <span className="text-xs font-black text-white flex items-center gap-1">
               Mở quà <span className="text-[10px]">✨</span>
@@ -534,47 +561,59 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                 </h2>
               </div>
 
-              {/* STEP 1: Bé mèo ôm hoa tặng bạn (Nền kem sạch, KHÔNG có ảnh đè mờ 50%) */}
+              {/* STEP 1: Bé mèo ôm hoa tặng bạn */}
               {step === "cat_intro" && (
-                <div className="relative z-10 p-6 text-center space-y-4">
+                <div className="relative z-10 p-5 sm:p-6 text-center space-y-4">
                   <div className="relative mx-auto flex justify-center items-center h-48 w-48 sm:h-52 sm:w-52">
+                    {/* Glowing Aura Rings */}
                     <div
-                      className="absolute inset-0 rounded-full bg-rose-200/30 blur-xl animate-pulse"
+                      className="absolute inset-0 rounded-full bg-gradient-to-tr from-rose-300/40 via-pink-200/30 to-amber-200/40 blur-2xl animate-pulse"
+                      aria-hidden="true"
+                    />
+                    <div
+                      className="absolute inset-4 rounded-full border-2 border-rose-200/60 border-dashed animate-spin-slow pointer-events-none"
+                      style={{ animationDuration: "24s" }}
                       aria-hidden="true"
                     />
                     <Image
                       src="/images/20-10/cat-flower.webp"
-                      alt="Bé mèo cầm hoa tặng bạn nhân ngày 20/10"
+                      alt="Bé mèo ôm hoa tặng bạn"
                       width={220}
                       height={220}
                       priority
                       unoptimized
-                      className="relative z-10 object-contain drop-shadow-md animate-in fade-in zoom-in-95 duration-500"
+                      className="relative z-10 object-contain drop-shadow-lg transition-transform duration-500 hover:scale-105 animate-in fade-in zoom-in-95 duration-500"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <span className="inline-block rounded-full bg-rose-100/90 px-3 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs">
-                      🐾 Bé mèo HANU có một món quà gửi bạn 💐
-                    </span>
-                    <h3 className="text-lg font-black text-rose-900 pt-1">
+                  {/* Card Content Banner */}
+                  <div className="relative rounded-2xl border border-rose-200/80 bg-white/80 backdrop-blur-xs p-4 shadow-sm space-y-2">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 border border-rose-200/80 shadow-2xs">
+                        <span>🐾</span>
+                        <span>Món quà ngọt ngào từ HANU</span>
+                        <span>💐</span>
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-black text-rose-950 pt-0.5">
                       Gửi tặng bạn một bó hoa tươi thắm nè!
                     </h3>
-                    <p className="text-xs sm:text-sm text-[var(--color-muted)] leading-relaxed max-w-sm mx-auto">
-                      Hanu Hungry chúc bạn một ngày 20/10 luôn tràn ngập tiếng cười, xinh đẹp, tự tin và ngập tràn hạnh phúc!
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto font-medium">
+                      Hanu Hungry chúc bạn luôn tràn ngập tiếng cười, xinh đẹp, tự tin và ngập tràn hạnh phúc mỗi ngày!
                     </p>
                   </div>
 
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <motion.button
+                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.96 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                       type="button"
                       onClick={handleStartWishes}
-                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3 font-black text-white shadow-md cursor-pointer touch-manipulation hover:brightness-105"
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3.5 font-black text-white shadow-lg shadow-rose-500/30 cursor-pointer touch-manipulation hover:brightness-105 transition-all"
                     >
-                      <span>Nhận hoa & Mở thiệp chúc</span>
-                      <span className="text-lg animate-bounce" style={{ animationDuration: "1.5s" }}>
+                      <span className="text-base">Nhận hoa & Mở thiệp chúc</span>
+                      <span className="text-xl animate-bounce" style={{ animationDuration: "1.5s" }}>
                         💐
                       </span>
                     </motion.button>
@@ -582,27 +621,60 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                 </div>
               )}
 
-              {/* STEP 2: Lời chúc từ 1 đến 6 (Thiết kế dạng Thiệp/Card lật giở xịn xò & Dòng chữ mờ dần hiện ra) */}
+              {/* STEP 2: Lời chúc từ 1 đến 6 (Thiết kế Card sang trọng, bắt mắt & mượt mà) */}
               {step === "wishes" && (
-                <div className="relative z-10 p-5 sm:p-6 text-center space-y-4">
+                <div className="relative z-10 p-4 sm:p-6 text-center space-y-3.5">
                   {/* Greeting Card with smooth Framer Motion spring transition */}
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={greetingIndex}
-                      initial={{ opacity: 0, x: 20, scale: 0.97 }}
+                      initial={{ opacity: 0, x: 28, scale: 0.96 }}
                       animate={{ opacity: 1, x: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: -20, scale: 0.97 }}
-                      transition={{ type: "spring", stiffness: 320, damping: 28 }}
-                      className="relative rounded-2xl border border-rose-200/90 bg-white/90 backdrop-blur-xs p-5 shadow-sm space-y-3 min-h-[15.5rem] flex flex-col justify-center"
+                      exit={{ opacity: 0, x: -28, scale: 0.96 }}
+                      transition={{ type: "spring", stiffness: 340, damping: 26 }}
+                      className="relative rounded-3xl border-2 border-rose-200/90 bg-gradient-to-b from-white/95 via-rose-50/40 to-pink-50/60 backdrop-blur-md p-5 sm:p-6 shadow-[0_12px_32px_rgba(244,63,94,0.14)] min-h-[17.5rem] flex flex-col justify-between overflow-hidden"
                     >
-                      {/* Decorative flower icon */}
-                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 border border-rose-200 text-2xl shadow-xs transition-transform hover:rotate-12 duration-300">
-                        💐
+                      {/* Watermark Quote & Corner Decorative accents */}
+                      <span
+                        className="pointer-events-none absolute -top-4 left-3 text-7xl font-serif text-rose-300/25 select-none leading-none"
+                        aria-hidden="true"
+                      >
+                        “
+                      </span>
+                      <span
+                        className="pointer-events-none absolute -bottom-3 -right-2 text-5xl opacity-15 select-none"
+                        aria-hidden="true"
+                      >
+                        🌸
+                      </span>
+                      <span
+                        className="pointer-events-none absolute top-3.5 right-4 text-xs text-amber-400 animate-pulse select-none"
+                        aria-hidden="true"
+                      >
+                        ✨
+                      </span>
+
+                      {/* Card Header: Category Tag & Step indicator */}
+                      <div className="relative z-10 flex items-center justify-between pb-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-300/70 bg-white/90 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-rose-700 shadow-2xs">
+                          <span>{currentGreeting.icon}</span>
+                          <span>{currentGreeting.tag}</span>
+                        </span>
+                        <span className="inline-flex items-center rounded-full bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-black text-rose-700">
+                          {greetingIndex + 1}/{GREETINGS.length}
+                        </span>
                       </div>
 
-                      {/* Title: Fades in at stage >= 1 */}
+                      {/* Thematic Animated Icon Badge */}
+                      <div className="relative z-10 my-1">
+                        <div className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-100 via-pink-100 to-amber-50 border-2 border-white text-3xl shadow-md transition-transform duration-300 hover:scale-110">
+                          <span className="drop-shadow-xs">{currentGreeting.icon}</span>
+                        </div>
+                      </div>
+
+                      {/* Card Title */}
                       <h3
-                        className={`text-lg font-black text-rose-900 transition-all duration-700 ease-out ${
+                        className={`relative z-10 text-base sm:text-lg font-black tracking-tight text-rose-950 transition-all duration-700 ease-out ${
                           fadeStage >= 1
                             ? "opacity-100 translate-y-0"
                             : "opacity-0 translate-y-2"
@@ -611,10 +683,10 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                         {currentGreeting.title}
                       </h3>
 
-                      {/* Sentences: Smooth sequential opacity fade-in */}
-                      <div className="space-y-2 text-sm leading-relaxed text-[var(--color-ink)] font-medium text-left sm:text-center min-h-[4.5rem] flex flex-col justify-center">
+                      {/* Card Letter Content */}
+                      <div className="relative z-10 my-2 rounded-2xl bg-white/80 border border-rose-200/60 p-3 sm:p-3.5 shadow-2xs text-left sm:text-center space-y-2">
                         <p
-                          className={`transition-all duration-700 ease-out ${
+                          className={`text-xs sm:text-sm leading-relaxed text-slate-700 font-medium transition-all duration-700 ease-out ${
                             fadeStage >= 2
                               ? "opacity-100 translate-y-0"
                               : "opacity-0 translate-y-2"
@@ -622,8 +694,9 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                         >
                           {currentGreeting.lines[0]}
                         </p>
+                        <div className="h-px w-16 mx-auto bg-gradient-to-r from-transparent via-rose-200 to-transparent" />
                         <p
-                          className={`transition-all duration-700 ease-out ${
+                          className={`text-xs sm:text-sm leading-relaxed text-slate-700 font-medium transition-all duration-700 ease-out ${
                             fadeStage >= 3
                               ? "opacity-100 translate-y-0"
                               : "opacity-0 translate-y-2"
@@ -633,58 +706,90 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                         </p>
                       </div>
 
-                      {/* Highlight Badge: Fades in at stage >= 4 */}
-                      <div className="min-h-[2rem] flex items-center justify-center pt-1">
+                      {/* Highlight Badge */}
+                      <div className="relative z-10 min-h-[2.2rem] flex items-center justify-center pt-0.5">
                         <span
-                          className={`rounded-full bg-rose-100/95 px-3.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs transition-all duration-700 ease-out ${
+                          className={`inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-4 py-1.5 text-xs font-bold text-white shadow-md shadow-rose-300/50 transition-all duration-700 ease-out ${
                             fadeStage >= 4
                               ? "opacity-100 scale-100"
                               : "opacity-0 scale-95"
                           }`}
                         >
-                          {currentGreeting.highlight}
+                          <span>✨</span>
+                          <span>{currentGreeting.highlight}</span>
+                          <span>✨</span>
                         </span>
                       </div>
                     </motion.div>
                   </AnimatePresence>
 
-                  {/* Progress & Navigation Buttons */}
-                  <div className="pt-1 flex flex-col gap-2.5">
-                    {/* Card Page Indicator */}
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50/90 px-3 py-0.5 text-xs font-black text-rose-700 shadow-2xs">
-                        Thiệp chúc {greetingIndex + 1}/{GREETINGS.length} 🌸
-                      </span>
+                  {/* Progress Dots Indicator & Interactive Navigation */}
+                  <div className="pt-1 space-y-3">
+                    {/* Modern 6-Step Pill Dots */}
+                    <div className="flex items-center justify-center gap-1.5" aria-label="Danh sách thiệp chúc">
+                      {GREETINGS.map((g, idx) => {
+                        const isActive = idx === greetingIndex;
+                        const isVisited = idx < greetingIndex;
+                        return (
+                          <button
+                            key={g.tag}
+                            type="button"
+                            onClick={() => handleJumpGreeting(idx)}
+                            aria-label={`Xem thiệp ${idx + 1}`}
+                            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                              isActive
+                                ? "w-7 bg-gradient-to-r from-rose-500 to-pink-500 shadow-xs"
+                                : isVisited
+                                ? "w-2.5 bg-rose-300/90 hover:bg-rose-400"
+                                : "w-2 bg-rose-200/70 hover:bg-rose-300"
+                            }`}
+                          />
+                        );
+                      })}
                     </div>
 
-                    {/* From 1/6 to 5/6: Next greeting button */}
-                    {!isLastGreeting ? (
-                      <motion.button
-                        whileTap={{ scale: 0.96 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        type="button"
-                        onClick={handleNextGreeting}
-                        className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 px-4 py-3 font-bold text-white shadow-xs cursor-pointer touch-manipulation hover:brightness-105"
-                      >
-                        <span>Giở thiệp tiếp theo ({greetingIndex + 1}/6)</span>
-                        <span aria-hidden="true">➔</span>
-                      </motion.button>
-                    ) : (
-                      /* At 6/6: ONLY show close button after lines have faded in */
-                      canExit && (
-                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
+                    {/* Navigation Buttons: Previous / Next / Finish */}
+                    <div className="flex items-center gap-2">
+                      {greetingIndex > 0 && (
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          type="button"
+                          onClick={handlePrevGreeting}
+                          className="flex items-center justify-center gap-1 rounded-xl border border-rose-200 bg-white/90 px-3.5 py-2.5 text-xs font-bold text-rose-700 shadow-2xs hover:bg-rose-50 cursor-pointer touch-manipulation transition-colors"
+                        >
+                          <span aria-hidden="true">←</span>
+                          <span>Trước</span>
+                        </motion.button>
+                      )}
+
+                      {!isLastGreeting ? (
+                        <motion.button
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.96 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                          type="button"
+                          onClick={handleNextGreeting}
+                          className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-4 py-3 font-bold text-white shadow-sm shadow-rose-400/30 cursor-pointer touch-manipulation hover:brightness-105 transition-all text-sm"
+                        >
+                          <span>Giở thiệp tiếp theo ({greetingIndex + 1}/6)</span>
+                          <span aria-hidden="true">➔</span>
+                        </motion.button>
+                      ) : (
+                        /* At 6/6: ONLY show close button after lines have faded in */
+                        canExit && (
                           <motion.button
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.96 }}
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             type="button"
                             onClick={handleCloseAndClaim}
-                            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3 text-sm font-bold text-white shadow-md cursor-pointer touch-manipulation hover:brightness-105"
+                            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-4 py-3 text-sm font-black text-white shadow-md shadow-rose-500/30 cursor-pointer touch-manipulation hover:brightness-105 transition-all"
                           >
                             <span>Đóng thiệp chúc (Cảm ơn Hanu Hungry! 💕)</span>
                           </motion.button>
-                        </div>
-                      )
-                    )}
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -696,7 +801,7 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={handleCloseAndClaim}
-                  aria-label="Đóng hộp quà 20/10"
+                  aria-label="Đóng hộp quà"
                   className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 cursor-pointer touch-manipulation hover:scale-105"
                 >
                   ✕
