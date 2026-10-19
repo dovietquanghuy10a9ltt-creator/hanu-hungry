@@ -3,12 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-
-const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { isUuid } from "@/lib/validation";
 
 export async function markNotificationRead(formData: FormData) {
   const notificationId = String(formData.get("notificationId") || "");
-  if (!uuid.test(notificationId)) throw new Error("Thông báo không hợp lệ.");
+  if (!isUuid(notificationId)) throw new Error("Thông báo không hợp lệ.");
   const { user } = await requireUser();
   const supabase = await createClient();
   const { error } = await supabase.from("notification_reads").upsert({

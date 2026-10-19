@@ -28,5 +28,20 @@ export default async function GachaPage({ searchParams }: { searchParams: Promis
     item.dishes.filter((dish) => isDrinkDish(dish.name, item.category_slugs)).map((dish) => dish.name)
   );
 
-  return <div className="gacha-page"><header className="gacha-intro"><p className="cosmic-heading">Tín hiệu từ vũ trụ</p><h1>Hôm nay ăn gì?</h1><p>Chiếc bụng đói cần một gợi ý. Vũ trụ thì có cả một danh sách.</p></header><GachaExperience catalog={catalog} restaurantNames={restaurantNames} foodNames={foodNames} drinkNames={drinkNames} initialMode={initialMode} /></div>;
+  return (
+    <div className="gacha-page">
+      <header className="gacha-intro">
+        <p className="cosmic-heading">Tín hiệu từ vũ trụ</p>
+        <h1>Hôm nay ăn gì?</h1>
+        <p>Chiếc bụng đói cần một gợi ý. Vũ trụ thì có cả một danh sách.</p>
+      </header>
+      <GachaExperience
+        catalog={catalog}
+        restaurantNames={restaurantNames}
+        foodNames={foodNames}
+        drinkNames={drinkNames}
+        initialMode={initialMode}
+      />
+    </div>
+  );
 }

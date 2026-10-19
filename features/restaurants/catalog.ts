@@ -1,9 +1,10 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CatalogRestaurant } from "./search";
 
 /** Public catalog only. No profiles or private user data enter the browser. */
-export async function listCatalog(): Promise<CatalogRestaurant[]> {
+export const listCatalog = cache(async function listCatalog(): Promise<CatalogRestaurant[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("restaurants")
     .select("id,name,area,address_text,image_url,dishes(id,name,price_text,price_min_vnd,price_max_vnd,is_active),restaurant_categories(categories(name,slug))")
@@ -42,4 +43,4 @@ export async function listCatalog(): Promise<CatalogRestaurant[]> {
       check_in_count: checkInCounts.get(restaurant.id) ?? 0,
     };
   });
-}
+});

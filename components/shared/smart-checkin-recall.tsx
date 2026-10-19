@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { quickCheckIn } from "@/features/history/actions";
+import { STORAGE_KEYS, CUSTOM_EVENTS } from "@/lib/constants";
 
 type PendingCheckIn = {
   restaurantId: string;
@@ -9,7 +10,7 @@ type PendingCheckIn = {
   timestamp: number;
 };
 
-const STORAGE_KEY = "hanu_pending_checkin";
+const STORAGE_KEY = STORAGE_KEYS.PENDING_CHECKIN;
 const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export function SmartCheckInRecall() {
@@ -54,13 +55,13 @@ export function SmartCheckInRecall() {
 
     window.addEventListener("focus", inspectStorage);
     window.addEventListener("storage", inspectStorage);
-    window.addEventListener("hanu_pending_checkin_updated", handleStorageUpdate);
+    window.addEventListener(CUSTOM_EVENTS.PENDING_CHECKIN_UPDATED, handleStorageUpdate);
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       window.removeEventListener("focus", inspectStorage);
       window.removeEventListener("storage", inspectStorage);
-      window.removeEventListener("hanu_pending_checkin_updated", handleStorageUpdate);
+      window.removeEventListener(CUSTOM_EVENTS.PENDING_CHECKIN_UPDATED, handleStorageUpdate);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);

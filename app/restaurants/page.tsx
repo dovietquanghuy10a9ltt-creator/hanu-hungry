@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { listCategories } from "@/features/restaurants/data";
 import { listCatalog } from "@/features/restaurants/catalog";
-import { parseMaxPrice } from "@/features/restaurants/search";
 import { RestaurantExplorer } from "@/features/restaurants/components/RestaurantExplorer";
 
 export const metadata: Metadata = {

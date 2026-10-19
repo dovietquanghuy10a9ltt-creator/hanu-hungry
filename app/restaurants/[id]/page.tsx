@@ -8,6 +8,13 @@ import { getRestaurant } from "@/features/restaurants/data";
 import { MapNavigationButton } from "@/features/restaurants/components/MapNavigationButton";
 import { createClient } from "@/lib/supabase/server";
 
+type UserVisit = {
+  id: string;
+  visited_at: string;
+  dish_id: string | null;
+  dishes: { name: string } | null;
+};
+
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -118,7 +125,7 @@ export default async function RestaurantPage({ params }: Props) {
                 </div>
 
                 <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                  {userVisits.map((visit: any, index: number) => {
+                  {(userVisits as unknown as UserVisit[]).map((visit, index: number) => {
                     const date = new Date(visit.visited_at);
                     const formattedDate = new Intl.DateTimeFormat("vi-VN", {
                       day: "2-digit",

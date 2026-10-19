@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { isUuid } from "@/lib/validation";
 import type { RestaurantDetail, RestaurantSummary } from "./types";
 
 export type RestaurantFilters = {
@@ -35,7 +36,7 @@ export async function listCategories() {
 }
 
 export const getRestaurant = cache(async function getRestaurant(id: string): Promise<RestaurantDetail | null> {
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return null;
+  if (!isUuid(id)) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.from("restaurants")
     .select("id,name,area,address_text,plus_code,latitude,longitude,description,image_url,notes,dishes(id,name,price_text,price_min_vnd,price_max_vnd,notes,is_active,image_url),restaurant_categories(categories(id,name,slug))")

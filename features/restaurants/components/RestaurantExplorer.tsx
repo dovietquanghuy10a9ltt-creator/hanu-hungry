@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { RestaurantCard } from "@/components/shared/restaurant-card";
-import { dishSuggestions, filterCatalog, parseMaxPrice, type CatalogRestaurant } from "@/features/restaurants/search";
-import { formatVnd } from "@/features/restaurants/format";
+import { dishSuggestions, filterCatalog, type CatalogRestaurant } from "@/features/restaurants/search";
 
 export function RestaurantExplorer({
   catalog,

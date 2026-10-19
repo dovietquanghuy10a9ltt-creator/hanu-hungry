@@ -101,7 +101,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                     title="Tài khoản Quản trị viên"
                   >
                     {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover border border-[var(--color-red)] shrink-0" />
+                      <Image src={profile.avatar_url} alt="" width={24} height={24} unoptimized className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover border border-[var(--color-red)] shrink-0" />
                     ) : (
                       <span className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-[var(--color-red)] text-white text-[10px] shrink-0">👑</span>
                     )}
@@ -117,7 +117,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                     className="flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-full bg-[var(--color-pale)] px-2.5 sm:px-4 text-xs sm:text-sm font-semibold text-[var(--color-red)] transition hover:bg-[#eadbc9]"
                   >
                     {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover shrink-0" />
+                      <Image src={profile.avatar_url} alt="" width={24} height={24} unoptimized className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover shrink-0" />
                     ) : null}
                     <span className="hidden sm:inline truncate max-w-[110px]">{profile?.display_name || user.email?.split("@")[0] || "Tài khoản"}</span>
                     <span className="sm:hidden text-xs font-bold">Hồ sơ</span>

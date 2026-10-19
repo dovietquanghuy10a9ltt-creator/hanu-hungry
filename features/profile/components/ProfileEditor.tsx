@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
 import { updateProfile } from "@/features/profile/actions";
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif"];
@@ -33,12 +34,15 @@ export function ProfileEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const [prevProps, setPrevProps] = useState({ displayName, avatarUrl });
+  if (prevProps.displayName !== displayName || prevProps.avatarUrl !== avatarUrl) {
+    setPrevProps({ displayName, avatarUrl });
     setName(displayName);
     setIsEditingName(false);
     setHasNewAvatar(false);
     setRemoveAvatar(false);
-  }, [displayName, avatarUrl]);
+    setPreviewUrl(avatarUrl);
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,9 +98,12 @@ export function ProfileEditor({
             title="Bấm để xem hoặc đổi ảnh đại diện"
           >
             {previewUrl ? (
-              <img
+              <Image
                 src={previewUrl}
                 alt="Ảnh đại diện"
+                width={112}
+                height={112}
+                unoptimized
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -345,10 +352,13 @@ export function ProfileEditor({
           </button>
           <div className="relative max-h-[85vh] max-w-[90vw] overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {previewUrl ? (
-              <img
+              <Image
                 src={previewUrl}
                 alt="Ảnh đại diện chi tiết"
-                className="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl ring-4 ring-white/10"
+                width={800}
+                height={800}
+                unoptimized
+                className="max-h-[85vh] max-w-[90vw] w-auto h-auto rounded-2xl object-contain shadow-2xl ring-4 ring-white/10"
               />
             ) : (
               <div className="flex h-64 w-64 items-center justify-center rounded-full bg-[var(--color-pale)] border-4 border-white/20 text-8xl text-[var(--color-red)] shadow-2xl">

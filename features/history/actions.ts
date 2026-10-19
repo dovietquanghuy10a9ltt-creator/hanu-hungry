@@ -4,13 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-
-const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { isUuid } from "@/lib/validation";
 
 export async function createCheckIn(formData: FormData) {
   const restaurantId = String(formData.get("restaurantId") || "");
   const dishId = String(formData.get("dishId") || "");
-  if (!uuid.test(restaurantId) || (dishId && !uuid.test(dishId))) throw new Error("Quán hoặc món không hợp lệ.");
+  if (!isUuid(restaurantId) || (dishId && !isUuid(dishId))) throw new Error("Quán hoặc món không hợp lệ.");
 
   const { user } = await requireUser();
   const supabase = await createClient();
@@ -33,7 +32,7 @@ export async function createCheckIn(formData: FormData) {
 
 export async function deleteCheckIn(formData: FormData) {
   const id = String(formData.get("id") || "");
-  if (!uuid.test(id)) throw new Error("Lần đã ăn không hợp lệ.");
+  if (!isUuid(id)) throw new Error("Lần đã ăn không hợp lệ.");
   const { user } = await requireUser();
   const supabase = await createClient();
   const { error } = await supabase.from("check_ins").delete().eq("id", id).eq("user_id", user.id);
@@ -43,7 +42,7 @@ export async function deleteCheckIn(formData: FormData) {
 }
 
 export async function quickCheckIn(restaurantId: string): Promise<{ success: boolean; message: string }> {
-  if (!uuid.test(restaurantId)) {
+  if (!isUuid(restaurantId)) {
     return { success: false, message: "Quán không hợp lệ." };
   }
 

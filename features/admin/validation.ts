@@ -1,11 +1,10 @@
+import { isUuid } from "../../lib/validation.ts";
+
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-export function isUuid(value: string): boolean {
-  return UUID.test(value);
-}
+export { isUuid };
 
 function value(form: FormData, key: string): string {
   const raw = form.get(key);
