@@ -499,14 +499,13 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                 {/* Sound Toggle Button (Visible on Step 2) */}
                 {step === "wishes" && (
                   <motion.button
-                    whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.92 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     type="button"
                     onClick={toggleAudio}
                     title={isPlaying ? "Tắt nhạc nền" : "Bật nhạc nền"}
                     aria-label={isPlaying ? "Tắt nhạc nền" : "Bật nhạc nền"}
-                    className="absolute left-3 top-3.5 z-20 flex items-center gap-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xs px-2.5 py-1 text-[11px] font-bold text-white cursor-pointer touch-manipulation shadow-xs"
+                    className="absolute left-3 top-3.5 z-20 flex items-center gap-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xs px-2.5 py-1 text-[11px] font-bold text-white cursor-pointer touch-manipulation shadow-xs hover:scale-105"
                   >
                     <span className={isPlaying ? "animate-pulse" : ""}>
                       {isPlaying ? "🔊" : "🔇"}
@@ -568,12 +567,11 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
 
                   <div className="pt-2">
                     <motion.button
-                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.96 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                       type="button"
                       onClick={handleStartWishes}
-                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3 font-black text-white shadow-md cursor-pointer touch-manipulation"
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3 font-black text-white shadow-md cursor-pointer touch-manipulation hover:brightness-105"
                     >
                       <span>Nhận hoa & Mở thiệp chúc</span>
                       <span className="text-lg animate-bounce" style={{ animationDuration: "1.5s" }}>
@@ -662,12 +660,11 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                     {/* From 1/6 to 5/6: Next greeting button */}
                     {!isLastGreeting ? (
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.96 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         type="button"
                         onClick={handleNextGreeting}
-                        className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 px-4 py-3 font-bold text-white shadow-xs cursor-pointer touch-manipulation"
+                        className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 px-4 py-3 font-bold text-white shadow-xs cursor-pointer touch-manipulation hover:brightness-105"
                       >
                         <span>Giở thiệp tiếp theo ({greetingIndex + 1}/6)</span>
                         <span aria-hidden="true">➔</span>
@@ -677,12 +674,11 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
                       canExit && (
                         <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
                           <motion.button
-                            whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.96 }}
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             type="button"
                             onClick={handleCloseAndClaim}
-                            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3 text-sm font-bold text-white shadow-md cursor-pointer touch-manipulation"
+                            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-5 py-3 text-sm font-bold text-white shadow-md cursor-pointer touch-manipulation hover:brightness-105"
                           >
                             <span>Đóng thiệp chúc (Cảm ơn Hanu Hungry! 💕)</span>
                           </motion.button>
@@ -696,13 +692,12 @@ export function WomensDayGiftModal({ userId, userEmail, isAdmin }: WomensDayGift
               {/* Top-Right Close Button: ONLY visible when canExit is true */}
               {canExit && (
                 <motion.button
-                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={handleCloseAndClaim}
                   aria-label="Đóng hộp quà 20/10"
-                  className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 cursor-pointer touch-manipulation"
+                  className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 cursor-pointer touch-manipulation hover:scale-105"
                 >
                   ✕
                 </motion.button>
