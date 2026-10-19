@@ -78,14 +78,18 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                   <Link
                     href="/notifications"
                     prefetch={false}
-                    className="relative inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[var(--color-pale)] text-[var(--color-red)] transition hover:bg-[#eadbc9] hover:scale-105 active:scale-95"
+                    className="group relative inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[var(--color-pale)] text-[var(--color-red)] transition hover:bg-[#eadbc9] hover:scale-105 active:scale-95"
                     aria-label={`Thông báo bài viết từ Admin${unreadNotificationsCount > 0 ? ` (${unreadNotificationsCount} chưa đọc)` : ""}`}
                     title="Thông báo bài viết từ Admin"
                   >
-                    <svg className="h-4.5 w-4.5 sm:h-5 sm:w-5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                    </svg>
+                    <Image
+                      src="/icons/shared/bell.png"
+                      alt=""
+                      width={24}
+                      height={24}
+                      unoptimized
+                      className="h-5 w-5 sm:h-6 sm:w-6 object-contain transition-transform group-hover:scale-110"
+                    />
                     {unreadNotificationsCount > 0 && (
                       <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 sm:h-5 sm:min-w-5 items-center justify-center rounded-full bg-[var(--color-red)] px-1 text-[10px] sm:text-[11px] font-black text-white shadow-sm animate-pulse">
                         {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
@@ -151,7 +155,10 @@ export async function SiteShell({ children }: { children: ReactNode }) {
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
               <a href={CONTACT_INFO.phoneHref} className="hover:text-[var(--color-red)] font-semibold">📞 {CONTACT_INFO.phone}</a>
               <span>·</span>
-              <a href={CONTACT_INFO.emailHref} className="hover:text-[var(--color-red)] font-semibold">✉️ {CONTACT_INFO.email}</a>
+              <a href={CONTACT_INFO.emailHref} className="hover:text-[var(--color-red)] font-semibold inline-flex items-center gap-1">
+                <Image src="/icons/shared/mail.png" alt="" width={16} height={16} unoptimized className="h-4 w-4 object-contain inline" />
+                <span>{CONTACT_INFO.email}</span>
+              </a>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">

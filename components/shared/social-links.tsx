@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export const SOCIAL_LINKS = [
   {
     name: "Facebook",
@@ -89,10 +91,14 @@ export function ContactDirectDetails({ className = "" }: { className?: string })
         href={CONTACT_INFO.emailHref}
         className="inline-flex items-center gap-1.5 font-bold text-[var(--color-red)] transition hover:underline"
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect width="20" height="16" x="2" y="4" rx="2" />
-          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-        </svg>
+        <Image
+          src="/icons/shared/mail.png"
+          alt=""
+          width={18}
+          height={18}
+          unoptimized
+          className="h-4.5 w-4.5 object-contain"
+        />
         <span>{CONTACT_INFO.email}</span>
       </a>
     </div>
