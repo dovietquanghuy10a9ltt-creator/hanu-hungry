@@ -37,21 +37,28 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
       {/* Hero Section với poster banner Ảnh 4 */}
       <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
 <div className="relative overflow-hidden flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
-          {/* Background Thám tử Macaron thu nhỏ vừa vặn với độ mờ 60% */}
+          {/* Background Thám tử Macaron thu nhỏ vừa vặn trong khung với độ mờ 60% */}
           <div
-            className="pointer-events-none absolute inset-0 z-0 bg-contain bg-center sm:bg-right bg-no-repeat p-4"
-            style={{
-              backgroundImage: "url('/brand/detective-macaron.jpg')",
-              opacity: 0.6,
-            }}
+            className="pointer-events-none absolute inset-4 sm:inset-8 z-0 flex items-center justify-center sm:justify-end overflow-hidden"
+            aria-hidden="true"
+          >
+            <div
+              className="h-full w-full sm:w-[55%] rounded-2xl"
+              style={{
+                backgroundImage: "url('/brand/detective-macaron.jpg')",
+                opacity: 0.6,
+                backgroundSize: "contain",
+                backgroundPosition: "center right",
+                backgroundRepeat: "no-repeat",
+              }}
+            />
+          </div>
+          {/* Lớp phủ mịn màng dưới chữ để text luôn sắc nét */}
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8] via-[#fffdf8]/80 to-transparent sm:w-2/3"
             aria-hidden="true"
           />
-          {/* Lớp phủ sáng dịu bên trái bảo vệ tương phản cho chữ */}
-          <div
-            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8] via-[#fffdf8]/85 to-transparent sm:w-3/4"
-            aria-hidden="true"
-          />
-          <div className="relative z-10 space-y-6">
+          <div className="relative z-10 space-y-6 max-w-xl">
             <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">
               Hanu Hungry
