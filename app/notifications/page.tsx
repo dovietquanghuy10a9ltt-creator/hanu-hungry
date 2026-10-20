@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { markAllNotificationsRead, markNotificationRead } from "@/features/notifications/actions";
@@ -15,7 +16,17 @@ export default async function NotificationsPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Cập nhật từ Hanu Hungry</p>
-          <h1 className="section-title mt-2">Thông báo</h1>
+          <div className="flex items-center gap-2.5 mt-2">
+            <Image
+              src="/icons/shared/bell.png"
+              alt=""
+              width={32}
+              height={32}
+              unoptimized
+              className="h-8 w-8 object-contain shrink-0"
+            />
+            <h1 className="section-title">Thông báo</h1>
+          </div>
           <p className="mt-2 text-sm text-[var(--color-muted)]">{unreadCount} thông báo chưa đọc</p>
         </div>
         {unreadCount > 0 && (
@@ -55,13 +66,23 @@ export default async function NotificationsPage() {
                 </p>
 
                 <time
-                  className="mt-2 block text-xs text-[var(--color-muted)]"
+                  className="mt-2 flex items-center gap-1.5 text-xs text-[var(--color-muted)]"
                   dateTime={item.created_at}
                 >
-                  {new Intl.DateTimeFormat("vi-VN", {
-                    dateStyle: "medium",
-                    timeZone: "Asia/Ho_Chi_Minh",
-                  }).format(new Date(item.created_at))}
+                  <Image
+                    src="/icons/shared/clock.png"
+                    alt=""
+                    width={14}
+                    height={14}
+                    unoptimized
+                    className="h-3.5 w-3.5 object-contain inline shrink-0"
+                  />
+                  <span>
+                    {new Intl.DateTimeFormat("vi-VN", {
+                      dateStyle: "medium",
+                      timeZone: "Asia/Ho_Chi_Minh",
+                    }).format(new Date(item.created_at))}
+                  </span>
                 </time>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -92,10 +113,19 @@ export default async function NotificationsPage() {
           })}
         </div>
       ) : (
-        <div className="card p-10 text-center text-sm text-[var(--color-muted)]">
-          Chưa có thông báo mới. Hãy quay lại sau nhé.
+        <div className="card p-10 text-center text-sm text-[var(--color-muted)] flex flex-col items-center justify-center space-y-3">
+          <Image
+            src="/icons/shared/bell.png"
+            alt=""
+            width={48}
+            height={48}
+            unoptimized
+            className="h-12 w-12 object-contain opacity-50 grayscale"
+          />
+          <p>Chưa có thông báo mới. Hãy quay lại sau nhé.</p>
         </div>
       )}
     </div>
   );
 }
+

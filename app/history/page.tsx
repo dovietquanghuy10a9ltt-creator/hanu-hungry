@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { DeleteCheckInForm } from "@/features/history/components/DeleteCheckInForm";
@@ -11,10 +12,14 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   const stats = historyStats(checkIns);
 
   const statItems = [
-    { label: "Tổng lần đã ăn", value: stats.total },
-    { label: "Chuỗi hiện tại", value: `${stats.currentStreak} ngày` },
-    { label: "Chuỗi dài nhất", value: `${stats.longestStreak} ngày` },
-    { label: "Tuần này", value: `${stats.weeklyVisits} lần` },
+    { label: "Tổng lần đã ăn", value: stats.total, icon: "/icons/gacha/food.png" },
+    {
+      label: "Chuỗi hiện tại",
+      value: `${stats.currentStreak} ngày`,
+      icon: stats.currentStreak > 0 ? "/icons/streak/flame-active.png" : "/icons/streak/flame-inactive.png",
+    },
+    { label: "Chuỗi dài nhất", value: `${stats.longestStreak} ngày`, icon: "/icons/streak/flame-active.png" },
+    { label: "Tuần này", value: `${stats.weeklyVisits} lần`, icon: "/icons/streak/calendar.png" },
   ];
 
   return (
@@ -35,9 +40,19 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {statItems.map((item) => (
-          <div key={item.label} className="card p-4">
-            <strong className="text-2xl font-black text-[var(--color-red)]">{item.value}</strong>
-            <p className="mt-1 text-xs font-semibold text-[var(--color-muted)]">{item.label}</p>
+          <div key={item.label} className="card p-4 flex items-center justify-between gap-3">
+            <div>
+              <strong className="text-2xl font-black text-[var(--color-red)]">{item.value}</strong>
+              <p className="mt-1 text-xs font-semibold text-[var(--color-muted)]">{item.label}</p>
+            </div>
+            <Image
+              src={item.icon}
+              alt=""
+              width={40}
+              height={40}
+              unoptimized
+              className="h-10 w-10 object-contain shrink-0"
+            />
           </div>
         ))}
       </div>
@@ -57,13 +72,27 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                 >
                   {checkIn.restaurants?.name || "Quán đã được cập nhật"}
                 </Link>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">
-                  {checkIn.dishes?.name ? `Món: ${checkIn.dishes.name} · ` : ""}
-                  {new Intl.DateTimeFormat("vi-VN", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                    timeZone: "Asia/Ho_Chi_Minh",
-                  }).format(new Date(checkIn.visited_at))}
+                <p className="mt-1.5 flex items-center gap-1.5 text-sm text-[var(--color-muted)]">
+                  {checkIn.dishes?.name && (
+                    <span className="font-medium text-[var(--color-ink)]">
+                      Món: {checkIn.dishes.name} ·{" "}
+                    </span>
+                  )}
+                  <Image
+                    src="/icons/shared/clock.png"
+                    alt=""
+                    width={16}
+                    height={16}
+                    unoptimized
+                    className="h-3.5 w-3.5 object-contain inline shrink-0"
+                  />
+                  <span>
+                    {new Intl.DateTimeFormat("vi-VN", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                      timeZone: "Asia/Ho_Chi_Minh",
+                    }).format(new Date(checkIn.visited_at))}
+                  </span>
                 </p>
               </div>
               <DeleteCheckInForm id={checkIn.id} />

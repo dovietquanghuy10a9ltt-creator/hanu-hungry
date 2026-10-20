@@ -29,8 +29,10 @@ export function GachaExperience({
   const [result, setResult] = useState<GachaResult | null>(null);
   const [error, setError] = useState("");
   const [reelName, setReelName] = useState("Một bất ngờ đang chờ");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mounted = useRef(true);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     mounted.current = true;
@@ -40,6 +42,27 @@ export function GachaExperience({
       if (timer.current) clearTimeout(timer.current);
     };
   }, [initialMode]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsDropdownOpen(false);
+      }
+    }
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [isDropdownOpen]);
 
   function pickClientResult(targetMode: GachaMode): GachaResult | null {
     if (!catalog || catalog.length === 0) return null;
@@ -174,28 +197,97 @@ export function GachaExperience({
 
   return (
     <div className="gacha-experience">
-      <div className="flex justify-center mt-6 mb-2">
-        <label htmlFor="gacha-mode-select" className="sr-only">Chế độ Gacha</label>
-        <div className="relative inline-flex items-center">
-          <select
-            id="gacha-mode-select"
-            value={mode}
+      <div className="flex justify-center mt-6 mb-3 relative" ref={dropdownRef}>
+        <div className="relative inline-block text-left w-64 max-w-full">
+          <button
+            type="button"
+            id="gacha-mode-button"
+            aria-haspopup="listbox"
+            aria-expanded={isDropdownOpen}
             disabled={phase === "rolling"}
-            onChange={(e) => changeMode(e.target.value as GachaMode)}
-            style={{
-              WebkitAppearance: "none",
-              MozAppearance: "none",
-              appearance: "none",
-            }}
-            className="rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] pl-5 pr-10 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-none cursor-pointer transition"
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            className="w-full flex items-center justify-between gap-3 rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] px-4 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-hidden cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <option value="restaurant">🏪 Gacha theo quán</option>
-            <option value="food">🍜 Gacha theo đồ ăn</option>
-            <option value="drink">🧋 Gacha theo đồ uống</option>
-          </select>
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
-            ▼
-          </span>
+            <span className="flex items-center gap-2.5 min-w-0">
+              <Image
+                src={
+                  mode === "restaurant"
+                    ? "/icons/gacha/restaurant.png"
+                    : mode === "drink"
+                    ? "/icons/gacha/drink.png"
+                    : "/icons/gacha/food.png"
+                }
+                alt=""
+                width={24}
+                height={24}
+                unoptimized
+                className="h-6 w-6 object-contain shrink-0"
+              />
+              <span className="truncate">
+                {mode === "restaurant"
+                  ? "Gacha theo quán"
+                  : mode === "drink"
+                  ? "Gacha theo đồ uống"
+                  : "Gacha theo đồ ăn"}
+              </span>
+            </span>
+            <span
+              className={`text-xs text-[var(--color-red)] font-bold transition-transform duration-200 select-none ${
+                isDropdownOpen ? "rotate-180" : ""
+              }`}
+              aria-hidden="true"
+            >
+              ▼
+            </span>
+          </button>
+
+          {isDropdownOpen && (
+            <div
+              role="listbox"
+              aria-labelledby="gacha-mode-button"
+              className="absolute left-0 right-0 top-full mt-2 z-30 rounded-2xl border-2 border-[#d2bca3] bg-[#fffdf8] p-1.5 shadow-xl animate-fadeIn"
+            >
+              {(
+                [
+                  { id: "restaurant", label: "Gacha theo quán", icon: "/icons/gacha/restaurant.png" },
+                  { id: "food", label: "Gacha theo đồ ăn", icon: "/icons/gacha/food.png" },
+                  { id: "drink", label: "Gacha theo đồ uống", icon: "/icons/gacha/drink.png" },
+                ] as const
+              ).map((m) => {
+                const isSelected = mode === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => {
+                      changeMode(m.id);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition cursor-pointer ${
+                      isSelected
+                        ? "bg-[var(--color-pale)] text-[var(--color-red)]"
+                        : "text-[var(--color-ink)] hover:bg-[#f5ece1]"
+                    }`}
+                  >
+                    <Image
+                      src={m.icon}
+                      alt=""
+                      width={24}
+                      height={24}
+                      unoptimized
+                      className="h-6 w-6 object-contain shrink-0"
+                    />
+                    <span className="flex-1">{m.label}</span>
+                    {isSelected && (
+                      <span className="text-[var(--color-red)] text-sm">✓</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -226,7 +318,17 @@ export function GachaExperience({
                   />
                 </div>
               )}
-              <p className="eyebrow">Vũ trụ chọn cho bạn</p>
+              <div className="flex items-center justify-center gap-2">
+                <Image
+                  src="/icons/gacha/celebration.png"
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 object-contain animate-bounce"
+                  unoptimized
+                />
+                <p className="eyebrow">Vũ trụ chọn cho bạn</p>
+              </div>
               <h2 className="mt-3 break-words text-3xl leading-tight sm:text-4xl">
                 {result.dish?.name || result.restaurant.name}
               </h2>

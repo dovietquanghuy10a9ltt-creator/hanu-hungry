@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { BlogNewsWidget } from "@/components/shared/blog-news-widget";
 import type { BlogPostSummary } from "@/features/blog/data";
@@ -5,22 +6,26 @@ import type { BlogPostSummary } from "@/features/blog/data";
 export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummary[] }) {
   const features = [
     {
-      tag: "🔍 Khám phá địa điểm",
+      icon: "/icons/nav/explore.png",
+      tag: "Khám phá địa điểm",
       title: "Sổ địa điểm quanh trường",
       description: "Tra cứu danh sách quán ăn theo tên món, danh mục ẩm thực (cơm, bún phở, đồ ăn vặt, đồ uống...) hoặc khoảng giá min – max phù hợp túi tiền sinh viên.",
     },
     {
-      tag: "✦ Gacha vũ trụ",
+      icon: "/icons/nav/gacha.png",
+      tag: "Gacha vũ trụ",
       title: "Để vũ trụ chọn giúp bạn",
       description: "Không biết ăn gì hay uống gì? Vòng quay Gacha với 3 chế độ riêng biệt: Gacha theo quán, Gacha theo đồ ăn và Gacha theo đồ uống sẽ giúp bạn có bữa ăn bất ngờ.",
     },
     {
-      tag: "▤ Nhật ký ẩm thực",
+      icon: "/icons/nav/home.png",
+      tag: "Nhật ký ẩm thực",
       title: "Lưu giữ những bữa ngon",
       description: "Lưu lại những quán bạn đã ghé qua, theo dõi chuỗi ngày ăn ngon và thống kê hành trình khám phá ẩm thực quanh khu vực Đại học Hà Nội.",
     },
     {
-      tag: "★ Review thực tế",
+      icon: "/icons/nav/blog.png",
+      tag: "Review thực tế",
       title: "Chia sẻ từ sinh viên Hanu",
       description: "Đọc những cảm nhận và đánh giá chân thực từ cộng đồng sinh viên Hanu; đóng góp nhận xét của chính bạn về món ăn và không gian quán.",
     },
@@ -102,8 +107,9 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
             {features.map((feature, idx) => (
               <article key={idx} className="card flex flex-col justify-between p-6 transition-transform hover:-translate-y-1">
                 <div>
-                  <span className="inline-block rounded-full bg-[var(--color-pale)] px-3 py-1 text-xs font-bold text-[var(--color-red)]">
-                    {feature.tag}
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-pale)] px-3 py-1 text-xs font-bold text-[var(--color-red)]">
+                    <Image src={feature.icon} alt="" width={16} height={16} unoptimized className="object-contain shrink-0" />
+                    <span>{feature.tag}</span>
                   </span>
                   <h3 className="mt-4 text-xl font-black text-[var(--color-ink)]">{feature.title}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-[var(--color-muted)]">{feature.description}</p>

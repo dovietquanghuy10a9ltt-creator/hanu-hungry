@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { RestaurantCard } from "@/components/shared/restaurant-card";
 import { dishSuggestions, filterCatalog, type CatalogRestaurant } from "@/features/restaurants/search";
@@ -68,10 +69,10 @@ export function RestaurantExplorer({
         {/* Dòng 1: Thanh tìm kiếm */}
         <div className="relative">
           <span
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-lg sm:text-xl select-none flex items-center justify-center leading-none"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 select-none flex items-center justify-center leading-none"
             aria-hidden="true"
           >
-            🔍
+            <Image src="/icons/nav/explore.png" alt="" width={20} height={20} unoptimized className="object-contain" />
           </span>
           <input
             id="search-restaurant-q"

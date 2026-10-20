@@ -81,7 +81,23 @@ export default async function RestaurantPage({ params }: Props) {
             <p><span className="font-bold">Khu vực:</span> {readableText(restaurant.area, "Chưa có dữ liệu khu vực")}</p>
             <p><span className="font-bold">Địa chỉ:</span> {readableText(restaurant.address_text, "Chưa có dữ liệu vị trí")}</p>
             {restaurant.plus_code && <p className="break-all"><span className="font-bold">Plus Code:</span> {restaurant.plus_code}</p>}
-            {ratingAverage !== null && <p><span className="font-bold">Đánh giá:</span> {ratingAverage.toFixed(1)}/5 ({reviewItems.length} lượt)</p>}
+            {ratingAverage !== null && (
+              <p className="flex items-center gap-1.5">
+                <span className="font-bold">Đánh giá:</span>
+                <span className="inline-flex items-center gap-1 font-extrabold text-[#d97706]">
+                  <Image
+                    src="/icons/shared/star.png"
+                    alt=""
+                    width={16}
+                    height={16}
+                    unoptimized
+                    className="h-4 w-4 object-contain inline"
+                  />
+                  <span>{ratingAverage.toFixed(1)}/5</span>
+                </span>
+                <span className="text-[var(--color-muted)]">({reviewItems.length} lượt)</span>
+              </p>
+            )}
           </div>
           <p className="text-sm leading-6 text-[var(--color-muted)]">{readableText(restaurant.description)}</p>
           {mapLink ? <MapNavigationButton mapLink={mapLink} restaurantId={restaurant.id} restaurantName={restaurant.name} /> : <p className="rounded-xl bg-[var(--color-pale)] px-4 py-3 text-sm text-[var(--color-muted)]">Chưa có dữ liệu vị trí để mở bản đồ.</p>}

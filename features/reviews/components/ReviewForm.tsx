@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { createReview, updateReview, deleteReview } from "@/features/reviews/actions";
 
 interface ReviewFormProps {
@@ -85,8 +86,16 @@ export function ReviewForm({ restaurantId, ownReview }: ReviewFormProps) {
 
           <div className="min-h-6 flex items-center justify-center">
             {activeRating > 0 ? (
-              <span className="text-sm font-extrabold text-[var(--color-red)] animate-fadeIn">
-                ⭐ {activeRating}/5 sao — {RATING_LABELS[activeRating]}
+              <span className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[var(--color-red)] animate-fadeIn">
+                <Image
+                  src="/icons/shared/star.png"
+                  alt=""
+                  width={20}
+                  height={20}
+                  unoptimized
+                  className="h-5 w-5 object-contain inline"
+                />
+                <span>{activeRating}/5 sao — {RATING_LABELS[activeRating]}</span>
               </span>
             ) : (
               <span className="text-xs text-[var(--color-muted)] italic">
