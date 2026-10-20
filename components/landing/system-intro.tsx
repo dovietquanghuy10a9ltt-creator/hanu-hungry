@@ -37,13 +37,13 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
       {/* Hero Section với poster banner Ảnh 4 */}
       <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
 <div className="relative overflow-hidden flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
-          {/* Background Thám tử Macaron thu nhỏ vừa vặn trong khung với độ mờ 60% */}
+          {/* Background Thám tử Macaron thu nhỏ vừa vặn ở phía bên phải với độ mờ 60% */}
           <div
-            className="pointer-events-none absolute inset-4 sm:inset-8 z-0 flex items-center justify-center sm:justify-end overflow-hidden"
+            className="pointer-events-none absolute inset-4 sm:inset-6 z-0 flex items-center justify-end overflow-hidden"
             aria-hidden="true"
           >
             <div
-              className="h-full w-full sm:w-[55%] rounded-2xl"
+              className="h-full w-full sm:w-[48%] lg:w-[44%] rounded-2xl"
               style={{
                 backgroundImage: "url('/brand/detective-macaron.jpg')",
                 opacity: 0.6,
@@ -53,27 +53,27 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
               }}
             />
           </div>
-          {/* Lớp phủ mịn màng dưới chữ để text luôn sắc nét */}
+          {/* Lớp nền trắng sạch 100% bên trái che hoàn toàn họa tiết sau chữ */}
           <div
-            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8] via-[#fffdf8]/80 to-transparent sm:w-2/3"
+            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8] from-45% via-[#fffdf8]/90 via-60% to-transparent sm:w-[70%]"
             aria-hidden="true"
           />
-          <div className="relative z-10 space-y-6 max-w-xl">
+          <div className="relative z-10 space-y-6 max-w-lg lg:max-w-xl">
             <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">
               Hanu Hungry
             </h1>
-            <p className="text-lg font-bold text-[var(--color-red)] sm:text-xl">
+            <p className="text-lg font-black text-[var(--color-red)] sm:text-xl">
               Quanh trường · Quanh bàn · Quanh một bữa ngon.
             </p>
-            <div className="space-y-2 text-base leading-relaxed text-[var(--color-muted)]">
-              <p className="font-bold text-[var(--color-red)] text-sm sm:text-base">
+            <div className="space-y-3 text-[15px] sm:text-base leading-relaxed text-[#1a1210] font-medium">
+              <p className="font-extrabold text-[var(--color-red)] text-sm sm:text-base">
                 Macaron - gửi lời chào thân ái đến Hanuer!!! 💌
               </p>
-              <p>
-                Hanu Hungry được thành lập vào năm 2026 - được xây dựng bởi <strong>Macaron</strong> (nhóm những người gặp khó khăn trong việc chọn món ở Hanu).
+              <p className="text-[#1a1210]">
+                Hanu Hungry được thành lập vào năm 2026 - được xây dựng bởi <strong className="text-[var(--color-red)] font-extrabold">Macaron</strong> (nhóm những người gặp khó khăn trong việc chọn món ở Hanu).
               </p>
-              <p>
+              <p className="text-[#1a1210]">
                 Hanu Hungry là website khám phá đồ ăn dành cho sinh viên Trường Đại học Hà Nội, giúp bạn dễ dàng tìm kiếm và khám phá các địa điểm ăn uống xung quanh Hanu. Từ món ăn, thực đơn, mức giá đến địa điểm, chúng mình tập hợp những thông tin cần thiết để việc lựa chọn đồ ăn trở nên đơn giản và thuận tiện hơn.
               </p>
             </div>
@@ -87,7 +87,7 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
             </div>
           </div>
           <div className="relative z-10 mt-8 border-t border-[var(--color-line)] pt-5 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-[var(--color-muted)]">
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold text-[#2a1d1a]">
               <span>✓ 50+ quán quanh trường</span>
               <span>✓ 900+ món ăn & đồ uống</span>
               <span>✓ Dữ liệu khảo sát thực tế sinh viên Hanu</span>
