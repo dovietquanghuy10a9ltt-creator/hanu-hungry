@@ -8,12 +8,37 @@ import { getRestaurant } from "@/features/restaurants/data";
 import { MapNavigationButton } from "@/features/restaurants/components/MapNavigationButton";
 import { createClient } from "@/lib/supabase/server";
 
+type UserVisit = {
+  id: string;
+  visited_at: string;
+  dish_id: string | null;
+  dishes: { name: string } | null;
+};
+
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const restaurant = await getRestaurant(id);
-  return { title: restaurant?.name || "Quán ăn" };
+  if (!restaurant) return { title: "Quán ăn" };
+  const categories = restaurant.restaurant_categories
+    .map((item) => item.categories?.name)
+    .filter(Boolean)
+    .join(", ");
+  const description = `${restaurant.name} - ${restaurant.area || "quanh khu vực Đại học Hà Nội"}. ${categories ? `Phục vụ: ${categories}. ` : ""}Xem thực đơn, giá cả và đánh giá thực tế từ sinh viên HANU.`;
+  return {
+    title: restaurant.name,
+    description,
+    alternates: {
+      canonical: `https://hanuhungry.id.vn/restaurants/${restaurant.id}`,
+    },
+    openGraph: {
+      title: `${restaurant.name} | Hanu Hungry`,
+      description,
+      url: `https://hanuhungry.id.vn/restaurants/${restaurant.id}`,
+      images: restaurant.image_url ? [{ url: restaurant.image_url, alt: restaurant.name }] : undefined,
+    },
+  };
 }
 
 export default async function RestaurantPage({ params }: Props) {
@@ -50,15 +75,29 @@ export default async function RestaurantPage({ params }: Props) {
       <section className={restaurant.image_url ? "grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,.85fr)]" : "max-w-4xl"}>
         {restaurant.image_url && <div className="relative min-h-56 overflow-hidden rounded-xl sm:min-h-80"><Image src={restaurant.image_url} alt={`Không gian ${restaurant.name}`} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" unoptimized /></div>}
         <div className="card space-y-5 p-5 sm:p-7">
-          <div className="flex flex-wrap items-center gap-2">
-            {(categories.length ? categories : ["Chưa phân loại"]).map((category) => <span key={category} className="rounded-full bg-[var(--color-pale)] px-3 py-1.5 text-xs font-bold text-[var(--color-red)]">{category}</span>)}
-          </div>
+          <div className="flex flex-wrap gap-2">{(categories.length ? categories : ["Chưa phân loại"]).map((category) => <span key={category} className="rounded-full bg-[var(--color-pale)] px-3 py-1.5 text-xs font-bold text-[var(--color-red)]">{category}</span>)}</div>
           <div><p className="eyebrow">Khám phá quanh Hanu</p><h1 className="mt-2 break-words text-3xl font-black leading-tight sm:text-4xl">{restaurant.name}</h1></div>
           <div className="space-y-3 text-sm">
             <p><span className="font-bold">Khu vực:</span> {readableText(restaurant.area, "Chưa có dữ liệu khu vực")}</p>
             <p><span className="font-bold">Địa chỉ:</span> {readableText(restaurant.address_text, "Chưa có dữ liệu vị trí")}</p>
             {restaurant.plus_code && <p className="break-all"><span className="font-bold">Plus Code:</span> {restaurant.plus_code}</p>}
-            {ratingAverage !== null && <p><span className="font-bold">Đánh giá:</span> {ratingAverage.toFixed(1)}/5 ({reviewItems.length} lượt)</p>}
+            {ratingAverage !== null && (
+              <p className="flex items-center gap-1.5">
+                <span className="font-bold">Đánh giá:</span>
+                <span className="inline-flex items-center gap-1 font-extrabold text-[#d97706]">
+                  <Image
+                    src="/icons/shared/star.png"
+                    alt=""
+                    width={16}
+                    height={16}
+                    unoptimized
+                    className="h-4 w-4 object-contain inline"
+                  />
+                  <span>{ratingAverage.toFixed(1)}/5</span>
+                </span>
+                <span className="text-[var(--color-muted)]">({reviewItems.length} lượt)</span>
+              </p>
+            )}
           </div>
           <p className="text-sm leading-6 text-[var(--color-muted)]">{readableText(restaurant.description)}</p>
           {mapLink ? <MapNavigationButton mapLink={mapLink} restaurantId={restaurant.id} restaurantName={restaurant.name} /> : <p className="rounded-xl bg-[var(--color-pale)] px-4 py-3 text-sm text-[var(--color-muted)]">Chưa có dữ liệu vị trí để mở bản đồ.</p>}
@@ -102,7 +141,7 @@ export default async function RestaurantPage({ params }: Props) {
                 </div>
 
                 <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                  {userVisits.map((visit: any, index: number) => {
+                  {(userVisits as unknown as UserVisit[]).map((visit, index: number) => {
                     const date = new Date(visit.visited_at);
                     const formattedDate = new Intl.DateTimeFormat("vi-VN", {
                       day: "2-digit",

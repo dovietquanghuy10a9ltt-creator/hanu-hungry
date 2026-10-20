@@ -1,5 +1,7 @@
 "use client";
 
+import { STORAGE_KEYS, CUSTOM_EVENTS } from "@/lib/constants";
+
 type Props = {
   mapLink: string;
   restaurantId: string;
@@ -16,7 +18,7 @@ export function MapNavigationButton({
   const handleClick = () => {
     try {
       localStorage.setItem(
-        "hanu_pending_checkin",
+        STORAGE_KEYS.PENDING_CHECKIN,
         JSON.stringify({
           restaurantId,
           restaurantName,
@@ -24,7 +26,7 @@ export function MapNavigationButton({
         })
       );
       // Dispatch storage event for same-tab listeners
-      window.dispatchEvent(new Event("hanu_pending_checkin_updated"));
+      window.dispatchEvent(new Event(CUSTOM_EVENTS.PENDING_CHECKIN_UPDATED));
     } catch {
       // Ignore localStorage exceptions in restrictive environments
     }

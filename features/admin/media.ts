@@ -3,11 +3,10 @@ import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   detectImageFormat,
-  ALLOWED_MIME_TYPES,
-  ALLOWED_FORMATS_TEXT,
-} from "@/features/profile/validation";
-
-const MAX_MEDIA_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+  ALLOWED_IMAGE_MIME_TYPES as ALLOWED_MIME_TYPES,
+  ALLOWED_IMAGE_FORMATS_TEXT as ALLOWED_FORMATS_TEXT,
+  MAX_MEDIA_SIZE_BYTES,
+} from "@/lib/media/validation";
 
 export async function uploadAdminMedia(
   bucket: "restaurants" | "blog" | "dishes",

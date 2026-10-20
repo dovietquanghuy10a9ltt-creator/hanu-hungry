@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
@@ -62,7 +63,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`group flex min-h-9 sm:min-h-11 items-center gap-1.5 rounded-full px-2 sm:px-3.5 text-xs sm:text-sm font-black transition cursor-pointer select-none ${
+        className={`group flex min-h-9 sm:min-h-11 items-center gap-1.5 rounded-full px-2 sm:px-3 text-xs sm:text-sm font-black transition cursor-pointer select-none ${
           isTodayCheckedIn
             ? "border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 text-orange-600 shadow-xs hover:border-orange-400 hover:shadow-sm"
             : "border border-[var(--color-line)] bg-[var(--color-pale)] text-[var(--color-muted)] hover:bg-[#ebdccc] hover:text-[var(--color-ink)]"
@@ -76,16 +77,19 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
         }
         aria-label="Thông tin chuỗi ăn uống"
       >
-        {/* Flame Icon */}
-        <span
-          className={`text-base sm:text-lg transition-transform duration-300 group-hover:scale-115 ${
+        {/* Custom Sticker Flame Icon */}
+        <Image
+          src={isTodayCheckedIn ? "/icons/streak/flame-active.png" : "/icons/streak/flame-inactive.png"}
+          alt=""
+          width={24}
+          height={24}
+          unoptimized
+          className={`h-5 w-5 sm:h-5.5 sm:w-5.5 object-contain transition-transform duration-300 group-hover:scale-115 ${
             isTodayCheckedIn
               ? "drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] animate-pulse"
-              : "grayscale opacity-50 contrast-50"
+              : "opacity-60 grayscale"
           }`}
-        >
-          🔥
-        </span>
+        />
 
         {/* Streak Number */}
         <span
@@ -105,21 +109,24 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
           {/* Header Flame & Streak Count */}
           <div className="flex flex-col items-center text-center space-y-1.5">
             <div
-              className={`flex h-16 w-16 items-center justify-center rounded-full text-3xl shadow-inner ${
+              className={`flex h-16 w-16 items-center justify-center rounded-full p-2.5 shadow-inner ${
                 isTodayCheckedIn
                   ? "bg-gradient-to-b from-amber-100 to-orange-100 border-2 border-orange-300"
                   : "bg-gray-100 border-2 border-gray-200"
               }`}
             >
-              <span
-                className={
+              <Image
+                src={isTodayCheckedIn ? "/icons/streak/flame-active.png" : "/icons/streak/flame-inactive.png"}
+                alt=""
+                width={48}
+                height={48}
+                unoptimized
+                className={`h-12 w-12 object-contain ${
                   isTodayCheckedIn
                     ? "drop-shadow-[0_0_12px_rgba(249,115,22,0.8)] animate-bounce"
-                    : "grayscale opacity-40"
-                }
-              >
-                🔥
-              </span>
+                    : "grayscale opacity-50"
+                }`}
+              />
             </div>
 
             <h3 className="text-xl font-black text-[var(--color-ink)]">
@@ -138,7 +145,17 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
           {/* 3. Duolingo Weekly 7-Day Calendar Tracker */}
           <div className="rounded-2xl border border-[var(--color-line)] bg-[#fcfaf7] p-3.5 space-y-2">
             <div className="flex items-center justify-between text-[11px] font-bold text-[var(--color-muted)] px-1 uppercase tracking-wider">
-              <span>Tuần này</span>
+              <span className="flex items-center gap-1.5">
+                <Image
+                  src="/icons/streak/calendar.png"
+                  alt=""
+                  width={16}
+                  height={16}
+                  unoptimized
+                  className="h-4 w-4 object-contain"
+                />
+                <span>Tuần này</span>
+              </span>
               {isTodayCheckedIn && (
                 <span className="text-emerald-600 flex items-center gap-1 font-extrabold">
                   <span>✓</span> Đã hoàn thành
@@ -159,9 +176,23 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
                     }`}
                   >
                     {day.checkedIn ? (
-                      <span className="text-sm">🔥</span>
+                      <Image
+                        src="/icons/streak/flame-active.png"
+                        alt=""
+                        width={20}
+                        height={20}
+                        unoptimized
+                        className="h-4 w-4 object-contain"
+                      />
                     ) : day.isToday ? (
-                      <span className="text-xs grayscale opacity-40">🔥</span>
+                      <Image
+                        src="/icons/streak/flame-inactive.png"
+                        alt=""
+                        width={16}
+                        height={16}
+                        unoptimized
+                        className="h-3.5 w-3.5 object-contain opacity-50 grayscale"
+                      />
                     ) : (
                       <span className="text-[10px]">•</span>
                     )}
@@ -217,8 +248,15 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-300 via-orange-400 to-red-400 opacity-30 blur-xl animate-ping" />
               
               {/* Giant Flame */}
-              <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-t from-orange-500 via-amber-400 to-yellow-300 text-6xl shadow-xl animate-bounce">
-                🔥
+              <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-t from-orange-500 via-amber-400 to-yellow-300 p-4 shadow-xl animate-bounce">
+                <Image
+                  src="/icons/streak/flame-active.png"
+                  alt=""
+                  width={80}
+                  height={80}
+                  unoptimized
+                  className="h-20 w-20 object-contain drop-shadow-md"
+                />
               </div>
             </div>
 
@@ -239,9 +277,17 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
             <button
               type="button"
               onClick={closeCelebration}
-              className="w-full rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 py-3.5 text-base font-black uppercase tracking-wider text-white shadow-lg transition hover:from-orange-600 hover:to-amber-600 active:scale-95 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 py-3.5 text-base font-black uppercase tracking-wider text-white shadow-lg transition hover:from-orange-600 hover:to-amber-600 active:scale-95 cursor-pointer"
             >
-              Tiếp tục 🔥
+              <span>Tiếp tục</span>
+              <Image
+                src="/icons/streak/flame-active.png"
+                alt=""
+                width={20}
+                height={20}
+                unoptimized
+                className="h-5 w-5 object-contain"
+              />
             </button>
           </div>
         </div>

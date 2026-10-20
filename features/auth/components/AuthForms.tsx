@@ -451,29 +451,28 @@ function OtpVerificationForm({ email, onBack }: { email: string; onBack: () => v
 
 export function ForgotPasswordForm() {
   const [state, action] = useActionState(forgotPasswordAction, initialState);
-  const [step, setStep] = useState<"request" | "otp">("request");
+  const [returnToRequest, setReturnToRequest] = useState(false);
   const [emailValue, setEmailValue] = useState("");
   const [studentCodeValue, setStudentCodeValue] = useState("");
   const studentCodeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (state.status === "success" && state.data?.email) {
-      setStep("otp");
-    } else if (state.status === "error") {
-      setStudentCodeValue("");
+    if (state.status === "error") {
       studentCodeInputRef.current?.focus();
     }
-  }, [state]);
+  }, [state.status]);
 
-  if (step === "otp" && state.data?.email) {
-    return <OtpVerificationForm email={state.data.email} onBack={() => setStep("request")} />;
+  const isOtp = state.status === "success" && Boolean(state.data?.email) && !returnToRequest;
+
+  if (isOtp && state.data?.email) {
+    return <OtpVerificationForm email={state.data.email} onBack={() => setReturnToRequest(true)} />;
   }
 
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Quên mật khẩu</h2>
       <p className="mt-2 text-sm leading-relaxed text-[#756561]">Nhập email và MSSV thuộc tài khoản của bạn để nhận mã OTP đặt lại mật khẩu.</p>
-      <form action={action} className="mt-7 space-y-5">
+      <form action={action} onSubmit={() => setReturnToRequest(false)} className="mt-7 space-y-5">
         <label className={labelClass}>Email
           <input
             name="email"

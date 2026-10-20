@@ -313,7 +313,21 @@ async function main() {
     existingDishMap.set(`${d.restaurant_id}:${normalizeStr(d.name)}`, d);
   }
 
-  const dishesToInsertOrUpdate: any[] = [];
+  type DishInsertRow = {
+    id: string;
+    restaurant_id: string;
+    source_key: string;
+    source_row: number;
+    name: string;
+    price_text: string | null;
+    price_min_vnd: number | null;
+    price_max_vnd: number | null;
+    notes: string | null;
+    is_active: boolean;
+    updated_at: string;
+  };
+
+  const dishesToInsertOrUpdate: DishInsertRow[] = [];
   const keptDishIds = new Set<string>();
 
   for (const match of matchedShops) {

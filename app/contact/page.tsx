@@ -4,7 +4,20 @@ import { sendContactMessage } from "@/features/contact/actions";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { SocialIconsRow, ContactDirectDetails } from "@/components/shared/social-links";
 
-export const metadata: Metadata = { title: "Liên hệ" };
+export const metadata: Metadata = {
+  title: "Liên hệ & Góp ý",
+  description:
+    "Gửi phản hồi, đóng góp thông tin quán ăn mới hoặc liên hệ hợp tác cùng đội ngũ phát triển Hanu Hungry - Đại học Hà Nội.",
+  alternates: {
+    canonical: "https://hanuhungry.id.vn/contact",
+  },
+  openGraph: {
+    title: "Liên hệ & Góp ý | Hanu Hungry",
+    description:
+      "Góp ý dữ liệu, báo thông tin quán cần cập nhật hoặc chia sẻ ý tưởng cùng nhóm Macaron.",
+    url: "https://hanuhungry.id.vn/contact",
+  },
+};
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
   const [params, account] = await Promise.all([searchParams, getCurrentProfile()]);

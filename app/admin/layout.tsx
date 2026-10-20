@@ -20,7 +20,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <Link href="/admin/analytics" className="inline-flex min-h-11 items-center gap-2 text-[var(--color-red)]">
           <Image src="/brand/logo.png" alt="" width={36} height={36} className="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
           <span className="brand-display text-xl sm:text-2xl leading-none">{siteConfig.name}</span>
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-[var(--color-pale)] text-[var(--color-red)] px-1.5 py-0.5 rounded">Admin</span>
+          <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-[var(--color-pale)] text-[var(--color-red)] px-2 py-0.5 rounded-full border border-[#f0c2c6]">
+            <Image src="/icons/nav/admin.png" alt="" width={14} height={14} unoptimized className="object-contain shrink-0" />
+            Admin
+          </span>
         </Link>
         <Link href="/" className="inline-flex min-h-11 items-center text-xs sm:text-sm font-semibold text-[var(--color-muted)] hover:text-[var(--color-red)] shrink-0">Về trang chủ ↗</Link>
       </div>

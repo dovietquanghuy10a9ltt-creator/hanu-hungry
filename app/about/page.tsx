@@ -2,7 +2,20 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { SocialIconsRow, ContactDirectDetails } from "@/components/shared/social-links";
 
-export const metadata: Metadata = { title: "Về chúng mình - Hanu Hungry" };
+export const metadata: Metadata = {
+  title: "Về chúng mình",
+  description:
+    "Tìm hiểu câu chuyện thành lập Hanu Hungry bởi nhóm sinh viên Macaron, sứ mệnh kết nối và giải quyết câu hỏi 'Hôm nay ăn gì?' cho sinh viên Đại học Hà Nội.",
+  alternates: {
+    canonical: "https://hanuhungry.id.vn/about",
+  },
+  openGraph: {
+    title: "Về chúng mình - Nhóm Macaron | Hanu Hungry",
+    description:
+      "Câu chuyện ra đời của Hanu Hungry - Sổ tay ẩm thực được tạo ra bởi sinh viên HANU, vì sinh viên HANU.",
+    url: "https://hanuhungry.id.vn/about",
+  },
+};
 
 export default function AboutPage() {
   return (
