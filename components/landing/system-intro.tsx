@@ -37,18 +37,18 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
       {/* Hero Section với poster banner Ảnh 4 */}
       <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
 <div className="relative overflow-hidden flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
-          {/* Background Thám tử Macaron với độ mờ 40% */}
+          {/* Background Thám tử Macaron thu nhỏ vừa vặn với độ mờ 60% */}
           <div
-            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            className="pointer-events-none absolute inset-0 z-0 bg-contain bg-center sm:bg-right bg-no-repeat p-4"
             style={{
               backgroundImage: "url('/brand/detective-macaron.jpg')",
-              opacity: 0.4,
+              opacity: 0.6,
             }}
             aria-hidden="true"
           />
-          {/* Lớp phủ sáng nhẹ bảo vệ độ tương phản chữ */}
+          {/* Lớp phủ sáng dịu bên trái bảo vệ tương phản cho chữ */}
           <div
-            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8]/90 via-[#fffdf8]/75 to-[#fffdf8]/50"
+            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8] via-[#fffdf8]/85 to-transparent sm:w-3/4"
             aria-hidden="true"
           />
           <div className="relative z-10 space-y-6">
