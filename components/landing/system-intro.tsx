@@ -36,8 +36,22 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
     <div className="space-y-12">
       {/* Hero Section với poster banner Ảnh 4 */}
       <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
-        <div className="flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
-          <div className="space-y-6">
+<div className="relative overflow-hidden flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
+          {/* Background Thám tử Macaron với độ mờ 40% */}
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: "url('/brand/detective-macaron.jpg')",
+              opacity: 0.4,
+            }}
+            aria-hidden="true"
+          />
+          {/* Lớp phủ sáng nhẹ bảo vệ độ tương phản chữ */}
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8]/90 via-[#fffdf8]/75 to-[#fffdf8]/50"
+            aria-hidden="true"
+          />
+          <div className="relative z-10 space-y-6">
             <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">
               Hanu Hungry
@@ -65,7 +79,7 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
               </Link>
             </div>
           </div>
-          <div className="mt-8 border-t border-[var(--color-line)] pt-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="relative z-10 mt-8 border-t border-[var(--color-line)] pt-5 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-[var(--color-muted)]">
               <span>✓ 50+ quán quanh trường</span>
               <span>✓ 900+ món ăn & đồ uống</span>

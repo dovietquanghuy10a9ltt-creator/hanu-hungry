@@ -38,10 +38,10 @@ export function SiteFooter() {
       </div>
 
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Main 4-column layout */}
+        {/* Main 3-column layout */}
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Column 1: Brand & Slogan */}
-          <div className="space-y-4 lg:col-span-4">
+          <div className="space-y-4 lg:col-span-5">
             <Link
               href="/"
               className="inline-flex items-center gap-2.5 transition-transform hover:scale-102"
@@ -65,7 +65,7 @@ export function SiteFooter() {
               <p className="font-semibold text-white">
                 Ăn ngon quanh Hanu, khỏi lo nghĩ nhiều.
               </p>
-              <p className="text-xs leading-relaxed text-[#f5d9d7]/85">
+              <p className="text-xs leading-relaxed text-[#f5d9d7]/85 max-w-md">
                 Một góc nhìn hôm nay, một tình yêu ở lại. Đồng hành cùng bữa ăn mỗi ngày của Hanuers.
               </p>
               <p className="pt-2 text-[11px] text-[#f5d9d7]/70">
@@ -74,37 +74,8 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Column 2: Khám phá */}
-          <div className="space-y-3.5 lg:col-span-2 lg:pl-4">
-            <h3 className="text-xs font-black uppercase tracking-widest text-white/95">
-              Khám phá
-            </h3>
-            <ul className="space-y-2 text-xs font-medium text-[#f5d9d7]">
-              <li>
-                <Link href="/restaurants" className="transition-colors hover:text-white hover:underline">
-                  Quán ăn quanh trường
-                </Link>
-              </li>
-              <li>
-                <Link href="/gacha" className="transition-colors hover:text-white hover:underline">
-                  Gacha hôm nay ăn gì
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="transition-colors hover:text-white hover:underline">
-                  Góc ẩm thực & mẹo
-                </Link>
-              </li>
-              <li>
-                <Link href="/history" className="transition-colors hover:text-white hover:underline">
-                  Lịch sử quay & quán quen
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Gặp gỡ */}
-          <div className="space-y-3.5 lg:col-span-3 lg:pl-2">
+          {/* Column 2: Gặp gỡ & Trợ giúp */}
+          <div className="space-y-3.5 lg:col-span-3 lg:pl-6">
             <h3 className="text-xs font-black uppercase tracking-widest text-white/95">
               Gặp gỡ & Trợ giúp
             </h3>
@@ -132,8 +103,8 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* Column 4: Kết nối với chúng mình */}
-          <div className="space-y-3.5 lg:col-span-3">
+          {/* Column 3: Kết nối với chúng mình */}
+          <div className="space-y-3.5 lg:col-span-4 lg:pl-4">
             <h3 className="text-xs font-black uppercase tracking-widest text-white/95">
               Kết nối với chúng mình
             </h3>
