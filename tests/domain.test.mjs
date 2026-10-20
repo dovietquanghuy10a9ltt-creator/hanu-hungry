@@ -25,6 +25,9 @@ test("isDrinkDish correctly classifies drinks and food", () => {
   assert.equal(isDrinkDish("Cơm tấm sườn bì"), false);
   assert.equal(isDrinkDish("Bánh mì pate"), false);
   assert.equal(isDrinkDish("Gà rán giòn"), false);
+  assert.equal(isDrinkDish("Hộp gà xốt chanh leo"), false);
+  assert.equal(isDrinkDish("Chân gà sả tắc"), false);
+  assert.equal(isDrinkDish("Chân gà chanh"), false);
 });
 
 test("Maps uses real coordinates first, or encoded source location text", () => {

@@ -163,10 +163,12 @@ export async function SiteShell({ children }: { children: ReactNode }) {
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <SocialIconsRow />
-            <div className="flex flex-wrap gap-4 font-semibold text-[var(--color-ink)]">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-semibold text-[var(--color-ink)] text-xs sm:text-sm">
               <Link href="/about" className="hover:text-[var(--color-red)]">Về chúng mình</Link>
               <Link href="/contact" className="hover:text-[var(--color-red)]">Liên hệ</Link>
               <Link href="/blog" className="hover:text-[var(--color-red)]">Blog</Link>
+              <Link href="/privacy" className="hover:text-[var(--color-red)]">Chính sách bảo mật</Link>
+              <Link href="/terms" className="hover:text-[var(--color-red)]">Điều khoản dịch vụ</Link>
             </div>
           </div>
         </div>
