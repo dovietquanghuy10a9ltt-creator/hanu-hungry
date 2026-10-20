@@ -1,3 +1,4 @@
+import { RevealOnScroll } from "@/components/shared/reveal-on-scroll";
 import Image from "next/image";
 import Link from "next/link";
 import { BlogNewsWidget } from "@/components/shared/blog-news-widget";
@@ -105,7 +106,8 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
 
           <div className="grid gap-4 sm:grid-cols-2">
             {features.map((feature, idx) => (
-              <article key={idx} className="card flex flex-col justify-between p-6 transition-transform hover:-translate-y-1">
+              <RevealOnScroll key={idx} delay={idx * 90} className="h-full">
+                <article className="card flex h-full flex-col justify-between p-6 transition-transform hover:-translate-y-1">
                 <div>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-pale)] px-3 py-1 text-xs font-bold text-[var(--color-red)]">
                     <Image src={feature.icon} alt="" width={16} height={16} unoptimized className="object-contain shrink-0" />
@@ -119,7 +121,8 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
                     Đăng nhập để trải nghiệm →
                   </Link>
                 </div>
-              </article>
+                </article>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
@@ -131,7 +134,7 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
       </section>
 
       {/* Sửa triệt để lỗi màu chữ ở Ảnh 2: Banner đỏ đậm với chữ trắng tương phản cao */}
-      <section
+      <RevealOnScroll><section
         className="relative overflow-hidden rounded-3xl p-8 sm:p-12 text-white shadow-xl"
         style={{ background: "linear-gradient(135deg, #8c1d24 0%, #b52a34 100%)", border: "1px solid #b52a34" }}
       >
@@ -163,7 +166,7 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
         <div className="pointer-events-none absolute -bottom-6 -right-6 select-none text-[150px] leading-none text-white/10" aria-hidden="true">
           ✦
         </div>
-      </section>
+      </section></RevealOnScroll>
     </div>
   );
 }

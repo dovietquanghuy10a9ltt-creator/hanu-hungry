@@ -267,6 +267,25 @@ export function RegisterForm() {
         <PasswordField name="password" label="Mật khẩu" minLength={8} showStrength />
         <PasswordField name="confirm_password" label="Nhập lại mật khẩu" minLength={8} />
         <p className="text-xs text-[#756561]">Mật khẩu cần ít nhất 8 ký tự. Tên hiển thị mặc định lấy từ phần trước @ trong email.</p>
+        <label className="flex items-start gap-2.5 text-xs text-[#5c4d49] cursor-pointer select-none rounded-xl border border-[#decbb8]/60 bg-[#fffcf5] p-3 transition hover:border-[#b51b2c]/40">
+          <input
+            name="accept_terms"
+            type="checkbox"
+            required
+            className="mt-0.5 h-4 w-4 rounded border-[#decbb8] text-[#b51b2c] focus:ring-[#b51b2c] cursor-pointer shrink-0"
+          />
+          <span className="leading-relaxed">
+            Tôi đã đọc và đồng ý với{" "}
+            <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-bold text-[#b51b2c] underline hover:text-[#8b1522]">
+              Điều khoản dịch vụ
+            </Link>{" "}
+            và{" "}
+            <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="font-bold text-[#b51b2c] underline hover:text-[#8b1522]">
+              Chính sách bảo mật
+            </Link>{" "}
+            của Hanu Hungry.
+          </span>
+        </label>
         <FormMessage state={state} />
         <SubmitButton>Đăng ký</SubmitButton>
       </form>

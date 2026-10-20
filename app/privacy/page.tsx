@@ -82,8 +82,8 @@ export default function PrivacyPage() {
             <p className="mt-2">
               Bạn có toàn quyền chỉnh sửa tên hiển thị, ảnh đại diện, hoặc yêu cầu xóa toàn bộ lịch sử check-in, đánh giá và tài khoản của mình
               khỏi hệ thống bất kỳ lúc nào thông qua trang{" "}
-              <Link href="/contact" className="font-bold text-[var(--color-red)] underline hover:text-[#b32b35]">
-                Liên hệ hỗ trợ
+              <Link href="/support" className="font-bold text-[var(--color-red)] underline hover:text-[#b32b35]">
+                Câu hỏi thường gặp (FAQ) & Hỗ trợ
               </Link>.
             </p>
           </section>

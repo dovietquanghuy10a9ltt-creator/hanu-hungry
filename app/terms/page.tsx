@@ -58,8 +58,8 @@ export default function TermsPage() {
               Thông tin địa chỉ, menu và giá tiền trên Hanu Hungry được đội ngũ sinh viên khảo sát trực tiếp và cập nhật liên tục.
               Tuy nhiên, giá món ăn thực tế có thể thay đổi tùy thuộc vào thời điểm, chương trình khuyến mãi hoặc điều chỉnh của chủ quán.
               Chúng mình rất hoan nghênh các bạn báo cáo cập nhật qua trang{" "}
-              <Link href="/contact" className="font-bold text-[var(--color-red)] underline hover:text-[#b32b35]">
-                Liên hệ
+              <Link href="/support" className="font-bold text-[var(--color-red)] underline hover:text-[#b32b35]">
+                Câu hỏi thường gặp (FAQ) & Hỗ trợ
               </Link>{" "}
               để dữ liệu luôn chính xác nhất.
             </p>

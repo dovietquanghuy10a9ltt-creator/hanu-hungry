@@ -118,8 +118,8 @@ export default function AboutPage() {
         <Link href="/restaurants" className="button button-primary">
           Khám phá các quán ăn quanh Hanu ↗
         </Link>
-        <Link href="/contact" className="button button-secondary">
-          Gửi tin nhắn liên hệ cho nhóm
+        <Link href="/support" className="button button-secondary inline-flex items-center gap-1.5">
+          <span>Câu hỏi thường gặp (FAQ)</span> ↗
         </Link>
       </div>
     </div>

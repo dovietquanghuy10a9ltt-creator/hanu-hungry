@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { SocialIconsRow, CONTACT_INFO } from "@/components/shared/social-links";
+import { SiteFooter } from "@/components/layout/footer";
 import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
 import { StreakIndicator, type StreakData } from "@/components/shared/streak-indicator";
 import { historyStats, localDayOrdinal } from "@/features/history/stats";
@@ -144,35 +144,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <footer className="border-t border-[var(--color-line)] bg-[#f1eadd] pb-24 md:pb-0">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 text-sm text-[var(--color-muted)] sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
-          <div>
-            <div className="flex items-center gap-2">
-              <strong className="text-[var(--color-red)] text-base font-black">Hanu Hungry</strong>
-              <span className="text-xs bg-[var(--color-pale)] px-2 py-0.5 rounded-full text-[var(--color-ink)] font-semibold">bởi Macaron</span>
-            </div>
-            <p className="mt-1">Dữ liệu quán ăn từ khảo sát của nhóm sinh viên Hanu.</p>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-              <a href={CONTACT_INFO.phoneHref} className="hover:text-[var(--color-red)] font-semibold">📞 {CONTACT_INFO.phone}</a>
-              <span>·</span>
-              <a href={CONTACT_INFO.emailHref} className="hover:text-[var(--color-red)] font-semibold inline-flex items-center gap-1">
-                <Image src="/icons/shared/mail.png" alt="" width={16} height={16} unoptimized className="h-4 w-4 object-contain inline" />
-                <span>{CONTACT_INFO.email}</span>
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <SocialIconsRow />
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-semibold text-[var(--color-ink)] text-xs sm:text-sm">
-              <Link href="/about" className="hover:text-[var(--color-red)]">Về chúng mình</Link>
-              <Link href="/contact" className="hover:text-[var(--color-red)]">Liên hệ</Link>
-              <Link href="/blog" className="hover:text-[var(--color-red)]">Blog</Link>
-              <Link href="/privacy" className="hover:text-[var(--color-red)]">Chính sách bảo mật</Link>
-              <Link href="/terms" className="hover:text-[var(--color-red)]">Điều khoản dịch vụ</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       {user && <Navigation mobile signedIn={true} isAdmin={isAdmin} />}
       {user && <SmartCheckInRecall />}

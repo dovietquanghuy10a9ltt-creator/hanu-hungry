@@ -44,6 +44,11 @@ export async function registerAction(
     return error("Hai mật khẩu không khớp.");
   }
 
+  const acceptTerms = form.get("accept_terms");
+  if (!acceptTerms) {
+    return error("Vui lòng đọc và đồng ý với Điều khoản dịch vụ và Chính sách bảo mật.");
+  }
+
   const rateLimit = await checkRateLimit({
     action: "register",
     maxAttempts: 5,

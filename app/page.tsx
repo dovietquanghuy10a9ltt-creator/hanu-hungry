@@ -1,3 +1,4 @@
+import { RevealOnScroll } from "@/components/shared/reveal-on-scroll";
 import Link from "next/link";
 import { RestaurantCard } from "@/components/shared/restaurant-card";
 import { listCategories } from "@/features/restaurants/data";
@@ -65,7 +66,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="home-categories">
+      <RevealOnScroll><section className="home-categories">
         <p className="eyebrow">Bạn đang thèm gì?</p>
         <div className="category-strip">
           {categories.map((category) => (
@@ -78,7 +79,7 @@ export default async function HomePage() {
             </Link>
           ))}
         </div>
-      </section>
+      </section></RevealOnScroll>
 
       <section className="space-y-6">
         <div className="section-heading">
@@ -102,7 +103,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="home-bottom">
+      <RevealOnScroll><section className="home-bottom">
         <Link href="/gacha" className="gacha-invitation">
           <span className="cosmic-heading">Tín hiệu từ vũ trụ</span>
           <h2>
@@ -125,7 +126,7 @@ export default async function HomePage() {
           <p>Lưu quán đã ghé, món đã thử. Lần tới rủ bạn bè đi cùng.</p>
           <span className="text-link mt-5">Mở nhật ký ↗</span>
         </Link>
-      </section>
+      </section></RevealOnScroll>
     </div>
   );
 }
