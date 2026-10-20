@@ -48,6 +48,12 @@ export const metadata: Metadata = {
       "Giải quyết câu hỏi 'Hôm nay ăn gì?' cho sinh viên HANU. Khám phá 50+ quán ăn ngon rẻ, review chi tiết và vòng quay Gacha chọn món ngẫu nhiên.",
     images: [
       {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Hanu Hungry - Sổ tay ẩm thực sinh viên Đại học Hà Nội",
+      },
+      {
         url: "/brand/logo.png",
         width: 512,
         height: 512,
@@ -56,11 +62,11 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Hanu Hungry - Hôm nay ăn gì quanh Đại học Hà Nội (HANU)?",
     description:
       "Khám phá 50+ quán ăn ngon, rẻ quanh Đại học Hà Nội. Xem review chân thực và quay Gacha chọn món trong 3 giây!",
-    images: ["/brand/logo.png"],
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
