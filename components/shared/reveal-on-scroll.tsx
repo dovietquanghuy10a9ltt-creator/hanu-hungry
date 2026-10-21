@@ -23,17 +23,13 @@ export function RevealOnScroll({
   threshold = 0.08,
   rootMargin = "0px 0px -40px 0px",
 }: RevealOnScrollProps) {
-  const [isVisible, setIsVisible] = useState(() => {
-    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
-      return true;
-    }
-    return false;
-  });
+  const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
-      return;
+    if (!("IntersectionObserver" in window)) {
+      const timer = setTimeout(() => setIsVisible(true), 0);
+      return () => clearTimeout(timer);
     }
 
     const element = ref.current;
@@ -90,6 +86,7 @@ export function RevealOnScroll({
   return (
     <Component
       ref={ref}
+      suppressHydrationWarning
       style={isVisible ? visibleStyle : hiddenStyle}
       className={`will-change-[opacity,transform] ${className}`}
     >
