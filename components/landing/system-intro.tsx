@@ -8,24 +8,28 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
   const features = [
     {
       icon: "/icons/nav/explore.png",
+      illustration: "/brand/features/feature-explore.png",
       tag: "Khám phá địa điểm",
       title: "Sổ địa điểm quanh trường",
       description: "Tra cứu danh sách quán ăn theo tên món, danh mục ẩm thực (cơm, bún phở, đồ ăn vặt, đồ uống...) hoặc khoảng giá min – max phù hợp túi tiền sinh viên.",
     },
     {
       icon: "/icons/nav/gacha.png",
+      illustration: "/brand/features/feature-gacha.png",
       tag: "Gacha vũ trụ",
       title: "Để vũ trụ chọn giúp bạn",
       description: "Không biết ăn gì hay uống gì? Vòng quay Gacha với 3 chế độ riêng biệt: Gacha theo quán, Gacha theo đồ ăn và Gacha theo đồ uống sẽ giúp bạn có bữa ăn bất ngờ.",
     },
     {
       icon: "/icons/nav/home.png",
+      illustration: "/brand/features/feature-history.png",
       tag: "Nhật ký ẩm thực",
       title: "Lưu giữ những bữa ngon",
       description: "Lưu lại những quán bạn đã ghé qua, theo dõi chuỗi ngày ăn ngon và thống kê hành trình khám phá ẩm thực quanh khu vực Đại học Hà Nội.",
     },
     {
       icon: "/icons/nav/blog.png",
+      illustration: "/brand/features/feature-review.png",
       tag: "Review thực tế",
       title: "Chia sẻ từ sinh viên Hanu",
       description: "Đọc những cảm nhận và đánh giá chân thực từ cộng đồng sinh viên Hanu; đóng góp nhận xét của chính bạn về món ăn và không gian quán.",
@@ -104,23 +108,45 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             {features.map((feature, idx) => (
               <RevealOnScroll key={idx} delay={idx * 90} className="h-full">
-                <article className="card flex h-full flex-col justify-between p-6 transition-transform hover:-translate-y-1">
-                <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-pale)] px-3 py-1 text-xs font-bold text-[var(--color-red)]">
-                    <Image src={feature.icon} alt="" width={16} height={16} unoptimized className="object-contain shrink-0" />
-                    <span>{feature.tag}</span>
-                  </span>
-                  <h3 className="mt-4 text-xl font-black text-[var(--color-ink)]">{feature.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[var(--color-muted)]">{feature.description}</p>
-                </div>
-                <div className="mt-6 border-t border-[var(--color-line)] pt-4">
-                  <Link href="/login" className="text-sm font-bold text-[var(--color-red)] hover:underline">
-                    Đăng nhập để trải nghiệm →
-                  </Link>
-                </div>
+                <article className="group flex h-full flex-col justify-between rounded-3xl border-2 border-[#2b1810] bg-[#fffdf8] p-5 sm:p-6 shadow-[4px_4px_0px_#2b1810] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-1 hover:shadow-[6px_6px_0px_#2b1810]">
+                  <div>
+                    {/* Hàng trên: Tag & Tiêu đề bên trái, Hình minh họa bên phải */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-pale)] px-3 py-1 text-xs font-bold text-[var(--color-red)] border border-[#f0c2c6]">
+                          <Image src={feature.icon} alt="" width={16} height={16} unoptimized className="object-contain shrink-0" />
+                          <span>{feature.tag}</span>
+                        </span>
+                        <h3 className="mt-3 text-xl sm:text-2xl font-black text-[#2b1810] tracking-tight leading-snug">
+                          {feature.title}
+                        </h3>
+                      </div>
+                      <div className="relative -mt-1 -mr-1 h-20 w-20 sm:h-24 sm:w-24 shrink-0 select-none pointer-events-none">
+                        <Image
+                          src={feature.illustration}
+                          alt={feature.title}
+                          width={140}
+                          height={140}
+                          unoptimized
+                          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm leading-relaxed text-[#493c38] font-medium">
+                      {feature.description}
+                    </p>
+                  </div>
+                  <div className="mt-5 pt-2">
+                    <Link
+                      href="/login"
+                      className="text-sm font-extrabold text-[var(--color-red)] hover:underline inline-flex items-center gap-1 transition-transform group-hover:translate-x-1"
+                    >
+                      Đăng nhập để trải nghiệm →
+                    </Link>
+                  </div>
                 </article>
               </RevealOnScroll>
             ))}
