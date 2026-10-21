@@ -23,25 +23,21 @@ export function RevealOnScroll({
   threshold = 0.08,
   rootMargin = "0px 0px -40px 0px",
 }: RevealOnScrollProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+      return true;
+    }
+    return false;
+  });
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // If IntersectionObserver is unavailable, make visible immediately
     if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
-      setIsVisible(true);
       return;
     }
 
     const element = ref.current;
     if (!element) return;
-
-    // Check if element is already in viewport on mount (e.g., above fold)
-    const rect = element.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom > 0) {
-      setIsVisible(true);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       (entries) => {

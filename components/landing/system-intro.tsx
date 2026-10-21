@@ -36,29 +36,8 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
     <div className="space-y-12">
       {/* Hero Section với poster banner Ảnh 4 */}
       <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
-<div className="relative overflow-hidden flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
-          {/* Background Thám tử Macaron thu nhỏ vừa vặn ở phía bên phải với độ mờ 60% */}
-          <div
-            className="pointer-events-none absolute inset-4 sm:inset-6 z-0 flex items-center justify-end overflow-hidden"
-            aria-hidden="true"
-          >
-            <div
-              className="h-full w-full sm:w-[48%] lg:w-[44%] rounded-2xl"
-              style={{
-                backgroundImage: "url('/brand/detective-macaron.jpg')",
-                opacity: 0.6,
-                backgroundSize: "contain",
-                backgroundPosition: "center right",
-                backgroundRepeat: "no-repeat",
-              }}
-            />
-          </div>
-          {/* Lớp nền trắng sạch 100% bên trái che hoàn toàn họa tiết sau chữ */}
-          <div
-            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#fffdf8] from-45% via-[#fffdf8]/90 via-60% to-transparent sm:w-[70%]"
-            aria-hidden="true"
-          />
-          <div className="relative z-10 space-y-6 max-w-lg lg:max-w-xl">
+        <div className="flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
+          <div className="space-y-6 max-w-lg lg:max-w-xl">
             <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">
               Hanu Hungry
