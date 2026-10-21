@@ -20,26 +20,35 @@ export function RevealOnScroll({
   direction = "up",
   duration = 650,
   as: Component = "div",
-  threshold = 0.08,
-  rootMargin = "0px 0px -40px 0px",
+  threshold = 0.01,
+  rootMargin = "0px 0px 80px 0px",
 }: RevealOnScrollProps) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    // Safety fallback: ensure content is always revealed on mobile even if IntersectionObserver fails
+    const safetyTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 500 + delay);
+
     if (!("IntersectionObserver" in window)) {
-      const timer = setTimeout(() => setIsVisible(true), 0);
-      return () => clearTimeout(timer);
+      const immediateTimer = setTimeout(() => setIsVisible(true), 0);
+      return () => {
+        clearTimeout(safetyTimer);
+        clearTimeout(immediateTimer);
+      };
     }
 
     const element = ref.current;
-    if (!element) return;
+    if (!element) return () => clearTimeout(safetyTimer);
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
         if (entry.isIntersecting) {
           setIsVisible(true);
+          clearTimeout(safetyTimer);
           observer.unobserve(entry.target);
         }
       },
@@ -52,9 +61,10 @@ export function RevealOnScroll({
     observer.observe(element);
 
     return () => {
+      clearTimeout(safetyTimer);
       observer.disconnect();
     };
-  }, [threshold, rootMargin]);
+  }, [threshold, rootMargin, delay]);
 
   const getHiddenTransform = () => {
     switch (direction) {
