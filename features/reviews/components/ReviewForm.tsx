@@ -48,7 +48,7 @@ export function ReviewForm({ restaurantId, ownReview }: ReviewFormProps) {
         <input type="hidden" name="rating" value={rating} />
 
         {/* 1. Google Maps-style Interactive Stars */}
-        <div className="rounded-2xl border border-[var(--color-line)] bg-[#fdfbf7] p-4 sm:p-5 flex flex-col items-center justify-center text-center space-y-2">
+        <div className="rounded-2xl border-2 border-[#4A3525] bg-[#fdfbf7] p-4 sm:p-5 flex flex-col items-center justify-center text-center space-y-2 shadow-[0_4px_0_0_#D8C8B4]">
           <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
             Xếp hạng quán ăn
           </p>

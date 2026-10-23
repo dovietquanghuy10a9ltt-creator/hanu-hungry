@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-4xl py-6 sm:py-10">
-      <div className="rounded-3xl border border-[var(--color-line)] bg-white/80 p-6 shadow-sm backdrop-blur sm:p-10">
+      <div className="rounded-3xl border-2 border-[#4A3525] bg-[#fffdf8] p-6 shadow-[0_6px_0_0_#D8C8B4,0_10px_20px_rgba(74,53,37,0.06)] sm:p-10">
         <div className="border-b border-[var(--color-line)] pb-6">
           <span className="inline-block rounded-full bg-[var(--color-pale)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--color-red)]">
             Quy ước cộng đồng

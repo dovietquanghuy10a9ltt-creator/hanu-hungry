@@ -100,7 +100,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
 
       {/* 2. Duolingo-style Streak Popover */}
       {isOpen && (
-        <div className="fixed inset-x-3 top-16 mx-auto max-w-sm sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-88 sm:max-w-none sm:mx-0 rounded-3xl border border-[var(--color-line)] bg-white p-5 shadow-2xl z-50 animate-fadeIn space-y-4">
+        <div className="fixed inset-x-3 top-16 mx-auto max-w-sm sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-88 sm:max-w-none sm:mx-0 rounded-3xl border-2 border-[#4A3525] bg-white p-5 shadow-[0_8px_0_0_#D8C8B4,0_16px_32px_rgba(74,53,37,0.15)] z-50 animate-fadeIn space-y-4">
           {/* Header Flame & Streak Count */}
           <div className="flex flex-col items-center text-center space-y-1.5">
             <div

@@ -40,7 +40,7 @@ export function SystemIntro({ recentPosts = [] }: { recentPosts?: BlogPostSummar
     <div className="space-y-12">
       {/* Hero Section với poster banner Ảnh 4 */}
       <section className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.35fr)_340px]">
-        <div className="flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[#fffdf8] p-8 sm:p-12 shadow-sm">
+        <div className="flex flex-col justify-between rounded-3xl border-2 border-[#4A3525] bg-[#fffdf8] p-8 sm:p-12 shadow-[0_6px_0_0_#D8C8B4,0_8px_16px_rgba(74,53,37,0.08)]">
           <div className="space-y-6 max-w-lg lg:max-w-xl">
             <p className="eyebrow">Sổ tay ẩm thực · Đại học Hà Nội</p>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-[var(--color-ink)]">

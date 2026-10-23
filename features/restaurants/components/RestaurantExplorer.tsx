@@ -48,7 +48,7 @@ export function RestaurantExplorer({
       <form
         action="/restaurants"
         onSubmit={(event) => event.preventDefault()}
-        className="rounded-2xl border border-[var(--color-line)] bg-[#f1eadd] p-4 sm:p-5 space-y-3.5 shadow-xs"
+        className="rounded-2xl border-2 border-[#4A3525] bg-[#f1eadd] p-4 sm:p-5 space-y-3.5 shadow-[0_5px_0_0_#D8C8B4,0_8px_16px_rgba(74,53,37,0.06)]"
       >
         {/* Header với label và nút Xóa bộ lọc ở góc phải */}
         <div className="flex items-center justify-between">
