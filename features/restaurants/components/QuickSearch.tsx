@@ -11,9 +11,23 @@ export function QuickSearch({ catalog }: { catalog: CatalogRestaurant[] }) {
   const suggestions = dishSuggestions(catalog, query);
   return <div className="relative z-20" onFocus={() => setFocused(true)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     <form action="/restaurants" className="quick-search">
-      <Search className="ml-2.5 h-5 w-5 sm:h-5.5 sm:w-5.5 text-stone-400 select-none shrink-0" />
+      <Search
+        className={`ml-2.5 h-5 w-5 sm:h-5.5 sm:w-5.5 select-none shrink-0 transition-colors duration-200 ${
+          focused ? "text-[var(--color-red)]" : "text-stone-400"
+        }`}
+      />
       <label htmlFor="home-search" className="sr-only">Tìm quán hoặc món ăn</label>
-      <input id="home-search" type="search" name="q" value={query} onChange={(event) => setQuery(event.target.value)} autoComplete="off" placeholder="Gõ tên món bạn đang thèm…" className="min-w-0 flex-1 bg-transparent py-3 outline-none" aria-describedby={focused && suggestions.length ? "home-suggestions-title" : undefined} />
+      <input
+        id="home-search"
+        type="search"
+        name="q"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        autoComplete="off"
+        placeholder="Gõ tên món bạn đang thèm…"
+        className="min-w-0 flex-1 bg-transparent py-3 text-base text-[var(--color-ink)] border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:border-0 focus-visible:outline-none"
+        aria-describedby={focused && suggestions.length ? "home-suggestions-title" : undefined}
+      />
       <button className="button button-primary" type="submit" aria-label="Tìm quán">Tìm <span aria-hidden="true">↗</span></button>
     </form>
     {focused && suggestions.length > 0 && <div className="search-suggestions"><p id="home-suggestions-title" className="eyebrow px-4 pb-2 pt-4">Món phù hợp</p><ul>{suggestions.map((dish) => <li key={dish.id}><Link className="suggestion-link" href={`/restaurants/${dish.restaurantId}`}><span>{dish.name}<small>{dish.restaurantName}</small></span><span aria-hidden="true">↗</span></Link></li>)}</ul><Link href={`/restaurants?q=${encodeURIComponent(query)}`} className="suggestion-link border-t border-[var(--color-line)] text-[var(--color-red)]">Xem tất cả kết quả →</Link></div>}
