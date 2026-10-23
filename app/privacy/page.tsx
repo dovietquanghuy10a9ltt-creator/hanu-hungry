@@ -29,8 +29,8 @@ export default function PrivacyPage() {
             </h2>
             <p className="mt-2">
               <strong>Hanu Hungry</strong> là một dự án phi thương mại được sáng lập và duy trì bởi nhóm sinh viên Macaron,
-              với mục tiêu hỗ trợ sinh viên trường Đại học Hà Nội (HANU) khám phá các quán ăn ngon, rẻ quanh khu vực Triều Khúc,
-              Phùng Khoang và giải quyết câu hỏi thường nhật <em>&quot;Hôm nay ăn gì?&quot;</em>.
+              với mục tiêu hỗ trợ sinh viên trường Đại học Hà Nội (HANU) khám phá các quán ăn ngon, rẻ tại Khu vực quanh trường Đại học Hà Nội (HANU), đường Nguyễn Trãi, Thanh Xuân, Hà Nội
+              và giải quyết câu hỏi thường nhật <em>&quot;Hôm nay ăn gì?&quot;</em>.
             </p>
           </section>
 

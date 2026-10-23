@@ -3,9 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Store,
+  Utensils,
+  Coffee,
+  PartyPopper,
+  MapPin,
+  Flame,
+  CheckCircle2,
+  ChevronDown,
+  Check,
+  Loader2,
+  ArrowUpRight,
+} from "lucide-react";
 import { rollGacha, type GachaResult } from "@/features/gacha/actions";
-import { formatCardPrice, formatPrice } from "@/features/restaurants/format";
+import { formatCardPrice, formatPrice, mapsUrl } from "@/features/restaurants/format";
 import { isDrinkDish, pickRandom } from "@/features/gacha/random";
+import { quickCheckIn } from "@/features/history/actions";
 import type { CatalogDish, CatalogRestaurant } from "@/features/restaurants/search";
 import type { RestaurantSummary } from "@/features/restaurants/types";
 
@@ -24,12 +39,16 @@ export function GachaExperience({
   initialMode?: GachaMode;
   catalog?: CatalogRestaurant[];
 }) {
+  const router = useRouter();
   const [mode, setMode] = useState<GachaMode>(initialMode);
   const [phase, setPhase] = useState<"idle" | "rolling" | "result">("idle");
   const [result, setResult] = useState<GachaResult | null>(null);
   const [error, setError] = useState("");
   const [reelName, setReelName] = useState("Một bất ngờ đang chờ");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [checkedInMap, setCheckedInMap] = useState<Record<string, boolean>>({});
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
+  const [checkInToast, setCheckInToast] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mounted = useRef(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -187,6 +206,31 @@ export function GachaExperience({
     }
   }
 
+  async function handleCheckIn(restaurantId: string) {
+    if (isCheckingIn || checkedInMap[restaurantId]) return;
+    setIsCheckingIn(true);
+    try {
+      const res = await quickCheckIn(restaurantId);
+      if (res.success) {
+        setCheckedInMap((prev) => ({ ...prev, [restaurantId]: true }));
+        setCheckInToast(res.message);
+        setTimeout(() => setCheckInToast(null), 4000);
+      } else {
+        alert(res.message);
+      }
+    } catch {
+      router.push(`/login?next=${encodeURIComponent("/gacha")}`);
+    } finally {
+      setIsCheckingIn(false);
+    }
+  }
+
+  function renderModeIcon(m: GachaMode, className = "h-5 w-5 shrink-0") {
+    if (m === "restaurant") return <Store className={className} />;
+    if (m === "drink") return <Coffee className={className} />;
+    return <Utensils className={className} />;
+  }
+
   function changeMode(next: GachaMode) {
     if (phase === "rolling") return;
     setMode(next);
@@ -208,22 +252,9 @@ export function GachaExperience({
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             className="w-full flex items-center justify-between gap-3 rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] px-4 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-hidden cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="flex items-center gap-2.5 min-w-0">
-              <Image
-                src={
-                  mode === "restaurant"
-                    ? "/icons/gacha/restaurant.png"
-                    : mode === "drink"
-                    ? "/icons/gacha/drink.png"
-                    : "/icons/gacha/food.png"
-                }
-                alt=""
-                width={24}
-                height={24}
-                unoptimized
-                className="h-6 w-6 object-contain shrink-0"
-              />
-              <span className="truncate">
+            <span className="flex items-center gap-2.5 min-w-0 text-[var(--color-red)]">
+              {renderModeIcon(mode)}
+              <span className="truncate text-[var(--color-ink)]">
                 {mode === "restaurant"
                   ? "Gacha theo quán"
                   : mode === "drink"
@@ -231,14 +262,12 @@ export function GachaExperience({
                   : "Gacha theo đồ ăn"}
               </span>
             </span>
-            <span
-              className={`text-xs text-[var(--color-red)] font-bold transition-transform duration-200 select-none ${
+            <ChevronDown
+              className={`h-4 w-4 text-[var(--color-red)] transition-transform duration-200 ${
                 isDropdownOpen ? "rotate-180" : ""
               }`}
               aria-hidden="true"
-            >
-              ▼
-            </span>
+            />
           </button>
 
           {isDropdownOpen && (
@@ -249,9 +278,9 @@ export function GachaExperience({
             >
               {(
                 [
-                  { id: "restaurant", label: "Gacha theo quán", icon: "/icons/gacha/restaurant.png" },
-                  { id: "food", label: "Gacha theo đồ ăn", icon: "/icons/gacha/food.png" },
-                  { id: "drink", label: "Gacha theo đồ uống", icon: "/icons/gacha/drink.png" },
+                  { id: "restaurant", label: "Gacha theo quán" },
+                  { id: "food", label: "Gacha theo đồ ăn" },
+                  { id: "drink", label: "Gacha theo đồ uống" },
                 ] as const
               ).map((m) => {
                 const isSelected = mode === m.id;
@@ -271,17 +300,12 @@ export function GachaExperience({
                         : "text-[var(--color-ink)] hover:bg-[#f5ece1]"
                     }`}
                   >
-                    <Image
-                      src={m.icon}
-                      alt=""
-                      width={24}
-                      height={24}
-                      unoptimized
-                      className="h-6 w-6 object-contain shrink-0"
-                    />
+                    <span className={isSelected ? "text-[var(--color-red)]" : "text-[var(--color-muted)]"}>
+                      {renderModeIcon(m.id)}
+                    </span>
                     <span className="flex-1">{m.label}</span>
                     {isSelected && (
-                      <span className="text-[var(--color-red)] text-sm">✓</span>
+                      <Check className="h-4 w-4 text-[var(--color-red)]" />
                     )}
                   </button>
                 );
@@ -319,14 +343,7 @@ export function GachaExperience({
                 </div>
               )}
               <div className="flex items-center justify-center gap-2">
-                <Image
-                  src="/icons/gacha/celebration.png"
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain animate-bounce"
-                  unoptimized
-                />
+                <PartyPopper className="h-7 w-7 text-[var(--color-red)] animate-bounce" />
                 <p className="eyebrow">Vũ trụ chọn cho bạn</p>
               </div>
               <h2 className="mt-3 break-words text-3xl leading-tight sm:text-4xl">
@@ -341,9 +358,67 @@ export function GachaExperience({
                   ? formatPrice(result.dish.price_text, result.dish.price_min_vnd, result.dish.price_max_vnd)
                   : formatCardPrice(result.restaurant.min_price_vnd, result.restaurant.max_price_vnd)}
               </p>
-              <Link className="button button-outline mt-5" href={`/restaurants/${result.restaurant.id}`}>
-                Ghé xem quán <span aria-hidden="true">↗</span>
-              </Link>
+
+              {/* Direct Buttons: Maps, Direct Streak Check-in, View Details */}
+              {(() => {
+                const mapLink = mapsUrl(result.restaurant);
+                return (
+                  <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-center">
+                    {mapLink && (
+                      <a
+                        href={mapLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="button button-secondary inline-flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold"
+                      >
+                        <MapPin className="h-4 w-4 shrink-0 text-[var(--color-red)]" />
+                        <span>Chỉ đường Maps ↗</span>
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleCheckIn(result.restaurant.id)}
+                      disabled={isCheckingIn || checkedInMap[result.restaurant.id]}
+                      className={`button inline-flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold transition cursor-pointer ${
+                        checkedInMap[result.restaurant.id]
+                          ? "bg-emerald-600 text-white hover:bg-emerald-700 cursor-default"
+                          : "button-primary"
+                      }`}
+                    >
+                      {isCheckingIn ? (
+                        <>
+                          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                          <span>Đang lưu...</span>
+                        </>
+                      ) : checkedInMap[result.restaurant.id] ? (
+                        <>
+                          <CheckCircle2 className="h-4 w-4 shrink-0" />
+                          <span>Đã chọn hôm nay ✓</span>
+                        </>
+                      ) : (
+                        <>
+                          <Flame className="h-4 w-4 shrink-0 fill-amber-300 text-amber-300 animate-pulse" />
+                          <span>Chọn ăn quán này (Cộng chuỗi)</span>
+                        </>
+                      )}
+                    </button>
+                    <Link
+                      className="button button-outline inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold"
+                      href={`/restaurants/${result.restaurant.id}`}
+                    >
+                      <span>Chi tiết</span>
+                      <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
+                    </Link>
+                  </div>
+                );
+              })()}
+
+              {checkInToast && (
+                <div className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 text-xs font-bold text-emerald-800 animate-fadeIn">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>{checkInToast}</span>
+                </div>
+              )}
             </div>
           ) : (
             <div

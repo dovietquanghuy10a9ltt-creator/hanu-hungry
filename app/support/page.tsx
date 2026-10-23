@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { HelpCircle, Compass, Mail } from "lucide-react";
 
 interface FaqItem {
   id: string;
@@ -81,14 +81,7 @@ export default function SupportPage() {
       {/* Header */}
       <div className="text-center space-y-3 mb-10">
         <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-pale)] px-4 py-1.5 text-xs font-bold text-[var(--color-red)] tracking-wide uppercase">
-          <Image
-            src="/icons/nav/support.png"
-            alt=""
-            width={18}
-            height={18}
-            className="h-4.5 w-4.5 object-contain"
-            unoptimized
-          />
+          <HelpCircle className="h-4.5 w-4.5 text-[var(--color-red)] shrink-0" />
           Trung tâm Trợ giúp HANUers
         </span>
         <h1 className="text-3xl sm:text-4xl font-black text-[var(--color-ink)] tracking-tight">
@@ -175,21 +168,15 @@ export default function SupportPage() {
             href="/contact"
             className="button button-primary text-sm font-bold px-6 py-2.5 rounded-xl inline-flex items-center gap-2"
           >
-            ✉ Gửi phản hồi / Liên hệ
+            <Mail className="h-4 w-4 shrink-0" />
+            <span>Gửi phản hồi / Liên hệ</span>
           </Link>
           <Link
             href="/restaurants"
             className="rounded-xl border border-[var(--color-line)] bg-[var(--color-pale)] px-5 py-2.5 text-sm font-bold text-[var(--color-ink)] hover:bg-[#eadbc9] transition inline-flex items-center gap-2"
           >
-            <Image
-              src="/icons/nav/explore.png"
-              alt=""
-              width={18}
-              height={18}
-              className="h-4.5 w-4.5 object-contain"
-              unoptimized
-            />
-            Khám phá quán ăn
+            <Compass className="h-4.5 w-4.5 text-[var(--color-red)] shrink-0" />
+            <span>Khám phá quán ăn</span>
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Mail } from "lucide-react";
 
 export const SOCIAL_LINKS = [
   {
@@ -115,14 +115,7 @@ export function ContactDirectDetails({ className = "" }: { className?: string })
         href={CONTACT_INFO.emailHref}
         className="inline-flex items-center gap-1.5 font-bold text-[var(--color-red)] transition hover:underline"
       >
-        <Image
-          src="/icons/shared/mail.png"
-          alt=""
-          width={18}
-          height={18}
-          unoptimized
-          className="h-4.5 w-4.5 object-contain"
-        />
+        <Mail className="h-4.5 w-4.5 shrink-0" />
         <span>{CONTACT_INFO.email}</span>
       </a>
     </div>

@@ -2,10 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { Star } from "lucide-react";
 import { ReviewForm } from "@/features/reviews/components/ReviewForm";
 import { formatPrice, mapsUrl, readableText } from "@/features/restaurants/format";
 import { getRestaurant } from "@/features/restaurants/data";
-import { MapNavigationButton } from "@/features/restaurants/components/MapNavigationButton";
+import { RestaurantActionButtons } from "@/features/restaurants/components/RestaurantActionButtons";
 import { createClient } from "@/lib/supabase/server";
 
 type UserVisit = {
@@ -69,6 +70,9 @@ export default async function RestaurantPage({ params }: Props) {
   const mapLink = mapsUrl(restaurant);
   const dishes = restaurant.dishes.filter((dish) => dish.is_active).sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const checkedInToday = userVisits.some((v) => v.visited_at && v.visited_at.slice(0, 10) === todayStr);
+
   return (
     <div className="space-y-8">
       <div><Link href="/restaurants" className="text-sm font-bold text-[var(--color-red)]">← Tất cả quán</Link></div>
@@ -85,14 +89,7 @@ export default async function RestaurantPage({ params }: Props) {
               <p className="flex items-center gap-1.5">
                 <span className="font-bold">Đánh giá:</span>
                 <span className="inline-flex items-center gap-1 font-extrabold text-[#d97706]">
-                  <Image
-                    src="/icons/shared/star.png"
-                    alt=""
-                    width={16}
-                    height={16}
-                    unoptimized
-                    className="h-4 w-4 object-contain inline"
-                  />
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400 inline" />
                   <span>{ratingAverage.toFixed(1)}/5</span>
                 </span>
                 <span className="text-[var(--color-muted)]">({reviewItems.length} lượt)</span>
@@ -100,7 +97,19 @@ export default async function RestaurantPage({ params }: Props) {
             )}
           </div>
           <p className="text-sm leading-6 text-[var(--color-muted)]">{readableText(restaurant.description)}</p>
-          {mapLink ? <MapNavigationButton mapLink={mapLink} restaurantId={restaurant.id} restaurantName={restaurant.name} /> : <p className="rounded-xl bg-[var(--color-pale)] px-4 py-3 text-sm text-[var(--color-muted)]">Chưa có dữ liệu vị trí để mở bản đồ.</p>}
+          {mapLink ? (
+            <RestaurantActionButtons
+              mapLink={mapLink}
+              restaurantId={restaurant.id}
+              restaurantName={restaurant.name}
+              isLoggedIn={!!user}
+              initialCheckedInToday={checkedInToday}
+            />
+          ) : (
+            <p className="rounded-xl bg-[var(--color-pale)] px-4 py-3 text-sm text-[var(--color-muted)]">
+              Chưa có dữ liệu vị trí để mở bản đồ.
+            </p>
+          )}
         </div>
       </section>
 
@@ -172,7 +181,7 @@ export default async function RestaurantPage({ params }: Props) {
                 </div>
 
                 <p className="text-[11px] text-[var(--color-muted)] text-center pt-1 border-t border-[var(--color-line)]">
-                  Lần ghé được tự động ghi nhận khi bạn mở Google Maps chỉ đường tới quán.
+                  Lần ghé được ghi nhận khi bạn xác nhận ăn ở quán hoặc mở Google Maps chỉ đường.
                 </p>
               </div>
             ) : (
@@ -182,7 +191,7 @@ export default async function RestaurantPage({ params }: Props) {
                   Bạn chưa từng ghé quán này
                 </p>
                 <p className="text-xs text-[var(--color-muted)] leading-relaxed">
-                  Bấm nút <strong>“Mở trên Google Maps”</strong> ở phía trên để tìm đường tới quán. Hệ thống sẽ tự động ghi nhớ và nhắc bạn lưu vào nhật ký ăn uống!
+                  Bấm nút <strong>“Tôi đã ăn ở đây”</strong> hoặc <strong>“Chỉ đường Google Maps”</strong> ở phía trên để lưu vào nhật ký ăn uống và duy trì chuỗi ăn liên tiếp!
                 </p>
               </div>
             )}

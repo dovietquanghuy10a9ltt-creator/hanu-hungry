@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { requireAdmin } from "@/lib/auth/session";
 
@@ -21,7 +22,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Image src="/brand/logo.png" alt="" width={36} height={36} className="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
           <span className="brand-display text-xl sm:text-2xl leading-none">{siteConfig.name}</span>
           <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-[var(--color-pale)] text-[var(--color-red)] px-2 py-0.5 rounded-full border border-[#f0c2c6]">
-            <Image src="/icons/nav/admin.png" alt="" width={14} height={14} unoptimized className="object-contain shrink-0" />
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
             Admin
           </span>
         </Link>

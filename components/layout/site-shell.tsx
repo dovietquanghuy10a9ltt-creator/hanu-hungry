@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Bell, User } from "lucide-react";
 import { Navigation } from "@/components/layout/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
@@ -82,14 +83,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                     aria-label={`Thông báo bài viết từ Admin${unreadNotificationsCount > 0 ? ` (${unreadNotificationsCount} chưa đọc)` : ""}`}
                     title="Thông báo bài viết từ Admin"
                   >
-                    <Image
-                      src="/icons/shared/bell.png"
-                      alt=""
-                      width={24}
-                      height={24}
-                      unoptimized
-                      className="h-5 w-5 sm:h-6 sm:w-6 object-contain transition-transform group-hover:scale-110"
-                    />
+                    <Bell className="h-4.5 w-4.5 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
                     {unreadNotificationsCount > 0 && (
                       <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 sm:h-5 sm:min-w-5 items-center justify-center rounded-full bg-[var(--color-red)] px-1 text-[10px] sm:text-[11px] font-black text-white shadow-sm animate-pulse">
                         {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
@@ -123,7 +117,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
                     {profile?.avatar_url ? (
                       <Image src={profile.avatar_url} alt="" width={24} height={24} unoptimized className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover shrink-0" />
                     ) : (
-                      <Image src="/icons/nav/profile.png" alt="" width={24} height={24} unoptimized className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-contain shrink-0" />
+                      <User className="h-4.5 w-4.5 sm:h-5 sm:w-5 shrink-0" />
                     )}
                     <span className="hidden sm:inline truncate max-w-[110px]">{profile?.display_name || user.email?.split("@")[0] || "Tài khoản"}</span>
                     <span className="sm:hidden text-xs font-bold">Hồ sơ</span>

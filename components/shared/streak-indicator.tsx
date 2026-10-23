@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { Flame, Calendar, Trophy } from "lucide-react";
 
 export interface WeekDayStreak {
   dayLabel: string;
@@ -77,17 +77,12 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
         }
         aria-label="Thông tin chuỗi ăn uống"
       >
-        {/* Custom Sticker Flame Icon */}
-        <Image
-          src={isTodayCheckedIn ? "/icons/streak/flame-active.png" : "/icons/streak/flame-inactive.png"}
-          alt=""
-          width={24}
-          height={24}
-          unoptimized
-          className={`h-5 w-5 sm:h-5.5 sm:w-5.5 object-contain transition-transform duration-300 group-hover:scale-115 ${
+        {/* Flame Icon */}
+        <Flame
+          className={`h-5 w-5 sm:h-5.5 sm:w-5.5 transition-transform duration-300 group-hover:scale-115 ${
             isTodayCheckedIn
-              ? "drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] animate-pulse"
-              : "opacity-60 grayscale"
+              ? "text-orange-500 fill-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] animate-pulse"
+              : "text-stone-400 opacity-60"
           }`}
         />
 
@@ -115,16 +110,11 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
                   : "bg-gray-100 border-2 border-gray-200"
               }`}
             >
-              <Image
-                src={isTodayCheckedIn ? "/icons/streak/flame-active.png" : "/icons/streak/flame-inactive.png"}
-                alt=""
-                width={48}
-                height={48}
-                unoptimized
-                className={`h-12 w-12 object-contain ${
+              <Flame
+                className={`h-10 w-10 ${
                   isTodayCheckedIn
-                    ? "drop-shadow-[0_0_12px_rgba(249,115,22,0.8)] animate-bounce"
-                    : "grayscale opacity-50"
+                    ? "text-orange-500 fill-orange-500 drop-shadow-[0_0_12px_rgba(249,115,22,0.8)] animate-bounce"
+                    : "text-gray-400 opacity-50"
                 }`}
               />
             </div>
@@ -146,14 +136,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
           <div className="rounded-2xl border border-[var(--color-line)] bg-[#fcfaf7] p-3.5 space-y-2">
             <div className="flex items-center justify-between text-[11px] font-bold text-[var(--color-muted)] px-1 uppercase tracking-wider">
               <span className="flex items-center gap-1.5">
-                <Image
-                  src="/icons/streak/calendar.png"
-                  alt=""
-                  width={16}
-                  height={16}
-                  unoptimized
-                  className="h-4 w-4 object-contain"
-                />
+                <Calendar className="h-3.5 w-3.5 text-stone-500" />
                 <span>Tuần này</span>
               </span>
               {isTodayCheckedIn && (
@@ -176,23 +159,9 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
                     }`}
                   >
                     {day.checkedIn ? (
-                      <Image
-                        src="/icons/streak/flame-active.png"
-                        alt=""
-                        width={20}
-                        height={20}
-                        unoptimized
-                        className="h-4 w-4 object-contain"
-                      />
+                      <Flame className="h-4 w-4 text-white fill-white" />
                     ) : day.isToday ? (
-                      <Image
-                        src="/icons/streak/flame-inactive.png"
-                        alt=""
-                        width={16}
-                        height={16}
-                        unoptimized
-                        className="h-3.5 w-3.5 object-contain opacity-50 grayscale"
-                      />
+                      <Flame className="h-3.5 w-3.5 text-orange-500 fill-orange-500 opacity-60" />
                     ) : (
                       <span className="text-[10px]">•</span>
                     )}
@@ -215,7 +184,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
           <div className="flex items-center justify-between text-xs border-t border-[var(--color-line)] pt-3 px-1">
             <span className="text-[var(--color-muted)]">Kỷ lục chuỗi dài nhất:</span>
             <span className="font-extrabold text-[var(--color-red)] flex items-center gap-1">
-              <span>🏆</span> {longestStreak} ngày
+              <Trophy className="h-3.5 w-3.5 text-amber-500 inline" /> {longestStreak} ngày
             </span>
           </div>
 
@@ -249,14 +218,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
               
               {/* Giant Flame */}
               <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-t from-orange-500 via-amber-400 to-yellow-300 p-4 shadow-xl animate-bounce">
-                <Image
-                  src="/icons/streak/flame-active.png"
-                  alt=""
-                  width={80}
-                  height={80}
-                  unoptimized
-                  className="h-20 w-20 object-contain drop-shadow-md"
-                />
+                <Flame className="h-18 w-18 text-white fill-white drop-shadow-md" />
               </div>
             </div>
 
@@ -280,14 +242,7 @@ export function StreakIndicator({ streak }: { streak: StreakData }) {
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 py-3.5 text-base font-black uppercase tracking-wider text-white shadow-lg transition hover:from-orange-600 hover:to-amber-600 active:scale-95 cursor-pointer"
             >
               <span>Tiếp tục</span>
-              <Image
-                src="/icons/streak/flame-active.png"
-                alt=""
-                width={20}
-                height={20}
-                unoptimized
-                className="h-5 w-5 object-contain"
-              />
+              <Flame className="h-5 w-5 text-white fill-white" />
             </button>
           </div>
         </div>

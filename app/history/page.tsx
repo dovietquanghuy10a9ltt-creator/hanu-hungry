@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Utensils, Flame, Calendar, Clock } from "lucide-react";
 import { DeleteCheckInForm } from "@/features/history/components/DeleteCheckInForm";
 import { getOwnCheckIns } from "@/features/history/data";
 import { historyStats } from "@/features/history/stats";
@@ -12,14 +12,32 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   const stats = historyStats(checkIns);
 
   const statItems = [
-    { label: "Tổng lần đã ăn", value: stats.total, icon: "/icons/gacha/food.png" },
+    {
+      label: "Tổng lần đã ăn",
+      value: stats.total,
+      icon: <Utensils className="h-8 w-8 text-amber-500 shrink-0" />,
+    },
     {
       label: "Chuỗi hiện tại",
       value: `${stats.currentStreak} ngày`,
-      icon: stats.currentStreak > 0 ? "/icons/streak/flame-active.png" : "/icons/streak/flame-inactive.png",
+      icon: (
+        <Flame
+          className={`h-8 w-8 shrink-0 ${
+            stats.currentStreak > 0 ? "fill-orange-500 text-orange-500 animate-pulse" : "text-gray-300"
+          }`}
+        />
+      ),
     },
-    { label: "Chuỗi dài nhất", value: `${stats.longestStreak} ngày`, icon: "/icons/streak/flame-active.png" },
-    { label: "Tuần này", value: `${stats.weeklyVisits} lần`, icon: "/icons/streak/calendar.png" },
+    {
+      label: "Chuỗi dài nhất",
+      value: `${stats.longestStreak} ngày`,
+      icon: <Flame className="h-8 w-8 fill-orange-500 text-orange-500 shrink-0" />,
+    },
+    {
+      label: "Tuần này",
+      value: `${stats.weeklyVisits} lần`,
+      icon: <Calendar className="h-8 w-8 text-rose-500 shrink-0" />,
+    },
   ];
 
   return (
@@ -45,14 +63,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
               <strong className="text-2xl font-black text-[var(--color-red)]">{item.value}</strong>
               <p className="mt-1 text-xs font-semibold text-[var(--color-muted)]">{item.label}</p>
             </div>
-            <Image
-              src={item.icon}
-              alt=""
-              width={40}
-              height={40}
-              unoptimized
-              className="h-10 w-10 object-contain shrink-0"
-            />
+            {item.icon}
           </div>
         ))}
       </div>
@@ -78,14 +89,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                       Món: {checkIn.dishes.name} ·{" "}
                     </span>
                   )}
-                  <Image
-                    src="/icons/shared/clock.png"
-                    alt=""
-                    width={16}
-                    height={16}
-                    unoptimized
-                    className="h-3.5 w-3.5 object-contain inline shrink-0"
-                  />
+                  <Clock className="h-3.5 w-3.5 inline shrink-0 text-[var(--color-muted)]" />
                   <span>
                     {new Intl.DateTimeFormat("vi-VN", {
                       dateStyle: "medium",

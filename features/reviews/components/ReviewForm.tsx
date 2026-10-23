@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { Star, Trash2 } from "lucide-react";
 import { createReview, updateReview, deleteReview } from "@/features/reviews/actions";
 
 interface ReviewFormProps {
@@ -87,14 +87,7 @@ export function ReviewForm({ restaurantId, ownReview }: ReviewFormProps) {
           <div className="min-h-6 flex items-center justify-center">
             {activeRating > 0 ? (
               <span className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[var(--color-red)] animate-fadeIn">
-                <Image
-                  src="/icons/shared/star.png"
-                  alt=""
-                  width={20}
-                  height={20}
-                  unoptimized
-                  className="h-5 w-5 object-contain inline"
-                />
+                <Star className="h-5 w-5 fill-amber-400 text-amber-400 inline" />
                 <span>{activeRating}/5 sao — {RATING_LABELS[activeRating]}</span>
               </span>
             ) : (
@@ -161,9 +154,10 @@ export function ReviewForm({ restaurantId, ownReview }: ReviewFormProps) {
           <input type="hidden" name="restaurantId" value={restaurantId} />
           <button
             type="submit"
-            className="text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer"
           >
-            🗑️ Xóa đánh giá này
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Xóa đánh giá này</span>
           </button>
         </form>
       )}
