@@ -81,17 +81,17 @@ export function RestaurantActionButtons({
           {isPending ? (
             <>
               <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-              <span>Đang lưu chuỗi...</span>
+              <span>Đang lưu...</span>
             </>
           ) : isCheckedIn ? (
             <>
               <CheckCircle className="h-4 w-4 shrink-0" />
-              <span>Đã check-in ăn hôm nay ✓</span>
+              <span>Đã chọn hôm nay ✓</span>
             </>
           ) : (
             <>
               <Flame className="h-4 w-4 shrink-0 fill-amber-300 text-amber-300 animate-pulse" />
-              <span>Tôi đã ăn ở đây (Cộng chuỗi)</span>
+              <span>Chọn quán này</span>
             </>
           )}
         </button>

@@ -398,7 +398,7 @@ export function GachaExperience({
                       ) : (
                         <>
                           <Flame className="h-4 w-4 shrink-0 fill-amber-300 text-amber-300 animate-pulse" />
-                          <span>Chọn ăn quán này (Cộng chuỗi)</span>
+                          <span>Chọn quán này</span>
                         </>
                       )}
                     </button>

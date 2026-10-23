@@ -191,7 +191,7 @@ export default async function RestaurantPage({ params }: Props) {
                   Bạn chưa từng ghé quán này
                 </p>
                 <p className="text-xs text-[var(--color-muted)] leading-relaxed">
-                  Bấm nút <strong>“Tôi đã ăn ở đây”</strong> hoặc <strong>“Chỉ đường Google Maps”</strong> ở phía trên để lưu vào nhật ký ăn uống và duy trì chuỗi ăn liên tiếp!
+                  Bấm nút <strong>“Chọn quán này”</strong> hoặc <strong>“Chỉ đường Google Maps”</strong> ở phía trên để lưu vào nhật ký ăn uống và duy trì chuỗi ăn liên tiếp!
                 </p>
               </div>
             )}
