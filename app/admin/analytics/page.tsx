@@ -9,6 +9,32 @@ import {
   type SystemAccount,
 } from "@/features/admin/components/AdminInteractiveAnalytics";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+async function getAllAuthUsers(adminSupabase: ReturnType<typeof createAdminClient>) {
+  try {
+    const allUsers: Array<{ id: string; email?: string; last_sign_in_at?: string | null }> = [];
+    let page = 1;
+    const perPage = 1000;
+    while (true) {
+      const { data, error } = await adminSupabase.auth.admin.listUsers({ page, perPage });
+      if (error) {
+        console.error("[admin-analytics] listUsers error:", error.message);
+        break;
+      }
+      if (!data?.users || data.users.length === 0) break;
+      allUsers.push(...data.users);
+      if (!data.nextPage || data.users.length < perPage) break;
+      page = data.nextPage;
+    }
+    return allUsers;
+  } catch (err) {
+    console.error("[admin-analytics] getAllAuthUsers error:", err);
+    return [];
+  }
+}
+
 export default async function AdminAnalyticsPage() {
   await requireAdmin();
 
@@ -19,7 +45,7 @@ export default async function AdminAnalyticsPage() {
     { data: rpcData, error: rpcError },
     { data: rawCheckIns, error: checkInsError },
     { data: rawProfiles },
-    authUsersRes,
+    authUsers,
   ] = await Promise.all([
     supabase.rpc("admin_analytics"),
     adminSupabase
@@ -30,7 +56,7 @@ export default async function AdminAnalyticsPage() {
       .from("profiles")
       .select("id, student_code, display_name, avatar_url, role, created_at, updated_at")
       .order("created_at", { ascending: false }),
-    adminSupabase.auth.admin.listUsers().catch(() => ({ data: { users: [] } })),
+    getAllAuthUsers(adminSupabase),
   ]);
 
   if (rpcError && checkInsError) {
@@ -96,22 +122,32 @@ export default async function AdminAnalyticsPage() {
   });
 
   const emailMap = new Map(
-    (authUsersRes?.data?.users ?? []).map((u) => [
+    authUsers.map((u) => [
       u.id,
       { email: u.email ?? "—", lastSignIn: u.last_sign_in_at ?? null },
     ])
   );
 
-  const formattedAccounts: SystemAccount[] = (rawProfiles as unknown as ProfileRow[] ?? []).map((p) => ({
-    id: p.id,
-    student_code: p.student_code,
-    display_name: p.display_name,
-    avatar_url: p.avatar_url,
-    role: p.role,
-    email: emailMap.get(p.id)?.email ?? "—",
-    created_at: p.created_at,
-    last_sign_in_at: emailMap.get(p.id)?.lastSignIn ?? null,
-  }));
+  const formattedAccounts: SystemAccount[] = (rawProfiles as unknown as ProfileRow[] ?? []).map((p) => {
+    const authInfo = emailMap.get(p.id);
+    const email =
+      authInfo?.email && authInfo.email !== "—"
+        ? authInfo.email
+        : p.student_code
+        ? `${p.student_code}@hanu.edu.vn`
+        : "—";
+
+    return {
+      id: p.id,
+      student_code: p.student_code,
+      display_name: p.display_name,
+      avatar_url: p.avatar_url,
+      role: p.role,
+      email,
+      created_at: p.created_at,
+      last_sign_in_at: authInfo?.lastSignIn ?? null,
+    };
+  });
 
   return (
     <AdminInteractiveAnalytics

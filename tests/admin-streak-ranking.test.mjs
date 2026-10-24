@@ -199,3 +199,53 @@ test("Streak ranking aggregation logic from accounts and checkIns", () => {
   });
   assert.equal(sortedByLongest[0].userId, "user-2"); // 5 days longest
 });
+
+test("getAllAuthUsers paginates beyond default 50 user limit", async () => {
+  // Mock adminSupabase with 92 users across multiple pages or with perPage 1000
+  const mockAllUsers = Array.from({ length: 92 }, (_, i) => ({
+    id: `u-${i + 1}`,
+    email: `student${i + 1}@hanu.edu.vn`,
+    last_sign_in_at: i % 2 === 0 ? "2026-10-24T12:00:00Z" : null,
+  }));
+
+  const mockAdminSupabase = {
+    auth: {
+      admin: {
+        async listUsers({ page = 1, perPage = 50 } = {}) {
+          const start = (page - 1) * perPage;
+          const users = mockAllUsers.slice(start, start + perPage);
+          const nextPage = start + perPage < mockAllUsers.length ? page + 1 : null;
+          return { data: { users, nextPage }, error: null };
+        },
+      },
+    },
+  };
+
+  async function getAllAuthUsers(adminSupabase) {
+    const allUsers = [];
+    let page = 1;
+    const perPage = 1000;
+    while (true) {
+      const { data, error } = await adminSupabase.auth.admin.listUsers({ page, perPage });
+      if (error || !data?.users || data.users.length === 0) break;
+      allUsers.push(...data.users);
+      if (!data.nextPage || data.users.length < perPage) break;
+      page = data.nextPage;
+    }
+    return allUsers;
+  }
+
+  // With perPage = 1000, all 92 users are fetched in page 1
+  const fetched = await getAllAuthUsers(mockAdminSupabase);
+  assert.equal(fetched.length, 92);
+  assert.equal(fetched[0].id, "u-1");
+  assert.equal(fetched[91].id, "u-92");
+  assert.equal(fetched[91].email, "student92@hanu.edu.vn");
+
+  // Verify emailMap covers all 92 users
+  const emailMap = new Map(fetched.map((u) => [u.id, { email: u.email, lastSignIn: u.last_sign_in_at }]));
+  assert.equal(emailMap.get("u-92").email, "student92@hanu.edu.vn");
+  assert.ok(emailMap.has("u-76"));
+  assert.ok(emailMap.has("u-90"));
+});
+
