@@ -9,6 +9,7 @@ import type {
   SystemAccount,
   PeriodOption,
   MetricTab,
+  UserStreakRankingItem,
 } from "./analytics/types";
 import {
   CHART_COLORS,
@@ -21,6 +22,8 @@ import {
   Leaderboard,
 } from "./analytics/AnalyticsCharts";
 import { AccountsTable } from "./analytics/AccountsTable";
+import { StreakLeaderboard } from "./analytics/StreakLeaderboard";
+import { historyStats, localDayOrdinal } from "@/features/history/stats";
 
 export type {
   RawCheckIn,
@@ -28,6 +31,7 @@ export type {
   SystemAccount,
   PeriodOption,
   MetricTab,
+  UserStreakRankingItem,
 };
 
 export function AdminInteractiveAnalytics({
@@ -139,6 +143,91 @@ export function AdminInteractiveAnalytics({
     }
     return Array.from(userCounts.values()).sort((a, b) => b.count - a.count);
   }, [filteredCheckIns]);
+
+  // 3b. Streak ranking across all user accounts
+  const streakRanking = useMemo<UserStreakRankingItem[]>(() => {
+    // Group all checkIns by user_id
+    const userCheckInsMap = new Map<string, Array<{ restaurant_id: string; visited_at: string }>>();
+    const lastVisitedMap = new Map<string, string>();
+    const userMetaMap = new Map<string, { displayName: string; studentCode?: string }>();
+
+    for (const ci of checkIns) {
+      if (!ci.user_id) continue;
+      let list = userCheckInsMap.get(ci.user_id);
+      if (!list) {
+        list = [];
+        userCheckInsMap.set(ci.user_id, list);
+      }
+      list.push({ restaurant_id: ci.restaurant_id, visited_at: ci.visited_at });
+
+      if (!lastVisitedMap.has(ci.user_id) || new Date(ci.visited_at) > new Date(lastVisitedMap.get(ci.user_id)!)) {
+        lastVisitedMap.set(ci.user_id, ci.visited_at);
+      }
+
+      if (!userMetaMap.has(ci.user_id) && (ci.user_name || ci.student_code)) {
+        userMetaMap.set(ci.user_id, {
+          displayName: ci.user_name || "Thành viên",
+          studentCode: ci.student_code,
+        });
+      }
+    }
+
+    const todayOrd = localDayOrdinal(new Date());
+    const seenUserIds = new Set<string>();
+    const ranking: UserStreakRankingItem[] = [];
+
+    // 1. Process accounts list
+    for (const acc of accounts) {
+      seenUserIds.add(acc.id);
+      const userCIs = userCheckInsMap.get(acc.id) || [];
+      const stats = historyStats(userCIs);
+      const daySet = new Set(userCIs.map((item) => localDayOrdinal(new Date(item.visited_at))));
+      const isTodayCheckedIn = daySet.has(todayOrd);
+
+      ranking.push({
+        userId: acc.id,
+        studentCode: acc.student_code,
+        displayName: acc.display_name,
+        avatarUrl: acc.avatar_url,
+        role: acc.role,
+        email: acc.email,
+        currentStreak: stats.currentStreak,
+        longestStreak: stats.longestStreak,
+        isTodayCheckedIn,
+        totalCheckIns: userCIs.length,
+        lastCheckInAt: lastVisitedMap.get(acc.id) || null,
+      });
+    }
+
+    // 2. Include any user present in check-ins but not in accounts table (edge case fallback)
+    for (const [userId, userCIs] of userCheckInsMap.entries()) {
+      if (seenUserIds.has(userId)) continue;
+      const meta = userMetaMap.get(userId);
+      const stats = historyStats(userCIs);
+      const daySet = new Set(userCIs.map((item) => localDayOrdinal(new Date(item.visited_at))));
+      const isTodayCheckedIn = daySet.has(todayOrd);
+
+      ranking.push({
+        userId,
+        studentCode: meta?.studentCode || "—",
+        displayName: meta?.displayName || "Thành viên",
+        avatarUrl: null,
+        role: "USER",
+        email: "—",
+        currentStreak: stats.currentStreak,
+        longestStreak: stats.longestStreak,
+        isTodayCheckedIn,
+        totalCheckIns: userCIs.length,
+        lastCheckInAt: lastVisitedMap.get(userId) || null,
+      });
+    }
+
+    return ranking;
+  }, [checkIns, accounts]);
+
+  const activeStreakCount = useMemo(() => {
+    return streakRanking.filter((item) => item.currentStreak > 0).length;
+  }, [streakRanking]);
 
   // 4. Area Chart daily activity
   const dailyActivity = useMemo(() => {
@@ -288,6 +377,7 @@ export function AdminInteractiveAnalytics({
             className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-pale)] py-2.5 pl-4 pr-10 text-sm font-bold text-[var(--color-ink)] hover:bg-[#ebdccc] focus:border-[var(--color-red)] focus:outline-none cursor-pointer shadow-xs transition"
           >
             <option value="accounts">👥 Danh sách tài khoản ({accounts.length})</option>
+            <option value="streaks">🔥 Ranking chuỗi của user ({activeStreakCount} đang giữ chuỗi)</option>
             <option value="dishes">🍜 Món ăn nhiều nhất</option>
             <option value="restaurants">🏪 Quán ghé thăm nhiều nhất</option>
             <option value="users">🏆 Ai ăn nhiều nhất</option>
@@ -301,10 +391,11 @@ export function AdminInteractiveAnalytics({
       {/* 1. ACCOUNTS DIRECTORY TAB */}
       {activeTab === "accounts" && <AccountsTable accounts={accounts} />}
 
-
+      {/* 2. STREAKS LEADERBOARD TAB */}
+      {activeTab === "streaks" && <StreakLeaderboard items={streakRanking} />}
 
       {/* 3. DATE RANGE FILTER CONTROL PANEL (Chỉ hiển thị cho các mục thống kê dữ liệu check-in) */}
-      {activeTab !== "accounts" && (
+      {activeTab !== "accounts" && activeTab !== "streaks" && (
         <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>

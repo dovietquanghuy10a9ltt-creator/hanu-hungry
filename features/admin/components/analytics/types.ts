@@ -30,4 +30,19 @@ export type SystemAccount = {
 };
 
 export type PeriodOption = "week" | "month" | "year" | "custom";
-export type MetricTab = "accounts" | "dishes" | "restaurants" | "users";
+export type MetricTab = "accounts" | "dishes" | "restaurants" | "users" | "streaks";
+
+export type UserStreakRankingItem = {
+  userId: string;
+  studentCode: string;
+  displayName: string;
+  avatarUrl: string | null;
+  role: "USER" | "ADMIN";
+  email: string;
+  currentStreak: number;
+  longestStreak: number;
+  isTodayCheckedIn: boolean;
+  totalCheckIns: number;
+  lastCheckInAt: string | null;
+};
+
