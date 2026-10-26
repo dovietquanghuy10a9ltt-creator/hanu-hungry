@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SiteShell } from "@/components/layout/site-shell";
 import { siteConfig } from "@/config/site";
@@ -141,9 +142,30 @@ const jsonLd = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID || "G-0VN44M6F6E";
+
   return (
     <html lang="vi" suppressHydrationWarning className={`${hermeneus.variable} ${calistoga.variable} ${hennyPenny.variable} ${crayonette.variable} ${hemgjord.variable} ${cdaMely.variable}`}>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
+        {/* Google Analytics 4 (gtag.js) */}
+        {gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
