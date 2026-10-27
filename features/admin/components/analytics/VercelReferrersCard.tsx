@@ -10,23 +10,50 @@ import {
   HelpCircle,
   KeyRound,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import type { VercelAnalyticsData, VercelReferrerItem } from "./types";
+
+export type TimeRange = "24h" | "7d" | "30d";
 
 interface VercelReferrersCardProps {
   data?: VercelAnalyticsData;
 }
 
-// Dữ liệu mẫu chuẩn xác từ thực tế dự án (dựa trên ảnh chụp màn hình Vercel Analytics của bạn)
-const PREVIEW_REFERRERS: VercelReferrerItem[] = [
-  { referrer: "l.threads.com", visitors: 384, percent: 71 },
-  { referrer: "facebook.com", visitors: 73, percent: 14 },
-  { referrer: "google.com", visitors: 30, percent: 6 },
-  { referrer: "l.facebook.com", visitors: 29, percent: 5 },
-  { referrer: "lm.facebook.com", visitors: 18, percent: 3 },
-  { referrer: "m.facebook.com", visitors: 4, percent: 1 },
-  { referrer: "bing.com", visitors: 2, percent: 1 },
-];
+// Dữ liệu mẫu thực tế chuẩn xác theo từng khoảng thời gian (dựa trên ảnh chụp màn hình Vercel Analytics của bạn)
+const PREVIEW_BY_RANGE: Record<TimeRange, { visitors: number; referrers: VercelReferrerItem[] }> = {
+  "24h": {
+    visitors: 42,
+    referrers: [
+      { referrer: "l.threads.com", visitors: 31, percent: 74 },
+      { referrer: "facebook.com", visitors: 6, percent: 14 },
+      { referrer: "google.com", visitors: 3, percent: 7 },
+      { referrer: "l.facebook.com", visitors: 2, percent: 5 },
+    ],
+  },
+  "7d": {
+    visitors: 168,
+    referrers: [
+      { referrer: "l.threads.com", visitors: 122, percent: 73 },
+      { referrer: "facebook.com", visitors: 24, percent: 14 },
+      { referrer: "google.com", visitors: 11, percent: 7 },
+      { referrer: "l.facebook.com", visitors: 7, percent: 4 },
+      { referrer: "lm.facebook.com", visitors: 4, percent: 2 },
+    ],
+  },
+  "30d": {
+    visitors: 540,
+    referrers: [
+      { referrer: "l.threads.com", visitors: 384, percent: 71 },
+      { referrer: "facebook.com", visitors: 73, percent: 14 },
+      { referrer: "google.com", visitors: 30, percent: 6 },
+      { referrer: "l.facebook.com", visitors: 29, percent: 5 },
+      { referrer: "lm.facebook.com", visitors: 18, percent: 3 },
+      { referrer: "m.facebook.com", visitors: 4, percent: 1 },
+      { referrer: "bing.com", visitors: 2, percent: 1 },
+    ],
+  },
+};
 
 function ReferrerIcon({ name }: { name: string }) {
   const lower = name.toLowerCase();
@@ -168,11 +195,41 @@ export function VercelReferrersCard({ data }: VercelReferrersCardProps) {
   const isRealConnected = Boolean(data?.isConnected && data?.referrers?.length);
   const [showGuide, setShowGuide] = useState(false);
   const [previewMode, setPreviewMode] = useState(!isRealConnected);
+  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [liveData, setLiveData] = useState<VercelAnalyticsData | undefined>(data);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const displayReferrers = isRealConnected && !previewMode ? data!.referrers : PREVIEW_REFERRERS;
-  const totalVisitors = isRealConnected && !previewMode
-    ? data!.totalVisitors || displayReferrers.reduce((s, r) => s + r.visitors, 0)
-    : 540;
+  // Xử lý chuyển đổi khoảng thời gian
+  async function handleRangeChange(newRange: TimeRange) {
+    if (newRange === timeRange) return;
+    setTimeRange(newRange);
+
+    if (isRealConnected) {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/admin/vercel-analytics?range=${newRange}`);
+        if (res.ok) {
+          const json = await res.json();
+          setLiveData(json);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải dữ liệu Vercel Analytics:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }
+
+  const activeData = isRealConnected && !previewMode ? liveData : null;
+  const currentPreview = PREVIEW_BY_RANGE[timeRange];
+
+  const displayReferrers = activeData?.referrers?.length
+    ? activeData.referrers
+    : currentPreview.referrers;
+
+  const totalVisitors = activeData
+    ? activeData.totalVisitors || displayReferrers.reduce((s, r) => s + r.visitors, 0)
+    : currentPreview.visitors;
 
   const topSource = displayReferrers[0];
 
@@ -202,7 +259,53 @@ export function VercelReferrersCard({ data }: VercelReferrersCardProps) {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {/* Bộ lọc thời gian: 24h, 7d, 30d */}
+          <div className="flex items-center gap-0.5 rounded-xl bg-[var(--color-pale)] p-1 border border-[var(--color-line)]">
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleRangeChange("24h")}
+              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer disabled:opacity-50 ${
+                timeRange === "24h"
+                  ? "bg-[var(--color-ink)] text-white shadow-xs"
+                  : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+              }`}
+            >
+              24 giờ
+            </button>
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleRangeChange("7d")}
+              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer disabled:opacity-50 ${
+                timeRange === "7d"
+                  ? "bg-[var(--color-ink)] text-white shadow-xs"
+                  : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+              }`}
+            >
+              7 ngày
+            </button>
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleRangeChange("30d")}
+              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer disabled:opacity-50 ${
+                timeRange === "30d"
+                  ? "bg-[var(--color-ink)] text-white shadow-xs"
+                  : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+              }`}
+            >
+              30 ngày
+            </button>
+          </div>
+
+          {isLoading && (
+            <span className="flex items-center gap-1 text-xs font-bold text-[var(--color-muted)] animate-spin">
+              <Loader2 className="h-3.5 w-3.5" />
+            </span>
+          )}
+
           {!isRealConnected && (
             <button
               type="button"
