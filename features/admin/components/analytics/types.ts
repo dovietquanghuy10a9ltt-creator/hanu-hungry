@@ -46,3 +46,16 @@ export type UserStreakRankingItem = {
   lastCheckInAt: string | null;
 };
 
+export type VercelReferrerItem = {
+  referrer: string;
+  visitors: number;
+  percent: number;
+};
+
+export type VercelAnalyticsData = {
+  isConnected: boolean;
+  totalVisitors: number;
+  referrers: VercelReferrerItem[];
+  error?: string;
+};
+

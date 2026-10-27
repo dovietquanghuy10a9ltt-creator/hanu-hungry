@@ -14,17 +14,19 @@ import {
   ChevronsRight,
   SearchX,
 } from "lucide-react";
-import type { SystemAccount } from "./types";
+import type { SystemAccount, VercelAnalyticsData } from "./types";
 import { formatRelativeTime } from "./utils";
+import { VercelReferrersCard } from "./VercelReferrersCard";
 
 const ACCOUNTS_PER_PAGE = 15;
 const CLUSTER_SIZE = 5;
 
 interface AccountsTableProps {
   accounts: SystemAccount[];
+  vercelAnalytics?: VercelAnalyticsData;
 }
 
-export function AccountsTable({ accounts }: AccountsTableProps) {
+export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps) {
   const [accountSearch, setAccountSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
   const [accountPage, setAccountPage] = useState(1);
@@ -101,6 +103,9 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
 
   return (
     <div className="space-y-6">
+      {/* Vercel Web Analytics Widget (Referrers & Visitors) */}
+      <VercelReferrersCard data={vercelAnalytics} />
+
       {/* Summary Cards */}
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-[var(--color-line)] bg-white p-4 shadow-xs">

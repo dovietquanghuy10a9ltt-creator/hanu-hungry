@@ -7,7 +7,9 @@ import {
   type RawCheckIn,
   type AnalyticsSummary,
   type SystemAccount,
+  type VercelAnalyticsData,
 } from "@/features/admin/components/AdminInteractiveAnalytics";
+import { getVercelAnalyticsData } from "@/lib/analytics/vercel";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -46,6 +48,7 @@ export default async function AdminAnalyticsPage() {
     { data: rawCheckIns, error: checkInsError },
     { data: rawProfiles },
     authUsers,
+    vercelAnalytics,
   ] = await Promise.all([
     supabase.rpc("admin_analytics"),
     adminSupabase
@@ -57,6 +60,7 @@ export default async function AdminAnalyticsPage() {
       .select("id, student_code, display_name, avatar_url, role, created_at, updated_at")
       .order("created_at", { ascending: false }),
     getAllAuthUsers(adminSupabase),
+    getVercelAnalyticsData(),
   ]);
 
   if (rpcError && checkInsError) {
@@ -154,6 +158,7 @@ export default async function AdminAnalyticsPage() {
       summary={summary}
       checkIns={formattedCheckIns}
       accounts={formattedAccounts}
+      vercelAnalytics={vercelAnalytics}
     />
   );
 }

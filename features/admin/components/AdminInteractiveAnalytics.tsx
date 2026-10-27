@@ -10,17 +10,13 @@ import type {
   PeriodOption,
   MetricTab,
   UserStreakRankingItem,
+  VercelAnalyticsData,
 } from "./analytics/types";
 import {
-  CHART_COLORS,
   formatDateVN,
   toISODateInput,
 } from "./analytics/utils";
-import {
-  DonutChart,
-  AreaChart,
-  Leaderboard,
-} from "./analytics/AnalyticsCharts";
+import { Leaderboard } from "./analytics/AnalyticsCharts";
 import { AccountsTable } from "./analytics/AccountsTable";
 import { StreakLeaderboard } from "./analytics/StreakLeaderboard";
 import { historyStats, localDayOrdinal } from "@/features/history/stats";
@@ -28,8 +24,6 @@ import {
   ChevronDown,
   Calendar,
   CalendarDays,
-  TrendingUp,
-  PieChart,
   UtensilsCrossed,
   Store,
   Trophy,
@@ -42,16 +36,19 @@ export type {
   PeriodOption,
   MetricTab,
   UserStreakRankingItem,
+  VercelAnalyticsData,
 };
 
 export function AdminInteractiveAnalytics({
   summary,
   checkIns,
   accounts = [],
+  vercelAnalytics,
 }: {
   summary: AnalyticsSummary;
   checkIns: RawCheckIn[];
   accounts?: SystemAccount[];
+  vercelAnalytics?: VercelAnalyticsData;
 }) {
   const [period, setPeriod] = useState<PeriodOption>("week");
   const [activeTab, setActiveTab] = useState<MetricTab>("accounts");
@@ -239,106 +236,7 @@ export function AdminInteractiveAnalytics({
     return streakRanking.filter((item) => item.currentStreak > 0).length;
   }, [streakRanking]);
 
-  // 4. Area Chart daily activity
-  const dailyActivity = useMemo(() => {
-    const dayMap = new Map<string, number>();
-    // Pre-populate days in range if period is <= 31 days
-    const diffDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)));
-    if (diffDays <= 31) {
-      for (let i = 0; i <= diffDays; i++) {
-        const d = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-        if (d <= endDate) {
-          dayMap.set(formatDateVN(d).slice(0, 5), 0);
-        }
-      }
-    }
 
-    for (const ci of filteredCheckIns) {
-      const d = new Date(ci.visited_at);
-      const label = diffDays > 31 ? `${d.getMonth() + 1}/${d.getFullYear()}` : formatDateVN(d).slice(0, 5);
-      dayMap.set(label, (dayMap.get(label) || 0) + 1);
-    }
-
-    return Array.from(dayMap.entries()).map(([label, count]) => ({ label, count }));
-  }, [filteredCheckIns, startDate, endDate]);
-
-  // 4b. Area Chart daily dish activity (chỉ tính lượt có món ăn cụ thể)
-  const dailyDishActivity = useMemo(() => {
-    const dayMap = new Map<string, number>();
-    const diffDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)));
-    if (diffDays <= 31) {
-      for (let i = 0; i <= diffDays; i++) {
-        const d = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-        if (d <= endDate) {
-          dayMap.set(formatDateVN(d).slice(0, 5), 0);
-        }
-      }
-    }
-
-    for (const ci of filteredCheckIns) {
-      if (ci.dish_name) {
-        const d = new Date(ci.visited_at);
-        const label = diffDays > 31 ? `${d.getMonth() + 1}/${d.getFullYear()}` : formatDateVN(d).slice(0, 5);
-        dayMap.set(label, (dayMap.get(label) || 0) + 1);
-      }
-    }
-
-    return Array.from(dayMap.entries()).map(([label, count]) => ({ label, count }));
-  }, [filteredCheckIns, startDate, endDate]);
-
-  // 5. Donut Chart distribution data (Top Restaurants)
-  const restaurantDonutData = useMemo(() => {
-    const total = filteredCheckIns.length;
-    if (total === 0) return [];
-    const top = topRestaurants.slice(0, 5);
-    const topCount = top.reduce((acc, r) => acc + r.count, 0);
-    const otherCount = total - topCount;
-
-    const slices = top.map((r, i) => ({
-      name: r.name,
-      count: r.count,
-      percent: Math.round((r.count / total) * 100),
-      color: CHART_COLORS[i % CHART_COLORS.length],
-    }));
-
-    if (otherCount > 0) {
-      slices.push({
-        name: "Các quán khác",
-        count: otherCount,
-        percent: Math.round((otherCount / total) * 100),
-        color: "#9ca3af",
-      });
-    }
-
-    return slices;
-  }, [filteredCheckIns.length, topRestaurants]);
-
-  // 6. Donut Chart distribution data (Top Dishes)
-  const dishDonutData = useMemo(() => {
-    const totalWithDishes = filteredCheckIns.filter((c) => Boolean(c.dish_name)).length;
-    if (totalWithDishes === 0) return [];
-    const top = topDishes.slice(0, 5);
-    const topCount = top.reduce((acc, d) => acc + d.count, 0);
-    const otherCount = totalWithDishes - topCount;
-
-    const slices = top.map((d, i) => ({
-      name: d.name,
-      count: d.count,
-      percent: Math.round((d.count / totalWithDishes) * 100),
-      color: CHART_COLORS[i % CHART_COLORS.length],
-    }));
-
-    if (otherCount > 0) {
-      slices.push({
-        name: "Các món khác",
-        count: otherCount,
-        percent: Math.round((otherCount / totalWithDishes) * 100),
-        color: "#9ca3af",
-      });
-    }
-
-    return slices;
-  }, [filteredCheckIns, topDishes]);
 
   return (
     <div className="space-y-8">
@@ -399,7 +297,9 @@ export function AdminInteractiveAnalytics({
       </div>
 
       {/* 1. ACCOUNTS DIRECTORY TAB */}
-      {activeTab === "accounts" && <AccountsTable accounts={accounts} />}
+      {activeTab === "accounts" && (
+        <AccountsTable accounts={accounts} vercelAnalytics={vercelAnalytics} />
+      )}
 
       {/* 2. STREAKS LEADERBOARD TAB */}
       {activeTab === "streaks" && <StreakLeaderboard items={streakRanking} />}
@@ -478,92 +378,7 @@ export function AdminInteractiveAnalytics({
         </div>
       )}
 
-      {/* 3. BIỂU ĐỒ (Charts Section) */}
-      {(activeTab === "restaurants" || activeTab === "dishes") && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Sơ đồ đường miền xu hướng */}
-          <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
-              <div>
-                <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-[var(--color-red)]" />
-                  <span>{activeTab === "dishes" ? "Xu hướng món ăn (Sơ đồ miền)" : "Xu hướng check-in quán (Sơ đồ miền)"}</span>
-                </h3>
-                <p className="text-xs text-[var(--color-muted)] mt-0.5">
-                  {activeTab === "dishes"
-                    ? "Số lượt thưởng thức món ăn theo các mốc thời gian"
-                    : "Số lượt check-in theo các mốc thời gian"}
-                </p>
-              </div>
-              <span className="rounded-full bg-[var(--color-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-red)]">
-                {activeTab === "dishes"
-                  ? `${filteredCheckIns.filter((c) => Boolean(c.dish_name)).length} lượt món`
-                  : `${filteredCheckIns.length} lượt`}
-              </span>
-            </div>
-
-            {activeTab === "dishes" ? (
-              filteredCheckIns.filter((c) => Boolean(c.dish_name)).length > 0 ? (
-                <AreaChart data={dailyDishActivity} />
-              ) : (
-                <p className="py-12 text-center text-sm text-[var(--color-muted)]">
-                  Chưa có dữ liệu check-in món ăn nào trong khoảng thời gian này.
-                </p>
-              )
-            ) : filteredCheckIns.length > 0 ? (
-              <AreaChart data={dailyActivity} />
-            ) : (
-              <p className="py-12 text-center text-sm text-[var(--color-muted)]">
-                Chưa có dữ liệu check-in trong khoảng thời gian này.
-              </p>
-            )}
-          </div>
-
-          {/* Sơ đồ tròn phân bổ (Tách biệt hoàn toàn món ăn và quán) */}
-          <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
-              <div>
-                <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
-                  <PieChart className="h-4 w-4 text-[var(--color-red)]" />
-                  <span>Phân bổ tỉ lệ (Sơ đồ tròn)</span>
-                </h3>
-                <p className="text-xs text-[var(--color-muted)] mt-0.5">
-                  {activeTab === "dishes" ? "Tỉ lệ theo món ăn" : "Tỉ lệ theo quán ăn ghé thăm"}
-                </p>
-              </div>
-              <span className="text-xs text-[var(--color-muted)]">
-                {periodLabel}
-              </span>
-            </div>
-
-            {activeTab === "dishes" ? (
-              dishDonutData.length > 0 ? (
-                <DonutChart
-                  items={dishDonutData}
-                  total={filteredCheckIns.filter((c) => Boolean(c.dish_name)).length}
-                  title="Tỉ lệ món ăn"
-                />
-              ) : (
-                <p className="py-12 text-center text-sm text-[var(--color-muted)]">
-                  Chưa có món ăn nào được ghi nhận check-in trong khoảng thời gian này.
-                </p>
-              )
-            ) : restaurantDonutData.length > 0 ? (
-              <DonutChart
-                items={restaurantDonutData}
-                total={filteredCheckIns.length}
-                title="Tỉ lệ quán ghé thăm"
-              />
-            ) : (
-              <p className="py-12 text-center text-sm text-[var(--color-muted)]">
-                Chưa có lượt check-in quán ăn nào trong khoảng thời gian này.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 4. BẢNG XẾP HẠNG (Leaderboard Section) */}
+      {/* 3. BẢNG XẾP HẠNG (Leaderboard Section - Đã lược bỏ biểu đồ theo yêu cầu) */}
       {activeTab === "dishes" && (
         <Leaderboard
           title="Món ăn nhiều nhất"
