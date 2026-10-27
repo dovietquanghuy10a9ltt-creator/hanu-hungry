@@ -3,10 +3,12 @@ import type { VercelAnalyticsData, VercelReferrerItem } from "@/features/admin/c
 export type RawVercelAggregateRow = {
   key?: string;
   referrer?: string;
+  referrerHostname?: string;
   total?: number;
   visitors?: number;
   count?: number;
   value?: number;
+  pageviews?: number;
 };
 
 /**
@@ -21,9 +23,12 @@ export function normalizeVercelReferrers(
   }
 
   const items: VercelReferrerItem[] = rows.map((row) => {
-    const raw = (row.key ?? row.referrer ?? "").trim();
-    const cleanName = !raw || raw.toLowerCase() === "direct" ? "Direct / Trực tiếp" : raw;
-    const count = Number(row.total ?? row.visitors ?? row.count ?? row.value ?? 0) || 0;
+    const raw = (row.referrerHostname ?? row.key ?? row.referrer ?? "").trim();
+    const cleanName =
+      !raw || raw.toLowerCase() === "direct" || raw.toLowerCase() === "none"
+        ? "Direct / Truy cập trực tiếp"
+        : raw;
+    const count = Number(row.visitors ?? row.total ?? row.count ?? row.value ?? 0) || 0;
 
     return {
       referrer: cleanName,
@@ -40,7 +45,7 @@ export function normalizeVercelReferrers(
   const denominator = Math.max(1, totalVisitors > 0 ? totalVisitors : sumCount);
 
   for (const item of items) {
-    item.percent = Math.round((item.visitors / denominator) * 100);
+    item.percent = Math.min(100, Math.round((item.visitors / denominator) * 100));
   }
 
   return items;
@@ -54,11 +59,6 @@ export type VercelAnalyticsRange = "24h" | "7d" | "30d";
  * - VERCEL_TOKEN: Token tài khoản Vercel
  * - VERCEL_PROJECT_ID: ID của project Vercel (bắt đầu bằng prj_...)
  * - VERCEL_TEAM_ID: (Tùy chọn) ID của team nếu project thuộc team
- *
- * Tham số range:
- * - "24h": 24 giờ qua (1 ngày)
- * - "7d": 7 ngày qua
- * - "30d": 30 ngày qua (mặc định)
  */
 export async function getVercelAnalyticsData(
   range: VercelAnalyticsRange = "30d"
@@ -83,57 +83,62 @@ export async function getVercelAnalyticsData(
 
     const teamParam = teamId ? `&teamId=${encodeURIComponent(teamId)}` : "";
 
-    // Tính toán khoảng thời gian from - to (timestamp ms)
+    // Tính toán khoảng thời gian since - until theo chuẩn ISO 8601 của Vercel
     const now = Date.now();
     let durationMs = 30 * 24 * 60 * 60 * 1000; // 30 ngày
     if (range === "24h") {
-      durationMs = 24 * 60 * 60 * 1000; // 24 giờ (1 ngày)
+      durationMs = 24 * 60 * 60 * 1000; // 24 giờ
     } else if (range === "7d") {
       durationMs = 7 * 24 * 60 * 60 * 1000; // 7 ngày
     }
-    const from = now - durationMs;
-    const timeParam = `&from=${from}&to=${now}`;
+
+    const since = new Date(now - durationMs).toISOString();
+    const until = new Date(now).toISOString();
+    const timeParam = `&since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}`;
 
     // 1. Lấy tổng số lượng khách truy cập (Visits count)
     const countUrl = `https://api.vercel.com/v1/query/web-analytics/visits/count?projectId=${encodeURIComponent(
       projectId
-    )}${teamParam}${timeParam}`;
+    )}&environment=production${teamParam}${timeParam}`;
 
-    // 2. Lấy danh sách thống kê theo nguồn giới thiệu (Referrers aggregate)
+    // 2. Lấy danh sách thống kê theo nguồn giới thiệu (by=referrerHostname)
     const aggregateUrl = `https://api.vercel.com/v1/query/web-analytics/visits/aggregate?projectId=${encodeURIComponent(
       projectId
-    )}&groupBy=referrer&limit=20${teamParam}${timeParam}`;
+    )}&environment=production&by=referrerHostname&limit=20${teamParam}${timeParam}`;
 
     const [countRes, aggregateRes] = await Promise.all([
-      fetch(countUrl, { headers, next: { revalidate: 300 } }).catch(() => null),
-      fetch(aggregateUrl, { headers, next: { revalidate: 300 } }).catch(() => null),
+      fetch(countUrl, { headers, next: { revalidate: 180 } }).catch(() => null),
+      fetch(aggregateUrl, { headers, next: { revalidate: 180 } }).catch(() => null),
     ]);
 
-    let totalVisitors = 0;
+    let countVisitors = 0;
     if (countRes && countRes.ok) {
       const countJson = await countRes.json();
-      totalVisitors = Number(countJson?.value ?? countJson?.count ?? 0) || 0;
+      countVisitors = Number(countJson?.data?.visitors ?? countJson?.value ?? countJson?.count ?? 0) || 0;
     }
 
     let referrers: VercelReferrerItem[] = [];
     if (aggregateRes && aggregateRes.ok) {
       const aggJson = await aggregateRes.json();
-      const rows = (aggJson?.data || aggJson?.rows || aggJson || []) as RawVercelAggregateRow[];
-      referrers = normalizeVercelReferrers(rows, totalVisitors);
+      const rows = (aggJson?.data || aggJson?.rows || []) as RawVercelAggregateRow[];
+      referrers = normalizeVercelReferrers(rows, countVisitors);
     } else if (aggregateRes && !aggregateRes.ok) {
       const errText = await aggregateRes.text().catch(() => "");
       console.error("[vercel-analytics] Aggregate API error:", aggregateRes.status, errText);
       return {
         isConnected: true,
-        totalVisitors,
+        totalVisitors: countVisitors,
         referrers: [],
         error: `Lỗi kết nối API Vercel (${aggregateRes.status})`,
       };
     }
 
+    const sumVisitors = referrers.reduce((s, r) => s + r.visitors, 0);
+    const finalTotalVisitors = Math.max(countVisitors, sumVisitors);
+
     return {
       isConnected: true,
-      totalVisitors,
+      totalVisitors: finalTotalVisitors,
       referrers,
     };
   } catch (error) {

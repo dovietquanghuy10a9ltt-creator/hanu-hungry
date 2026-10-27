@@ -32,7 +32,7 @@ test("normalizeVercelReferrers parses, sorts and calculates percentages correctl
   assert.equal(result[1].visitors, 73);
   assert.equal(result[1].percent, 14); // 73 / 540 = 13.5% -> 14%
 
-  assert.equal(result[2].referrer, "Direct / Trực tiếp");
+  assert.equal(result[2].referrer, "Direct / Truy cập trực tiếp");
   assert.equal(result[2].visitors, 51);
 
   assert.equal(result[3].referrer, "google.com");
