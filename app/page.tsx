@@ -75,7 +75,6 @@ export default async function HomePage() {
               href={`/restaurants?category=${encodeURIComponent(category.slug)}`}
             >
               {category.name}
-              <span aria-hidden="true">↗</span>
             </Link>
           ))}
         </div>

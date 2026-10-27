@@ -41,6 +41,38 @@ h1,h2,h3,h4,.brand-display,.section-title { font-family: var(--font-heading), Ge
 .mobile-nav-link:hover { background: var(--color-pale); color: var(--color-ink); }
 .mobile-nav-link.is-active { background: #fdf2f2; color: var(--color-red); font-weight: 800; border: 1px solid #f0c2c6; box-shadow: 0 1px 3px rgba(181, 42, 52, 0.08); }
 .mobile-nav-link.is-active .mobile-nav-icon, .mobile-nav-link:active .mobile-nav-icon { transform: scale(1.15); }
+.gacha-nav-link { position: relative; overflow: hidden; }
+.gacha-shimmer-beam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 80%
+  );
+  transform: translateX(-150%);
+  animation: gacha-beam-sweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  border-radius: inherit;
+  z-index: 2;
+}
+@keyframes gacha-beam-sweep {
+  0%, 20% { transform: translateX(-150%); }
+  45% { transform: translateX(150%); }
+  100% { transform: translateX(150%); }
+}
+.gacha-sparkle-icon {
+  display: inline-flex;
+  animation: gacha-star-twinkle 3.5s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes gacha-star-twinkle {
+  0%, 15% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 0 rgba(220, 38, 38, 0)); }
+  30% { transform: scale(1.2) rotate(12deg); filter: drop-shadow(0 0 3px rgba(220, 38, 38, 0.45)); }
+  45% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 0 rgba(220, 38, 38, 0)); }
+  100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 0 rgba(220, 38, 38, 0)); }
+}
 .field { min-height: 50px; width: 100%; border: 2px solid #4A3525; border-radius: .7rem; background: #fffdf8; padding: .75rem 1rem; color: var(--color-ink); transition: border-color .2s, box-shadow .2s; }
 .field:focus { border-color: var(--color-red); box-shadow: 0 0 0 3px rgba(181, 42, 52, 0.18), 0 2px 0 rgba(181, 42, 52, 0.1); outline: none; }
 .field::placeholder { color: #9b8d83; }
@@ -77,10 +109,12 @@ h1,h2,h3,h4,.brand-display,.section-title { font-family: var(--font-heading), Ge
 .poster-note { margin: 35px 0 24px; font-size: 16px; line-height: 1.5; }
 .poster-link { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #ffffff40; padding-top: 18px; font-size: 14px; }
 .poster-link span { font-size: 24px; }
-.home-categories { border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); padding: 24px 0; }
-.category-strip { display: flex; gap: 12px; overflow-x: auto; padding: 16px 0 2px; }
-.category-strip a { display: flex; flex-shrink: 0; align-items: center; gap: 24px; padding: 12px 18px; border: 1px solid var(--color-line); border-radius: 99px; transition: background .2s; }
-.category-strip a:hover { background: var(--color-red); border-color: var(--color-red); color: white; }
+.home-categories { border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); padding: 22px 0; }
+.category-strip { display: flex; gap: 10px; overflow-x: auto; padding: 14px 2px 8px; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
+.category-strip::-webkit-scrollbar { display: none; }
+.category-strip a { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; padding: 9px 20px; border: 1.5px solid var(--color-line); border-radius: 9999px; background: #fffdf9; color: var(--color-ink); font-size: 0.88rem; font-weight: 600; box-shadow: 0 1px 3px rgba(44, 24, 16, 0.05); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.category-strip a:hover { background: var(--color-red); border-color: var(--color-red); color: #ffffff; box-shadow: 0 4px 14px rgba(181, 42, 52, 0.22); transform: translateY(-2px); }
+.category-strip a:active { transform: translateY(0) scale(0.97); }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
 .home-bottom { display: grid; grid-template-columns: 1.2fr .8fr; border: 1px solid var(--color-line); border-radius: 1rem; overflow: hidden; }
 .gacha-invitation,.history-invitation { position: relative; padding: 36px; overflow: hidden; }

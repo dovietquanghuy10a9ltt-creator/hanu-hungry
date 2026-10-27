@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Globe, Users, TrendingUp, Loader2 } from "lucide-react";
+import { Globe, Users, TrendingUp, Loader2, ChevronDown } from "lucide-react";
 import type { VercelAnalyticsData, VercelReferrerItem } from "./types";
 
 export type TimeRange = "24h" | "7d" | "30d";
@@ -193,10 +193,13 @@ export function VercelReferrersCard({ data }: VercelReferrersCardProps) {
     }
   }, [data]);
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   // Xử lý chuyển đổi khoảng thời gian
   async function handleRangeChange(newRange: TimeRange) {
     if (newRange === timeRange) return;
     setTimeRange(newRange);
+    setIsExpanded(false);
 
     setIsLoading(true);
     try {
@@ -221,6 +224,10 @@ export function VercelReferrersCard({ data }: VercelReferrersCardProps) {
     : currentPreview.visitors;
 
   const topSource = displayReferrers[0];
+
+  const INITIAL_VISIBLE_COUNT = 5;
+  const hasMore = displayReferrers.length > INITIAL_VISIBLE_COUNT;
+  const visibleReferrers = isExpanded || !hasMore ? displayReferrers : displayReferrers.slice(0, INITIAL_VISIBLE_COUNT);
 
   return (
     <div className="rounded-2xl border border-[var(--color-line)] bg-white shadow-xs overflow-hidden mb-6">
@@ -319,44 +326,84 @@ export function VercelReferrersCard({ data }: VercelReferrersCardProps) {
       {/* Referrers Table */}
       <div className="p-4 sm:p-5 pt-2">
         <div className="rounded-xl border border-[var(--color-line)] overflow-hidden">
-          <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="bg-[#fcf8f3] border-b border-[var(--color-line)] text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
-              <tr>
-                <th className="py-2.5 px-3.5">Nguồn giới thiệu (Referrers)</th>
-                <th className="py-2.5 px-3.5 text-right w-28 sm:w-36">Khách (Visitors)</th>
-                <th className="py-2.5 pr-4 pl-2 text-right w-24 hidden sm:table-cell">Tỉ lệ</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--color-line)] bg-white">
-              {displayReferrers.map((item) => (
-                <tr key={item.referrer} className="hover:bg-[var(--color-pale)]/30 transition-colors">
-                  <td className="py-2.5 px-3.5">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <ReferrerIcon name={item.referrer} />
-                      <div className="min-w-0 flex-1">
-                        <span className="font-bold text-[var(--color-ink)] truncate block">
-                          {item.referrer}
-                        </span>
-                        {/* Progress Bar for mobile & desktop */}
-                        <div className="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-[#f4ebe1]">
-                          <div
-                            className="h-full rounded-full bg-linear-to-r from-orange-400 to-[var(--color-red)] transition-all duration-300"
-                            style={{ width: `${Math.max(3, item.percent)}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-2.5 px-3.5 text-right font-black text-[var(--color-ink)]">
-                    {item.visitors.toLocaleString("vi-VN")}
-                  </td>
-                  <td className="py-2.5 pr-4 pl-2 text-right text-xs font-bold text-[var(--color-muted)] hidden sm:table-cell">
-                    {item.percent}%
-                  </td>
+          <div className="relative">
+            <table className="w-full text-left text-xs sm:text-sm">
+              <thead className="bg-[#fcf8f3] border-b border-[var(--color-line)] text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+                <tr>
+                  <th className="py-2.5 px-3.5">Nguồn giới thiệu (Referrers)</th>
+                  <th className="py-2.5 px-3.5 text-right w-28 sm:w-36">Khách (Visitors)</th>
+                  <th className="py-2.5 pr-4 pl-2 text-right w-24 hidden sm:table-cell">Tỉ lệ</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-line)] bg-white">
+                {visibleReferrers.map((item, index) => {
+                  const isFading = !isExpanded && hasMore && index === INITIAL_VISIBLE_COUNT - 1;
+                  return (
+                    <tr
+                      key={item.referrer}
+                      className={`hover:bg-[var(--color-pale)]/30 transition-colors ${
+                        isFading ? "opacity-60" : ""
+                      }`}
+                    >
+                      <td className="py-2.5 px-3.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <ReferrerIcon name={item.referrer} />
+                          <div className="min-w-0 flex-1">
+                            <span className="font-bold text-[var(--color-ink)] truncate block">
+                              {item.referrer}
+                            </span>
+                            {/* Progress Bar for mobile & desktop */}
+                            <div className="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-[#f4ebe1]">
+                              <div
+                                className="h-full rounded-full bg-linear-to-r from-orange-400 to-[var(--color-red)] transition-all duration-300"
+                                style={{ width: `${Math.max(3, item.percent)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3.5 text-right font-black text-[var(--color-ink)]">
+                        {item.visitors.toLocaleString("vi-VN")}
+                      </td>
+                      <td className="py-2.5 pr-4 pl-2 text-right text-xs font-bold text-[var(--color-muted)] hidden sm:table-cell">
+                        {item.percent}%
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Bottom gradient fade-out effect when collapsed */}
+            {!isExpanded && hasMore && (
+              <div
+                className="pointer-events-none absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-white via-white/80 to-transparent"
+                aria-hidden="true"
+              />
+            )}
+          </div>
+
+          {/* Toggle Button with Arrow */}
+          {hasMore && (
+            <div className="border-t border-[var(--color-line)] bg-[#fcf9f6] px-4 py-2.5 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-red)] hover:text-[#8b1d24] transition-colors py-1.5 px-4 rounded-full hover:bg-[var(--color-pale)]/70 cursor-pointer active:scale-95 shadow-2xs"
+              >
+                <span>
+                  {isExpanded
+                    ? "Thu gọn"
+                    : `Xem tất cả (${displayReferrers.length} nguồn)`}
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

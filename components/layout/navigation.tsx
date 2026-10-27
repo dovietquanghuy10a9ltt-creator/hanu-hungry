@@ -70,23 +70,39 @@ export function Navigation({
           item.href === "/"
             ? pathname === "/"
             : pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const isGacha = item.href === "/gacha";
         return (
           <Link
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`${mobile ? "mobile-nav-link" : "nav-link"} ${active ? "is-active" : ""}`}
+            className={`${mobile ? "mobile-nav-link" : "nav-link"} ${active ? "is-active" : ""} ${
+              isGacha ? "gacha-nav-link" : ""
+            }`}
           >
             {mobile ? (
-              <span aria-hidden="true" className="flex items-center justify-center leading-none mobile-nav-icon">
+              <span
+                aria-hidden="true"
+                className={`flex items-center justify-center leading-none mobile-nav-icon ${
+                  isGacha ? "gacha-sparkle-icon" : ""
+                }`}
+              >
                 <NavIcon href={item.href} className="w-5 h-5" />
               </span>
             ) : (
-              <span aria-hidden="true" className="flex items-center justify-center leading-none nav-desktop-icon">
+              <span
+                aria-hidden="true"
+                className={`flex items-center justify-center leading-none nav-desktop-icon ${
+                  isGacha ? "gacha-sparkle-icon" : ""
+                }`}
+              >
                 <NavIcon href={item.href} className="w-4 h-4" />
               </span>
             )}
-            <span>{item.label}</span>
+            <span className="relative z-1">{item.label}</span>
+            {isGacha && (
+              <span className="gacha-shimmer-beam" aria-hidden="true" />
+            )}
           </Link>
         );
       })}
