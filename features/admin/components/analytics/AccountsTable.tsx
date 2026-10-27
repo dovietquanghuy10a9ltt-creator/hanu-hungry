@@ -19,7 +19,7 @@ import { formatRelativeTime } from "./utils";
 import { VercelReferrersCard } from "./VercelReferrersCard";
 
 const ACCOUNTS_PER_PAGE = 15;
-const CLUSTER_SIZE = 5;
+const CLUSTER_SIZE = 3;
 
 interface AccountsTableProps {
   accounts: SystemAccount[];
@@ -365,26 +365,35 @@ export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps)
         {totalAccountPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[var(--color-line)] bg-[#fdfbf7] p-4 text-xs">
             <span className="text-[var(--color-muted)] font-medium text-center sm:text-left">
-              Trang <strong className="text-[var(--color-red)] font-bold">{accountPage}</strong> /{" "}
-              <strong className="text-[var(--color-ink)] font-bold">{totalAccountPages}</strong> (Hiển thị{" "}
-              <strong className="text-[var(--color-ink)] font-bold">
-                {(accountPage - 1) * ACCOUNTS_PER_PAGE + 1}
-              </strong>{" "}
-              –{" "}
-              <strong className="text-[var(--color-ink)] font-bold">
-                {Math.min(accountPage * ACCOUNTS_PER_PAGE, filteredAccounts.length)}
-              </strong>{" "}
-              trong tổng số <strong className="text-[var(--color-red)] font-bold">{filteredAccounts.length}</strong> tài khoản)
+              {/* Phiên bản mobile thu gọn: không rớt dòng */}
+              <span className="sm:hidden">
+                Trang <strong className="text-[var(--color-red)] font-bold">{accountPage}</strong> /{" "}
+                <strong className="text-[var(--color-ink)] font-bold">{totalAccountPages}</strong> •{" "}
+                <strong className="text-[var(--color-red)] font-bold">{filteredAccounts.length}</strong> tài khoản
+              </span>
+              {/* Phiên bản desktop đầy đủ */}
+              <span className="hidden sm:inline">
+                Trang <strong className="text-[var(--color-red)] font-bold">{accountPage}</strong> /{" "}
+                <strong className="text-[var(--color-ink)] font-bold">{totalAccountPages}</strong> (Hiển thị{" "}
+                <strong className="text-[var(--color-ink)] font-bold">
+                  {(accountPage - 1) * ACCOUNTS_PER_PAGE + 1}
+                </strong>{" "}
+                –{" "}
+                <strong className="text-[var(--color-ink)] font-bold">
+                  {Math.min(accountPage * ACCOUNTS_PER_PAGE, filteredAccounts.length)}
+                </strong>{" "}
+                trong tổng số <strong className="text-[var(--color-red)] font-bold">{filteredAccounts.length}</strong> tài khoản)
+              </span>
             </span>
 
-            <div className="flex items-center gap-1 flex-wrap justify-center">
-              {/* Nút lùi về cụm 5 trang trước */}
+            <div className="flex items-center gap-1 flex-nowrap overflow-x-auto max-w-full justify-center py-0.5">
+              {/* Nút lùi về cụm 3 trang trước */}
               <button
                 type="button"
                 disabled={!hasPrevCluster}
                 onClick={() => setAccountPage(Math.max(1, clusterStart - CLUSTER_SIZE))}
-                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
-                title="Cụm trang trước (-5 trang)"
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs shrink-0"
+                title="Cụm trang trước (-3 trang)"
                 aria-label="Cụm trang trước"
               >
                 <ChevronsLeft className="h-4 w-4" />
@@ -396,7 +405,7 @@ export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps)
                 type="button"
                 disabled={accountPage <= 1}
                 onClick={() => setAccountPage((p) => Math.max(1, p - 1))}
-                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2.5 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2.5 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs shrink-0"
                 title="Trang trước"
                 aria-label="Trang trước"
               >
@@ -404,14 +413,14 @@ export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps)
                 <span className="hidden sm:inline">Trước</span>
               </button>
 
-              {/* 5 trang liên tiếp nhau */}
-              <div className="flex items-center gap-1">
+              {/* 3 trang liên tiếp nhau */}
+              <div className="flex items-center gap-1 shrink-0">
                 {clusterPages.map((p) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => setAccountPage(p)}
-                    className={`h-8 min-w-[2rem] px-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    className={`h-8 min-w-[2rem] px-2 rounded-lg text-xs font-bold transition cursor-pointer shrink-0 ${
                       accountPage === p
                         ? "bg-[var(--color-red)] text-white shadow-xs"
                         : "border border-[var(--color-line)] bg-white text-[var(--color-ink)] hover:bg-[var(--color-pale)]"
@@ -427,7 +436,7 @@ export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps)
                 type="button"
                 disabled={accountPage >= totalAccountPages}
                 onClick={() => setAccountPage((p) => Math.min(totalAccountPages, p + 1))}
-                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2.5 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2.5 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs shrink-0"
                 title="Trang sau"
                 aria-label="Trang sau"
               >
@@ -435,13 +444,13 @@ export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps)
                 <ChevronRight className="h-4 w-4" />
               </button>
 
-              {/* Nút tiến sang cụm 5 trang tiếp theo */}
+              {/* Nút tiến sang cụm 3 trang tiếp theo */}
               <button
                 type="button"
                 disabled={!hasNextCluster}
                 onClick={() => setAccountPage(Math.min(totalAccountPages, clusterStart + CLUSTER_SIZE))}
-                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
-                title="Cụm trang tiếp theo (+5 trang)"
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs shrink-0"
+                title="Cụm trang tiếp theo (+3 trang)"
                 aria-label="Cụm trang tiếp theo"
               >
                 <span className="hidden md:inline">Cụm sau</span>
