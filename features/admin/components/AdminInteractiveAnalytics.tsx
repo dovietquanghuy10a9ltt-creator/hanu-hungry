@@ -24,6 +24,16 @@ import {
 import { AccountsTable } from "./analytics/AccountsTable";
 import { StreakLeaderboard } from "./analytics/StreakLeaderboard";
 import { historyStats, localDayOrdinal } from "@/features/history/stats";
+import {
+  ChevronDown,
+  Calendar,
+  CalendarDays,
+  TrendingUp,
+  PieChart,
+  UtensilsCrossed,
+  Store,
+  Trophy,
+} from "lucide-react";
 
 export type {
   RawCheckIn,
@@ -383,7 +393,7 @@ export function AdminInteractiveAnalytics({
             <option value="users">🏆 Ai ăn nhiều nhất</option>
           </select>
           <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
-            ▼
+            <ChevronDown className="h-4 w-4" />
           </span>
         </div>
       </div>
@@ -400,7 +410,8 @@ export function AdminInteractiveAnalytics({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h2 className="text-base font-black text-[var(--color-ink)] flex items-center gap-2">
-                <span>📅</span> Khoảng thời gian thống kê
+                <Calendar className="h-4 w-4 text-[var(--color-red)]" />
+                <span>Khoảng thời gian thống kê</span>
               </h2>
               <p className="text-xs text-[var(--color-muted)] mt-0.5">
                 Đang hiển thị dữ liệu: <strong className="text-[var(--color-red)] font-semibold">{periodLabel}</strong> (Tổng {filteredCheckIns.length} lượt check-in)
@@ -427,7 +438,9 @@ export function AdminInteractiveAnalytics({
                   <option value="year">📅 Năm vừa qua</option>
                   <option value="custom">🗓️ Chọn theo lịch</option>
                 </select>
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">▼</span>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] select-none" aria-hidden="true">
+                  <ChevronDown className="h-4 w-4" />
+                </span>
               </div>
             </div>
           </div>
@@ -436,7 +449,8 @@ export function AdminInteractiveAnalytics({
           {period === "custom" && (
             <div className="rounded-xl border border-dashed border-[var(--color-coral)] bg-[#fdfaf6] p-4 flex flex-wrap items-center gap-4 text-sm animate-fadeIn">
               <span className="font-bold text-[var(--color-red)] flex items-center gap-1.5">
-                <span>🗓️</span> Chọn ngày chính xác:
+                <CalendarDays className="h-4 w-4 text-[var(--color-red)]" />
+                <span>Chọn ngày chính xác:</span>
               </span>
               <div className="flex items-center gap-2">
                 <label className="text-xs font-semibold text-[var(--color-muted)]">Từ ngày:</label>
@@ -472,7 +486,8 @@ export function AdminInteractiveAnalytics({
             <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
               <div>
                 <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
-                  <span>📈</span> {activeTab === "dishes" ? "Xu hướng món ăn (Sơ đồ miền)" : "Xu hướng check-in quán (Sơ đồ miền)"}
+                  <TrendingUp className="h-4 w-4 text-[var(--color-red)]" />
+                  <span>{activeTab === "dishes" ? "Xu hướng món ăn (Sơ đồ miền)" : "Xu hướng check-in quán (Sơ đồ miền)"}</span>
                 </h3>
                 <p className="text-xs text-[var(--color-muted)] mt-0.5">
                   {activeTab === "dishes"
@@ -509,7 +524,8 @@ export function AdminInteractiveAnalytics({
             <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
               <div>
                 <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
-                  <span>🍩</span> Phân bổ tỉ lệ (Sơ đồ tròn)
+                  <PieChart className="h-4 w-4 text-[var(--color-red)]" />
+                  <span>Phân bổ tỉ lệ (Sơ đồ tròn)</span>
                 </h3>
                 <p className="text-xs text-[var(--color-muted)] mt-0.5">
                   {activeTab === "dishes" ? "Tỉ lệ theo món ăn" : "Tỉ lệ theo quán ăn ghé thăm"}
@@ -551,7 +567,7 @@ export function AdminInteractiveAnalytics({
       {activeTab === "dishes" && (
         <Leaderboard
           title="Món ăn nhiều nhất"
-          icon="🍜"
+          icon={<UtensilsCrossed className="h-5 w-5 text-orange-500" />}
           emptyText="Chưa có món ăn nào được ghi nhận check-in trong khoảng thời gian này."
           items={topDishes}
         />
@@ -560,7 +576,7 @@ export function AdminInteractiveAnalytics({
       {activeTab === "restaurants" && (
         <Leaderboard
           title="Quán ghé thăm nhiều nhất"
-          icon="🏪"
+          icon={<Store className="h-5 w-5 text-blue-600" />}
           emptyText="Chưa có quán ăn nào được ghé thăm trong khoảng thời gian này."
           items={topRestaurants}
         />
@@ -569,7 +585,7 @@ export function AdminInteractiveAnalytics({
       {activeTab === "users" && (
         <Leaderboard
           title="Ai ăn nhiều nhất"
-          icon="🏆"
+          icon={<Trophy className="h-5 w-5 text-amber-500" />}
           emptyText="Chưa có thành viên nào check-in trong khoảng thời gian này."
           items={topUsers}
         />

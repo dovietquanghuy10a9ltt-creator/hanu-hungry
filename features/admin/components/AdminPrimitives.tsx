@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function AdminHeader({ title, description, children }: {
   title: string; description?: string; children?: ReactNode;
@@ -26,8 +27,18 @@ export function AdminPager({ base, page, hasNext, query = "" }: {
 }) {
   const href = (target: number) => `${base}?page=${target}${query ? `&q=${encodeURIComponent(query)}` : ""}`;
   return <nav aria-label="Trang dữ liệu" className="mt-6 flex items-center justify-between gap-3 text-sm">
-    {page > 1 ? <Link href={href(page - 1)} className="inline-flex min-h-11 items-center rounded-xl border border-[#e8d8d0] bg-white px-4 font-semibold">← Trang trước</Link> : <span />}
-    <span className="text-[#76645d]">Trang {page}</span>
-    {hasNext ? <Link href={href(page + 1)} className="inline-flex min-h-11 items-center rounded-xl border border-[#e8d8d0] bg-white px-4 font-semibold">Trang sau →</Link> : <span />}
+    {page > 1 ? (
+      <Link href={href(page - 1)} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-[#e8d8d0] bg-white px-4 font-semibold hover:bg-[var(--color-pale)] transition">
+        <ChevronLeft className="h-4 w-4" />
+        <span>Trang trước</span>
+      </Link>
+    ) : <span />}
+    <span className="text-[#76645d] font-medium">Trang {page}</span>
+    {hasNext ? (
+      <Link href={href(page + 1)} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-[#e8d8d0] bg-white px-4 font-semibold hover:bg-[var(--color-pale)] transition">
+        <span>Trang sau</span>
+        <ChevronRight className="h-4 w-4" />
+      </Link>
+    ) : <span />}
   </nav>;
 }

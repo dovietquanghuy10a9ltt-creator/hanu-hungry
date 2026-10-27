@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 
 export function DonutChart({
   items,
@@ -189,7 +190,7 @@ export function Leaderboard({
   items,
 }: {
   title: string;
-  icon: string;
+  icon: ReactNode;
   emptyText: string;
   items: Array<{ id: string; name: string; count: number; sub?: string }>;
 }) {
@@ -200,7 +201,8 @@ export function Leaderboard({
     <div className="rounded-2xl border border-[var(--color-line)] bg-white p-5 shadow-xs">
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
         <h3 className="flex items-center gap-2 text-base font-extrabold text-[var(--color-ink)]">
-          <span>{icon}</span> {title}
+          {typeof icon === "string" ? <span>{icon}</span> : icon}
+          <span>{title}</span>
         </h3>
         <span className="rounded-full bg-[var(--color-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-red)]">
           {items.length} mục

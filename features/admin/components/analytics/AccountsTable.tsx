@@ -2,10 +2,23 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import {
+  Users,
+  GraduationCap,
+  ShieldCheck,
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  SearchX,
+} from "lucide-react";
 import type { SystemAccount } from "./types";
 import { formatRelativeTime } from "./utils";
 
 const ACCOUNTS_PER_PAGE = 15;
+const CLUSTER_SIZE = 5;
 
 interface AccountsTableProps {
   accounts: SystemAccount[];
@@ -66,6 +79,19 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
     return filteredAccounts.slice(start, start + ACCOUNTS_PER_PAGE);
   }, [filteredAccounts, accountPage]);
 
+  // 5-page cluster calculation for mobile and desktop
+  const currentCluster = Math.floor((accountPage - 1) / CLUSTER_SIZE);
+  const clusterStart = currentCluster * CLUSTER_SIZE + 1;
+  const clusterEnd = Math.min(clusterStart + CLUSTER_SIZE - 1, totalAccountPages);
+  const hasPrevCluster = clusterStart > 1;
+  const hasNextCluster = clusterEnd < totalAccountPages;
+  const clusterPages = useMemo(() => {
+    return Array.from(
+      { length: clusterEnd - clusterStart + 1 },
+      (_, i) => clusterStart + i
+    );
+  }, [clusterStart, clusterEnd]);
+
   const accountStats = useMemo(() => {
     const total = accounts.length;
     const userCount = accounts.filter((a) => a.role === "USER").length;
@@ -78,23 +104,32 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
       {/* Summary Cards */}
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-[var(--color-line)] bg-white p-4 shadow-xs">
-          <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
-            Tổng tài khoản hệ thống
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+              Tổng tài khoản hệ thống
+            </p>
+            <Users className="h-4 w-4 text-[var(--color-red)]" />
+          </div>
           <p className="mt-1.5 text-2xl font-black text-[var(--color-red)]">{accountStats.total}</p>
           <p className="mt-1 text-xs text-[var(--color-muted)]">Số tài khoản sinh viên và quản trị viên</p>
         </div>
         <div className="rounded-2xl border border-[var(--color-line)] bg-white p-4 shadow-xs">
-          <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
-            Tài khoản Sinh viên (USER)
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+              Tài khoản Sinh viên (USER)
+            </p>
+            <GraduationCap className="h-4 w-4 text-emerald-600" />
+          </div>
           <p className="mt-1.5 text-2xl font-black text-emerald-600">{accountStats.userCount}</p>
           <p className="mt-1 text-xs text-[var(--color-muted)]">Sinh viên tham gia sử dụng Hanu Hungry</p>
         </div>
         <div className="rounded-2xl border border-[var(--color-line)] bg-white p-4 shadow-xs">
-          <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
-            Quản trị viên (ADMIN)
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-wider">
+              Quản trị viên (ADMIN)
+            </p>
+            <ShieldCheck className="h-4 w-4 text-purple-700" />
+          </div>
           <p className="mt-1.5 text-2xl font-black text-purple-700">{accountStats.adminCount}</p>
           <p className="mt-1 text-xs text-[var(--color-muted)]">Tài khoản có quyền kiểm duyệt nội dung</p>
         </div>
@@ -106,7 +141,8 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
         <div className="p-4 sm:p-5 border-b border-[var(--color-line)] flex flex-col gap-3 sm:gap-4">
           <div>
             <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
-              <span>👥</span> Danh sách người dùng trong hệ thống
+              <Users className="h-4 w-4 text-[var(--color-red)]" />
+              <span>Danh sách người dùng trong hệ thống</span>
             </h3>
             <p className="text-xs text-[var(--color-muted)] mt-0.5">
               Hiển thị {filteredAccounts.length} / {accounts.length} tài khoản (15 tài khoản mỗi trang)
@@ -116,15 +152,16 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
           {/* Filters & Search Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 w-full">
             <div className="relative w-full sm:max-w-xs flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-muted)] pointer-events-none" />
               <input
                 type="text"
-                placeholder="🔍 Tìm MSSV, tên, email..."
+                placeholder="Tìm MSSV, tên, email..."
                 value={accountSearch}
                 onChange={(e) => {
                   setAccountSearch(e.target.value);
                   setAccountPage(1);
                 }}
-                className="w-full rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] px-3.5 py-2 text-xs font-medium placeholder:text-[var(--color-muted)] focus:outline-[var(--color-red)] shadow-xs"
+                className="w-full rounded-xl border border-[var(--color-line)] bg-[#fcf9f5] pl-9 pr-8 py-2 text-xs font-medium placeholder:text-[var(--color-muted)] focus:outline-[var(--color-red)] shadow-xs"
               />
               {accountSearch && (
                 <button
@@ -133,38 +170,60 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                     setAccountSearch("");
                     setAccountPage(1);
                   }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] hover:text-[var(--color-ink)] px-1 cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] hover:text-[var(--color-ink)] p-0.5 cursor-pointer"
                   aria-label="Xóa tìm kiếm"
                 >
-                  ✕
+                  <X className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
 
             <div className="flex items-center gap-1 rounded-xl bg-[var(--color-pale)] p-1 border border-[var(--color-line)] overflow-x-auto max-w-full shrink-0">
-              {(
-                [
-                  { id: "all", label: `Tất cả (${accountStats.total})` },
-                  { id: "USER", label: `Sinh viên (${accountStats.userCount})` },
-                  { id: "ADMIN", label: `Admin (${accountStats.adminCount})` },
-                ] as const
-              ).map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => {
-                    setRoleFilter(f.id);
-                    setAccountPage(1);
-                  }}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
-                    roleFilter === f.id
-                      ? "bg-[var(--color-ink)] text-white shadow-xs"
-                      : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setRoleFilter("all");
+                  setAccountPage(1);
+                }}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
+                  roleFilter === "all"
+                    ? "bg-[var(--color-ink)] text-white shadow-xs"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+                }`}
+              >
+                <Users className="h-3.5 w-3.5" />
+                <span>Tất cả ({accountStats.total})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRoleFilter("USER");
+                  setAccountPage(1);
+                }}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
+                  roleFilter === "USER"
+                    ? "bg-emerald-700 text-white shadow-xs"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+                }`}
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                <span>Sinh viên ({accountStats.userCount})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRoleFilter("ADMIN");
+                  setAccountPage(1);
+                }}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
+                  roleFilter === "ADMIN"
+                    ? "bg-purple-700 text-white shadow-xs"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+                }`}
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>Admin ({accountStats.adminCount})</span>
+              </button>
             </div>
           </div>
         </div>
@@ -225,7 +284,11 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                                   : "bg-teal-100 text-teal-800"
                               }`}
                             >
-                              {isAdmin ? "👑" : (acc.display_name || "S")[0].toUpperCase()}
+                              {isAdmin ? (
+                                <ShieldCheck className="h-4 w-4" />
+                              ) : (
+                                (acc.display_name || "S")[0].toUpperCase()
+                              )}
                             </div>
                           )}
                           <span className="font-bold text-[var(--color-ink)]">
@@ -245,13 +308,23 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap shrink-0 ${
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap shrink-0 ${
                             isAdmin
                               ? "bg-red-50 text-[var(--color-red)] border border-red-200"
                               : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                           }`}
                         >
-                          <span>{isAdmin ? "👑 Admin" : "🎓 Sinh viên"}</span>
+                          {isAdmin ? (
+                            <>
+                              <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                              <span>Admin</span>
+                            </>
+                          ) : (
+                            <>
+                              <GraduationCap className="h-3.5 w-3.5 shrink-0" />
+                              <span>Sinh viên</span>
+                            </>
+                          )}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-xs text-[var(--color-muted)]">
@@ -283,10 +356,10 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
           </div>
         )}
 
-        {/* Pagination Controls (Phân trang 15 người / trang) */}
+        {/* Pagination Controls (5 trang liên tiếp nhau kèm nút chuyển cụm trang trước / sau) */}
         {totalAccountPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[var(--color-line)] bg-[#fdfbf7] p-4 text-xs">
-            <span className="text-[var(--color-muted)] font-medium">
+            <span className="text-[var(--color-muted)] font-medium text-center sm:text-left">
               Trang <strong className="text-[var(--color-red)] font-bold">{accountPage}</strong> /{" "}
               <strong className="text-[var(--color-ink)] font-bold">{totalAccountPages}</strong> (Hiển thị{" "}
               <strong className="text-[var(--color-ink)] font-bold">
@@ -299,23 +372,41 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
               trong tổng số <strong className="text-[var(--color-red)] font-bold">{filteredAccounts.length}</strong> tài khoản)
             </span>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 flex-wrap justify-center">
+              {/* Nút lùi về cụm 5 trang trước */}
+              <button
+                type="button"
+                disabled={!hasPrevCluster}
+                onClick={() => setAccountPage(Math.max(1, clusterStart - CLUSTER_SIZE))}
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
+                title="Cụm trang trước (-5 trang)"
+                aria-label="Cụm trang trước"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+                <span className="hidden md:inline">Cụm trước</span>
+              </button>
+
+              {/* Nút lùi 1 trang */}
               <button
                 type="button"
                 disabled={accountPage <= 1}
                 onClick={() => setAccountPage((p) => Math.max(1, p - 1))}
-                className="rounded-lg border border-[var(--color-line)] bg-white px-3 py-1.5 font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition"
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2.5 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
+                title="Trang trước"
+                aria-label="Trang trước"
               >
-                ← Trước
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Trước</span>
               </button>
 
+              {/* 5 trang liên tiếp nhau */}
               <div className="flex items-center gap-1">
-                {Array.from({ length: totalAccountPages }, (_, i) => i + 1).map((p) => (
+                {clusterPages.map((p) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => setAccountPage(p)}
-                    className={`h-8 w-8 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    className={`h-8 min-w-[2rem] px-2 rounded-lg text-xs font-bold transition cursor-pointer ${
                       accountPage === p
                         ? "bg-[var(--color-red)] text-white shadow-xs"
                         : "border border-[var(--color-line)] bg-white text-[var(--color-ink)] hover:bg-[var(--color-pale)]"
@@ -326,13 +417,30 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                 ))}
               </div>
 
+              {/* Nút tiến 1 trang */}
               <button
                 type="button"
                 disabled={accountPage >= totalAccountPages}
                 onClick={() => setAccountPage((p) => Math.min(totalAccountPages, p + 1))}
-                className="rounded-lg border border-[var(--color-line)] bg-white px-3 py-1.5 font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition"
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2.5 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
+                title="Trang sau"
+                aria-label="Trang sau"
               >
-                Sau →
+                <span className="hidden sm:inline">Sau</span>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+
+              {/* Nút tiến sang cụm 5 trang tiếp theo */}
+              <button
+                type="button"
+                disabled={!hasNextCluster}
+                onClick={() => setAccountPage(Math.min(totalAccountPages, clusterStart + CLUSTER_SIZE))}
+                className="flex h-8 items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-2 text-xs font-bold text-[var(--color-ink)] hover:bg-[var(--color-pale)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-xs"
+                title="Cụm trang tiếp theo (+5 trang)"
+                aria-label="Cụm trang tiếp theo"
+              >
+                <span className="hidden md:inline">Cụm sau</span>
+                <ChevronsRight className="h-4 w-4" />
               </button>
             </div>
           </div>
