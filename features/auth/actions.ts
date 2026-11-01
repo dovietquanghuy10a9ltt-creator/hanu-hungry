@@ -8,6 +8,7 @@ import { checkRateLimit, clearRateLimit } from "@/lib/security/rate-limit";
 import {
   isValidEmail,
   isValidStudentCode,
+  isValidHanuStudentCode,
   normalizeEmail,
   safeReturnPath,
   siteUrl,
@@ -33,11 +34,23 @@ export async function registerAction(
   _state: AuthActionState,
   form: FormData,
 ): Promise<AuthActionState> {
+  // 0. Anti-bot Honeypot trap: bot tự động cào form sẽ điền trường ẩn này
+  const honeypot = field(form, "user_phone_hp").trim();
+  if (honeypot) {
+    console.warn("[anti-bot] Honeypot trap triggered, rejected spam registration attempt.");
+    return error("Yêu cầu không hợp lệ. Vui lòng thử lại.");
+  }
+
   const studentCode = field(form, "student_code").trim();
   const email = normalizeEmail(field(form, "email"));
   const password = field(form, "password");
-  if (!isValidStudentCode(studentCode)) return error("MSSV phải gồm đúng 10 chữ số.");
-  if (!isValidEmail(email)) return error("Email không hợp lệ.");
+
+  if (!isValidHanuStudentCode(studentCode)) {
+    return error("MSSV không hợp lệ. Vui lòng nhập đúng mã sinh viên trường HANU (10 chữ số).");
+  }
+  if (!isValidEmail(email)) {
+    return error("Địa chỉ email không hợp lệ hoặc thuộc danh sách bị hạn chế. Vui lòng sử dụng email cá nhân chính thức.");
+  }
   const passwordError = validatePassword(password);
   if (passwordError) return error(passwordError);
   if (password !== field(form, "confirm_password")) {
@@ -51,9 +64,9 @@ export async function registerAction(
 
   const rateLimit = await checkRateLimit({
     action: "register",
-    maxAttempts: 5,
+    maxAttempts: 3,
     windowSeconds: 60,
-    blockSeconds: 180,
+    blockSeconds: 300,
   });
   if (!rateLimit.allowed) {
     return error(rateLimit.message);

@@ -16,13 +16,15 @@ export async function getClientIp(): Promise<string> {
   try {
     const { headers } = await import("next/headers");
     const headerList = await headers();
+    const vercelIp = headerList.get("x-vercel-ip");
+    if (vercelIp) return vercelIp.trim();
+    const realIp = headerList.get("x-real-ip");
+    if (realIp) return realIp.trim();
     const forwarded = headerList.get("x-forwarded-for");
     if (forwarded) {
       const firstIp = forwarded.split(",")[0].trim();
       if (firstIp) return firstIp;
     }
-    const realIp = headerList.get("x-real-ip");
-    if (realIp) return realIp.trim();
   } catch {
     // Running in unit test or non-HTTP context
   }

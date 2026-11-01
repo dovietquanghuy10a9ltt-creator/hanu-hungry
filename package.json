@@ -16,6 +16,7 @@
     "db:verify": "node --experimental-strip-types scripts/verify-database.ts",
     "bootstrap:admins": "node --experimental-strip-types scripts/bootstrap-admins.ts",
     "content:seed": "node --experimental-strip-types scripts/seed-blog-posts.ts",
+    "cleanup:fake-accounts": "node --experimental-strip-types scripts/cleanup-fake-accounts.ts",
     "test:qa": "npm test",
     "test:qa:remote": "node scripts/qa/run-fullstack.mjs --remote"
   },
