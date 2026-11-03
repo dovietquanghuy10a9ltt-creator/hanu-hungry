@@ -1,8 +1,8 @@
-import type { SystemAccount, UserStreakRankingItem, ExportStudentItem } from "./types";
+import type { SystemAccount, UserStreakRankingItem, ExportStudentItem, ExportAllStudentItem } from "./types";
 
 /**
- * Lọc tài khoản sinh viên (loại trừ Admin) và sắp xếp theo chuỗi hiện tại cao nhất tại thời điểm xuất file giảm dần.
- * Dữ liệu chuẩn bị cho xuất file gồm: STT, Thành viên, MSSV, Email, Chuỗi hiện tại.
+ * Lọc tài khoản sinh viên (loại trừ Admin) và chỉ giữ lại những ai có chuỗi hiện tại >= 1 ngày.
+ * Sắp xếp theo chuỗi hiện tại giảm dần tại thời điểm xuất file.
  */
 export function prepareStudentExportData(
   accounts: SystemAccount[],
@@ -37,7 +37,7 @@ export function prepareStudentExportData(
     })
     .filter((item) => item.currentStreak >= 1);
 
-  // 4. Sắp xếp theo chuỗi hiện tại tại thời điểm xuất file giảm dần (currentStreak giảm dần -> longestStreak giảm dần -> ngày tạo)
+  // 4. Sắp xếp theo chuỗi hiện tại giảm dần -> chuỗi kỷ lục giảm dần -> ngày tạo mới nhất
   activeStudents.sort((a, b) => {
     if (b.currentStreak !== a.currentStreak) {
       return b.currentStreak - a.currentStreak;
@@ -56,6 +56,36 @@ export function prepareStudentExportData(
     email: item.email,
     longestStreak: item.longestStreak,
     currentStreak: item.currentStreak,
+  }));
+}
+
+/**
+ * Chuẩn bị danh sách toàn bộ tài khoản sinh viên (loại trừ Admin).
+ * Sắp xếp theo lần đăng nhập gần nhất (last_sign_in_at mới nhất lên trước, nếu chưa đăng nhập thì theo ngày đăng ký mới nhất).
+ * Các trường: STT, Thành viên, Mã sinh viên (MSSV), Email (không có cột chuỗi).
+ */
+export function prepareAllStudentsExportData(
+  accounts: SystemAccount[]
+): ExportAllStudentItem[] {
+  // 1. Lọc bỏ 100% tài khoản Quản trị viên (ADMIN)
+  const studentAccounts = accounts.filter((acc) => acc.role !== "ADMIN");
+
+  // 2. Sắp xếp theo lượt truy cập gần nhất (giống logic bảng AccountsTable)
+  const sorted = [...studentAccounts].sort((a, b) => {
+    const timeA = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0;
+    const timeB = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
+    if (timeA !== timeB) {
+      return timeB - timeA;
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  // 3. Gán STT và định dạng dữ liệu 4 trường
+  return sorted.map((acc, index) => ({
+    stt: index + 1,
+    displayName: acc.display_name || "Thành viên",
+    studentCode: acc.student_code || "—",
+    email: acc.email || "—",
   }));
 }
 
@@ -101,7 +131,7 @@ function escapeHtml(unsafe: string | number): string {
 }
 
 /**
- * Sinh nội dung SpreadsheetML (Excel XML) hỗ trợ định dạng bảng, màu sắc tiêu đề và font Unicode tiếng Việt
+ * Sinh nội dung SpreadsheetML (Excel XML) cho Bảng xếp hạng chuỗi
  */
 export function generateExcelXml(students: ExportStudentItem[]): string {
   const rowsXml = students
@@ -188,7 +218,83 @@ ${rowsXml}
 }
 
 /**
- * Sinh nội dung CSV với UTF-8 BOM (\uFEFF) mở trong Excel tiếng Việt không bị lỗi font
+ * Sinh nội dung SpreadsheetML (Excel XML) cho Toàn bộ tài khoản sinh viên (4 cột)
+ */
+export function generateAllStudentsExcelXml(students: ExportAllStudentItem[]): string {
+  const rowsXml = students
+    .map(
+      (s) => `      <Row>
+        <Cell ss:StyleID="Center"><Data ss:Type="Number">${s.stt}</Data></Cell>
+        <Cell ss:StyleID="Text"><Data ss:Type="String">${escapeXml(s.displayName)}</Data></Cell>
+        <Cell ss:StyleID="StudentCode"><Data ss:Type="String">${escapeXml(s.studentCode)}</Data></Cell>
+        <Cell ss:StyleID="Text"><Data ss:Type="String">${escapeXml(s.email)}</Data></Cell>
+      </Row>`
+    )
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Styles>
+    <Style ss:ID="Default" ss:Name="Normal">
+      <Alignment ss:Vertical="Center"/>
+      <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#1f1b1a"/>
+    </Style>
+    <Style ss:ID="Header">
+      <Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#B51B2C" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#8B1522"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="Center">
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5DED7"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5DED7"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="StudentCode">
+      <NumberFormat ss:Format="@"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5DED7"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5DED7"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="Text">
+      <NumberFormat ss:Format="@"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5DED7"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5DED7"/>
+      </Borders>
+    </Style>
+  </Styles>
+  <Worksheet ss:Name="Hanu_ToanBo_SinhVien">
+    <Table ss:DefaultRowHeight="20">
+      <Column ss:Width="50"/>
+      <Column ss:Width="180"/>
+      <Column ss:Width="150"/>
+      <Column ss:Width="250"/>
+      <Row ss:Height="28">
+        <Cell ss:StyleID="Header"><Data ss:Type="String">STT</Data></Cell>
+        <Cell ss:StyleID="Header"><Data ss:Type="String">Thành viên</Data></Cell>
+        <Cell ss:StyleID="Header"><Data ss:Type="String">Mã sinh viên (MSSV)</Data></Cell>
+        <Cell ss:StyleID="Header"><Data ss:Type="String">Email</Data></Cell>
+      </Row>
+${rowsXml}
+    </Table>
+  </Worksheet>
+</Workbook>`;
+}
+
+/**
+ * Sinh nội dung CSV cho chuỗi check-in
  */
 export function generateCsvContent(students: ExportStudentItem[]): string {
   const BOM = "\uFEFF";
@@ -210,7 +316,7 @@ export function generateCsvContent(students: ExportStudentItem[]): string {
 }
 
 /**
- * Tải file Excel (.xls) xuống máy tính người dùng
+ * Tải file Excel (.xls) chuỗi ngày xuống máy tính
  */
 export function exportToExcelFile(students: ExportStudentItem[]): void {
   if (typeof window === "undefined") return;
@@ -232,7 +338,148 @@ export function exportToExcelFile(students: ExportStudentItem[]): void {
 }
 
 /**
- * Sinh mã HTML trang in A4 chuẩn hành chính cho PDF
+ * Tải file Excel (.xls) toàn bộ sinh viên xuống máy tính
+ */
+export function exportAllStudentsToExcelFile(students: ExportAllStudentItem[]): void {
+  if (typeof window === "undefined") return;
+
+  const xmlContent = generateAllStudentsExcelXml(students);
+  const blob = new Blob([xmlContent], {
+    type: "application/vnd.ms-excel;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const filename = `HanuHungry_DanhSach_ToanBo_SinhVien_${getTimestampString()}.xls`;
+
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * CSS chung cho bản in PDF chuẩn A4, sạch sẽ, không footer thừa
+ */
+const BASE_PDF_CSS = `
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm 15mm 10mm;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #1f1b1a;
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    line-height: 1.4;
+    background: #ffffff;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #b51b2c;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+  .brand-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #b51b2c;
+    letter-spacing: -0.5px;
+  }
+  .brand-sub {
+    font-size: 10px;
+    color: #756561;
+    font-weight: 500;
+  }
+  .meta-info {
+    text-align: right;
+    font-size: 10px;
+    color: #555555;
+  }
+  .doc-title-container {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .doc-title {
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #1f1b1a;
+    margin: 0 0 4px 0;
+    letter-spacing: 0.3px;
+  }
+  .doc-subtitle {
+    font-size: 10.5px;
+    color: #756561;
+    margin: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+  thead {
+    display: table-header-group;
+  }
+  th {
+    background-color: #fcf4f2;
+    color: #8b1522;
+    font-weight: 800;
+    border: 1px solid #d9cece;
+    padding: 6px 5px;
+    text-align: left;
+  }
+  th.center, td.center {
+    text-align: center;
+  }
+  td {
+    border: 1px solid #e5ded7;
+    padding: 5px 6px;
+    vertical-align: middle;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+  tr:nth-child(even) {
+    background-color: #fdfbf8;
+  }
+  .font-bold {
+    font-weight: 700;
+  }
+  .font-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+  }
+  .streak-badge {
+    display: inline-block;
+    padding: 1.5px 7px;
+    background-color: #fff4eb;
+    color: #d9480f;
+    font-weight: 800;
+    border-radius: 999px;
+    border: 1px solid #ffd8a8;
+    font-size: 9.5px;
+  }
+  @media print {
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
+`;
+
+/**
+ * Sinh mã HTML trang in A4 chuẩn cho Bảng xếp hạng chuỗi
  */
 export function generatePrintablePdfHtml(students: ExportStudentItem[]): string {
   const now = new Date();
@@ -254,134 +501,9 @@ export function generatePrintablePdfHtml(students: ExportStudentItem[]): string 
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <title>Hanu Hungry - Danh Sách Xếp Hạng Chuỗi Sinh Viên</title>
+  <title>Bảng Xếp Hạng Chuỗi Sinh Viên - Hanu Hungry</title>
   <style>
-    @page {
-      size: A4 portrait;
-      margin: 12mm 10mm 15mm 10mm;
-    }
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #1f1b1a;
-      margin: 0;
-      padding: 0;
-      font-size: 11px;
-      line-height: 1.4;
-      background: #ffffff;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 2px solid #b51b2c;
-      padding-bottom: 10px;
-      margin-bottom: 12px;
-    }
-    .brand-title {
-      font-size: 18px;
-      font-weight: 900;
-      color: #b51b2c;
-      letter-spacing: -0.5px;
-    }
-    .brand-sub {
-      font-size: 10px;
-      color: #756561;
-      font-weight: 500;
-    }
-    .meta-info {
-      text-align: right;
-      font-size: 10px;
-      color: #555555;
-    }
-    .doc-title-container {
-      text-align: center;
-      margin-bottom: 14px;
-    }
-    .doc-title {
-      font-size: 15px;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: #1f1b1a;
-      margin: 0 0 4px 0;
-      letter-spacing: 0.3px;
-    }
-    .doc-subtitle {
-      font-size: 10.5px;
-      color: #756561;
-      margin: 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 10.5px;
-    }
-    thead {
-      display: table-header-group;
-    }
-    th {
-      background-color: #fcf4f2;
-      color: #8b1522;
-      font-weight: 800;
-      border: 1px solid #d9cece;
-      padding: 6px 5px;
-      text-align: left;
-    }
-    th.center, td.center {
-      text-align: center;
-    }
-    td {
-      border: 1px solid #e5ded7;
-      padding: 5px 6px;
-      vertical-align: middle;
-    }
-    tr {
-      page-break-inside: avoid;
-    }
-    tr:nth-child(even) {
-      background-color: #fdfbf8;
-    }
-    .font-bold {
-      font-weight: 700;
-    }
-    .font-mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-weight: 600;
-    }
-    .streak-badge {
-      display: inline-block;
-      padding: 1.5px 7px;
-      background-color: #fff4eb;
-      color: #d9480f;
-      font-weight: 800;
-      border-radius: 999px;
-      border: 1px solid #ffd8a8;
-      font-size: 9.5px;
-    }
-    .footer {
-      margin-top: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      font-size: 9.5px;
-      color: #756561;
-      border-top: 1px dashed #decbb8;
-      padding-top: 8px;
-    }
-    .footer-sign {
-      text-align: right;
-    }
-    @media print {
-      body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
+${BASE_PDF_CSS}
   </style>
 </head>
 <body>
@@ -414,73 +536,146 @@ export function generatePrintablePdfHtml(students: ExportStudentItem[]): string 
 ${tableRows}
     </tbody>
   </table>
-
-  <div class="footer">
-    <div>
-      <div>Dự án: Hanu Hungry • Website: hanuhungry.id.vn</div>
-      <div>Báo cáo nội bộ dành cho Ban Quản trị hệ thống</div>
-    </div>
-    <div class="footer-sign">
-      <div>Người lập báo cáo: <strong>Quản trị viên hệ thống</strong></div>
-      <div style="margin-top: 25px; font-style: italic; color: #999;">(Đã ký duyệt điện tử)</div>
-    </div>
-  </div>
 </body>
 </html>`;
 }
 
 /**
- * Mở cửa sổ in ấn A4 chuẩn cho phép In trực tiếp hoặc Lưu dưới dạng PDF (Save as PDF)
+ * Sinh mã HTML trang in A4 chuẩn cho Toàn bộ tài khoản sinh viên (4 cột)
  */
-export function exportToPdfPrint(students: ExportStudentItem[]): void {
+export function generateAllStudentsPdfHtml(students: ExportAllStudentItem[]): string {
+  const now = new Date();
+  const formattedDate = formatDateTimeVN(now);
+
+  const tableRows = students
+    .map(
+      (s) => `      <tr>
+        <td class="center font-bold">${s.stt}</td>
+        <td><strong>${escapeHtml(s.displayName)}</strong></td>
+        <td class="center font-mono">${escapeHtml(s.studentCode)}</td>
+        <td>${escapeHtml(s.email)}</td>
+      </tr>`
+    )
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Danh Sách Tài Khoản Sinh Viên - Hanu Hungry</title>
+  <style>
+${BASE_PDF_CSS}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand-title">🍔 HANU HUNGRY</div>
+      <div class="brand-sub">Hệ thống Khám phá Ẩm thực & Thống kê Check-in Sinh viên HANU</div>
+    </div>
+    <div class="meta-info">
+      <div>Thời gian xuất: <strong>${formattedDate}</strong></div>
+    </div>
+  </div>
+
+  <div class="doc-title-container">
+    <h1 class="doc-title">DANH SÁCH TÀI KHOẢN SINH VIÊN</h1>
+    <p class="doc-subtitle">Tổng số: <strong>${students.length} sinh viên</strong> • Sắp xếp theo lượt truy cập gần nhất</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="center" style="width: 42px;">STT</th>
+        <th style="width: 30%;">Thành viên</th>
+        <th class="center" style="width: 26%;">Mã sinh viên (MSSV)</th>
+        <th style="width: 38%;">Email</th>
+      </tr>
+    </thead>
+    <tbody>
+${tableRows}
+    </tbody>
+  </table>
+</body>
+</html>`;
+}
+
+/**
+ * Mở hộp thoại in ấn chuẩn không để lộ URL about:blank (sử dụng hidden iframe đính kèm trang hiện tại)
+ */
+function triggerPrint(html: string): void {
   if (typeof window === "undefined") return;
 
-  const html = generatePrintablePdfHtml(students);
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.top = "-9999px";
+  iframe.style.left = "-9999px";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "none";
+  document.body.appendChild(iframe);
 
-  // Mở cửa sổ in ấn chuẩn
-  const printWindow = window.open("", "_blank", "width=850,height=900,menubar=no,toolbar=no");
-  if (!printWindow) {
-    // Trình duyệt chặn popup -> dùng hidden iframe làm fallback
-    const iframe = document.createElement("iframe");
-    iframe.style.position = "fixed";
-    iframe.style.top = "-9999px";
-    iframe.style.left = "-9999px";
-    iframe.style.width = "0";
-    iframe.style.height = "0";
-    iframe.style.border = "none";
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentWindow?.document;
-    if (doc) {
-      doc.open();
-      doc.write(html);
-      doc.close();
-      setTimeout(() => {
+  const doc = iframe.contentWindow?.document;
+  if (doc) {
+    doc.open();
+    doc.write(html);
+    doc.close();
+    setTimeout(() => {
+      try {
         iframe.contentWindow?.focus();
         iframe.contentWindow?.print();
-        setTimeout(() => document.body.removeChild(iframe), 3000);
-      }, 500);
-    }
+      } catch {
+        fallbackWindowPrint(html);
+      } finally {
+        setTimeout(() => {
+          try {
+            document.body.removeChild(iframe);
+          } catch {}
+        }, 5000);
+      }
+    }, 400);
     return;
   }
+
+  fallbackWindowPrint(html);
+}
+
+/**
+ * Fallback mở cửa sổ riêng nếu trình duyệt chặn iframe
+ */
+function fallbackWindowPrint(html: string): void {
+  const printWindow = window.open("", "_blank", "width=850,height=900,menubar=no,toolbar=no");
+  if (!printWindow) return;
 
   printWindow.document.open();
   printWindow.document.write(html);
   printWindow.document.close();
 
-  // Đợi tài liệu nạp xong rồi kích hoạt hộp thoại in / lưu PDF
   printWindow.onload = () => {
     printWindow.focus();
     printWindow.print();
   };
 
-  // Fallback nếu sự kiện onload không kích hoạt trên một số trình duyệt
   setTimeout(() => {
     try {
       printWindow.focus();
       printWindow.print();
-    } catch {
-      // Đã in xong hoặc cửa sổ đã đóng
-    }
-  }, 600);
+    } catch {}
+  }, 500);
+}
+
+/**
+ * In/Lưu PDF cho bảng xếp hạng chuỗi (≥ 1 ngày)
+ */
+export function exportToPdfPrint(students: ExportStudentItem[]): void {
+  const html = generatePrintablePdfHtml(students);
+  triggerPrint(html);
+}
+
+/**
+ * In/Lưu PDF cho toàn bộ tài khoản sinh viên
+ */
+export function exportAllStudentsToPdfPrint(students: ExportAllStudentItem[]): void {
+  const html = generateAllStudentsPdfHtml(students);
+  triggerPrint(html);
 }

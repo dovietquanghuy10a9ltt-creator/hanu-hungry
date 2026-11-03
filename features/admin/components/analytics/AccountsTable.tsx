@@ -21,7 +21,14 @@ import {
 import type { SystemAccount, VercelAnalyticsData, UserStreakRankingItem } from "./types";
 import { formatRelativeTime } from "./utils";
 import { VercelReferrersCard } from "./VercelReferrersCard";
-import { prepareStudentExportData, exportToExcelFile, exportToPdfPrint } from "./exportUtils";
+import {
+  prepareStudentExportData,
+  prepareAllStudentsExportData,
+  exportToExcelFile,
+  exportAllStudentsToExcelFile,
+  exportToPdfPrint,
+  exportAllStudentsToPdfPrint,
+} from "./exportUtils";
 
 const ACCOUNTS_PER_PAGE = 15;
 const CLUSTER_SIZE = 3;
@@ -64,6 +71,11 @@ export function AccountsTable({ accounts, vercelAnalytics, streakRanking }: Acco
   const exportStudents = useMemo(() => {
     return prepareStudentExportData(accounts, streakRanking);
   }, [accounts, streakRanking]);
+
+  // Chuẩn bị danh sách toàn bộ sinh viên xuất file (không bao gồm admin, sắp xếp theo truy cập gần nhất)
+  const exportAllStudents = useMemo(() => {
+    return prepareAllStudentsExportData(accounts);
+  }, [accounts]);
 
   // Sắp xếp tài khoản:
   // 1. Tất cả tài khoản Quản trị viên (ADMIN) luôn được ghim lên đầu trang (STT 1 và 2)
@@ -196,13 +208,10 @@ export function AccountsTable({ accounts, vercelAnalytics, streakRanking }: Acco
                 onClick={() => setIsExportMenuOpen((prev) => !prev)}
                 aria-expanded={isExportMenuOpen}
                 className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-line)] bg-white hover:bg-[var(--color-pale)] px-3.5 py-2 text-xs font-bold text-[var(--color-ink)] shadow-xs transition cursor-pointer"
-                title="Xuất danh sách sinh viên có chuỗi ≥ 1 ngày"
+                title="Xuất file danh sách sinh viên (PDF & Excel)"
               >
                 <Download className="h-4 w-4 text-[var(--color-red)]" />
                 <span>Xuất danh sách</span>
-                <span className="text-[11px] font-medium text-[var(--color-muted)] hidden md:inline">
-                  ({exportStudents.length})
-                </span>
                 <ChevronDown
                   className={`h-3.5 w-3.5 text-[var(--color-muted)] transition-transform duration-200 ${
                     isExportMenuOpen ? "rotate-180" : ""
@@ -211,49 +220,108 @@ export function AccountsTable({ accounts, vercelAnalytics, streakRanking }: Acco
               </button>
 
               {isExportMenuOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-68 rounded-2xl border border-[var(--color-line)] bg-white p-1.5 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
-                  <div className="px-2.5 py-2 border-b border-[var(--color-line)] mb-1">
+                <div className="absolute right-0 top-full mt-1.5 w-76 sm:w-80 rounded-2xl border border-[var(--color-line)] bg-white p-2 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
+                  {/* Tiêu đề menu */}
+                  <div className="px-2.5 py-1.5 border-b border-[var(--color-line)] mb-2">
                     <p className="text-[11px] font-bold text-[var(--color-ink)] uppercase tracking-wider">
                       Tùy chọn xuất file
                     </p>
-                    <p className="text-[10px] text-[var(--color-muted)] mt-0.5 leading-snug">
-                      {exportStudents.length} sinh viên có chuỗi check-in đang duy trì (≥ 1 ngày)
-                    </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsExportMenuOpen(false);
-                      exportToPdfPrint(exportStudents);
-                    }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-red-50 flex items-center justify-center shrink-0 border border-red-100 group-hover:scale-105 transition">
-                      <FileText className="h-4 w-4 text-[#b51b2c]" />
+                  {/* Nhóm 1: Bảng chuỗi check-in (≥ 1 ngày) */}
+                  <div className="mb-1">
+                    <div className="px-2 pb-1.5 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-[var(--color-ink)] flex items-center gap-1">
+                        <span>🔥</span> Chuỗi check-in (≥ 1 ngày)
+                      </span>
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+                        {exportStudents.length} SV
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file PDF</p>
-                      <p className="text-[10px] text-[var(--color-muted)]">Bản in A4 chuẩn (Lưu dạng PDF)</p>
-                    </div>
-                  </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsExportMenuOpen(false);
-                      exportToExcelFile(exportStudents);
-                    }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group mt-0.5"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:scale-105 transition">
-                      <FileSpreadsheet className="h-4 w-4 text-emerald-700" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsExportMenuOpen(false);
+                        exportToPdfPrint(exportStudents);
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-red-50 flex items-center justify-center shrink-0 border border-red-100 group-hover:scale-105 transition">
+                        <FileText className="h-3.5 w-3.5 text-[#b51b2c]" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file PDF</p>
+                        <p className="text-[10px] text-[var(--color-muted)]">Bản in A4 xếp theo chuỗi hiện tại</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsExportMenuOpen(false);
+                        exportToExcelFile(exportStudents);
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group mt-0.5"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:scale-105 transition">
+                        <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file Excel</p>
+                        <p className="text-[10px] text-[var(--color-muted)]">Bảng tính .xls gồm 5 cột kèm chuỗi</p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Phân cách 2 nhóm */}
+                  <div className="border-t border-[var(--color-line)] my-1.5" />
+
+                  {/* Nhóm 2: Toàn bộ sinh viên (Lượt truy cập gần nhất) */}
+                  <div>
+                    <div className="px-2 pb-1.5 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-[var(--color-ink)] flex items-center gap-1">
+                        <span>👥</span> Toàn bộ sinh viên
+                      </span>
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200">
+                        {exportAllStudents.length} SV
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file Excel</p>
-                      <p className="text-[10px] text-[var(--color-muted)]">Bảng tính .xls mở bằng Excel</p>
-                    </div>
-                  </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsExportMenuOpen(false);
+                        exportAllStudentsToPdfPrint(exportAllStudents);
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-red-50 flex items-center justify-center shrink-0 border border-red-100 group-hover:scale-105 transition">
+                        <FileText className="h-3.5 w-3.5 text-[#b51b2c]" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file PDF</p>
+                        <p className="text-[10px] text-[var(--color-muted)]">Bản in A4 xếp theo truy cập gần nhất</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsExportMenuOpen(false);
+                        exportAllStudentsToExcelFile(exportAllStudents);
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group mt-0.5"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:scale-105 transition">
+                        <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file Excel</p>
+                        <p className="text-[10px] text-[var(--color-muted)]">Bảng tính .xls gồm 4 cột gọn gàng</p>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

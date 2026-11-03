@@ -68,3 +68,10 @@ export type ExportStudentItem = {
   currentStreak: number;
 };
 
+export type ExportAllStudentItem = {
+  stt: number;
+  displayName: string;
+  studentCode: string;
+  email: string;
+};
+
