@@ -22,21 +22,23 @@ export function prepareStudentExportData(
     }
   }
 
-  // 3. Chuẩn hóa dữ liệu kèm chuỗi ngày
-  const enriched = studentAccounts.map((acc) => {
-    const streakItem = streakMap.get(acc.id) || streakMap.get(`code:${acc.student_code}`);
-    return {
-      displayName: acc.display_name || "Thành viên",
-      studentCode: acc.student_code || "—",
-      email: acc.email || "—",
-      longestStreak: streakItem ? streakItem.longestStreak : 0,
-      currentStreak: streakItem ? streakItem.currentStreak : 0,
-      createdAt: acc.created_at,
-    };
-  });
+  // 3. Chuẩn hóa dữ liệu kèm chuỗi ngày và chỉ giữ lại những ai có chuỗi hiện tại >= 1 ngày
+  const activeStudents = studentAccounts
+    .map((acc) => {
+      const streakItem = streakMap.get(acc.id) || streakMap.get(`code:${acc.student_code}`);
+      return {
+        displayName: acc.display_name || "Thành viên",
+        studentCode: acc.student_code || "—",
+        email: acc.email || "—",
+        longestStreak: streakItem ? streakItem.longestStreak : 0,
+        currentStreak: streakItem ? streakItem.currentStreak : 0,
+        createdAt: acc.created_at,
+      };
+    })
+    .filter((item) => item.currentStreak >= 1);
 
   // 4. Sắp xếp theo chuỗi hiện tại tại thời điểm xuất file giảm dần (currentStreak giảm dần -> longestStreak giảm dần -> ngày tạo)
-  enriched.sort((a, b) => {
+  activeStudents.sort((a, b) => {
     if (b.currentStreak !== a.currentStreak) {
       return b.currentStreak - a.currentStreak;
     }
@@ -47,7 +49,7 @@ export function prepareStudentExportData(
   });
 
   // 5. Gán chỉ mục index STT (1, 2, 3...)
-  return enriched.map((item, index) => ({
+  return activeStudents.map((item, index) => ({
     stt: index + 1,
     displayName: item.displayName,
     studentCode: item.studentCode,
@@ -390,7 +392,6 @@ export function generatePrintablePdfHtml(students: ExportStudentItem[]): string 
     </div>
     <div class="meta-info">
       <div>Thời gian xuất: <strong>${formattedDate}</strong></div>
-      <div>Phạm vi: <strong>Toàn bộ sinh viên (Không bao gồm Admin)</strong></div>
     </div>
   </div>
 

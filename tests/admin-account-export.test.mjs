@@ -128,15 +128,19 @@ test("prepareStudentExportData filters out ADMIN accounts and sorts by highest s
 
   const result = prepareStudentExportData(mockAccounts, mockStreakRanking);
 
-  // 1. Phải loại trừ 100% tài khoản Admin
-  assert.equal(result.length, 4, "Chỉ giữ lại 4 tài khoản USER, 2 tài khoản ADMIN phải bị loại bỏ");
+  // 1. Phải loại trừ 100% tài khoản Admin và loại bỏ những ai có chuỗi = 0 (chỉ giữ lại chuỗi >= 1)
+  assert.equal(result.length, 3, "Chỉ giữ lại 3 tài khoản USER có currentStreak >= 1, loại bỏ ADMIN và chuỗi = 0");
   assert.ok(
     !result.some((r) => r.displayName === "mtvzzn" || r.displayName === "huyennhung1213"),
     "Không chứa bất kỳ Admin nào"
   );
+  assert.ok(
+    !result.some((r) => r.currentStreak === 0),
+    "Không chứa tài khoản có chuỗi = 0"
+  );
 
   // 2. Sắp xếp giảm dần theo chuỗi hiện tại tại thời điểm xuất file (currentStreak)
-  // user-3 (current: 12) -> user-1 (current: 5, longest: 14) -> user-2 (current: 5, longest: 8) -> user-4 (current: 0)
+  // user-3 (current: 12) -> user-1 (current: 5, longest: 14) -> user-2 (current: 5, longest: 8)
   assert.equal(result[0].displayName, "haan280908");
   assert.equal(result[0].currentStreak, 12);
   assert.equal(result[0].stt, 1);
@@ -150,10 +154,6 @@ test("prepareStudentExportData filters out ADMIN accounts and sorts by highest s
   assert.equal(result[2].currentStreak, 5);
   assert.equal(result[2].longestStreak, 8);
   assert.equal(result[2].stt, 3);
-
-  assert.equal(result[3].displayName, "nguyenthaobui2504");
-  assert.equal(result[3].currentStreak, 0); // Không có trong streakRanking -> default 0
-  assert.equal(result[3].stt, 4);
 
   // 3. Đúng 3 trường thông tin yêu cầu + STT + streak
   assert.equal(result[0].studentCode, "2607010005");
@@ -227,5 +227,6 @@ test("generatePrintablePdfHtml produces structured HTML with A4 styling, Hanu br
   assert.ok(html.includes("long.vu@gmail.com"));
   assert.ok(html.includes("🔥 7 ngày")); // Chuỗi hiện tại 7
   assert.ok(html.includes("Chuỗi hiện tại"));
+  assert.ok(!html.includes("Phạm vi:"), "Không được chứa dòng Phạm vi");
   assert.ok(html.includes("@page"));
 });

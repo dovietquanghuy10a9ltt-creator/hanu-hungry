@@ -196,7 +196,7 @@ export function AccountsTable({ accounts, vercelAnalytics, streakRanking }: Acco
                 onClick={() => setIsExportMenuOpen((prev) => !prev)}
                 aria-expanded={isExportMenuOpen}
                 className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-line)] bg-white hover:bg-[var(--color-pale)] px-3.5 py-2 text-xs font-bold text-[var(--color-ink)] shadow-xs transition cursor-pointer"
-                title="Xuất danh sách sinh viên xếp theo chuỗi hiện tại giảm dần"
+                title="Xuất danh sách sinh viên có chuỗi ≥ 1 ngày"
               >
                 <Download className="h-4 w-4 text-[var(--color-red)]" />
                 <span>Xuất danh sách</span>
@@ -217,7 +217,7 @@ export function AccountsTable({ accounts, vercelAnalytics, streakRanking }: Acco
                       Tùy chọn xuất file
                     </p>
                     <p className="text-[10px] text-[var(--color-muted)] mt-0.5 leading-snug">
-                      {exportStudents.length} sinh viên (xếp theo chuỗi hiện tại giảm dần, không gồm Admin)
+                      {exportStudents.length} sinh viên có chuỗi check-in đang duy trì (≥ 1 ngày)
                     </p>
                   </div>
 
