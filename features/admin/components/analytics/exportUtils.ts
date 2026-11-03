@@ -1,8 +1,8 @@
 import type { SystemAccount, UserStreakRankingItem, ExportStudentItem } from "./types";
 
 /**
- * Lọc tài khoản sinh viên (loại trừ Admin) và sắp xếp theo chuỗi cao nhất giảm dần.
- * Dữ liệu chuẩn bị cho xuất file gồm: STT, Thành viên, MSSV, Email, Chuỗi kỷ lục.
+ * Lọc tài khoản sinh viên (loại trừ Admin) và sắp xếp theo chuỗi hiện tại cao nhất tại thời điểm xuất file giảm dần.
+ * Dữ liệu chuẩn bị cho xuất file gồm: STT, Thành viên, MSSV, Email, Chuỗi hiện tại.
  */
 export function prepareStudentExportData(
   accounts: SystemAccount[],
@@ -35,13 +35,13 @@ export function prepareStudentExportData(
     };
   });
 
-  // 4. Sắp xếp theo chuỗi cao nhất giảm dần (longestStreak giảm dần -> currentStreak giảm dần -> ngày tạo)
+  // 4. Sắp xếp theo chuỗi hiện tại tại thời điểm xuất file giảm dần (currentStreak giảm dần -> longestStreak giảm dần -> ngày tạo)
   enriched.sort((a, b) => {
-    if (b.longestStreak !== a.longestStreak) {
-      return b.longestStreak - a.longestStreak;
-    }
     if (b.currentStreak !== a.currentStreak) {
       return b.currentStreak - a.currentStreak;
+    }
+    if (b.longestStreak !== a.longestStreak) {
+      return b.longestStreak - a.longestStreak;
     }
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
@@ -109,7 +109,7 @@ export function generateExcelXml(students: ExportStudentItem[]): string {
         <Cell ss:StyleID="Text"><Data ss:Type="String">${escapeXml(s.displayName)}</Data></Cell>
         <Cell ss:StyleID="StudentCode"><Data ss:Type="String">${escapeXml(s.studentCode)}</Data></Cell>
         <Cell ss:StyleID="Text"><Data ss:Type="String">${escapeXml(s.email)}</Data></Cell>
-        <Cell ss:StyleID="CenterBold"><Data ss:Type="Number">${s.longestStreak}</Data></Cell>
+        <Cell ss:StyleID="CenterBold"><Data ss:Type="Number">${s.currentStreak}</Data></Cell>
       </Row>`
     )
     .join("\n");
@@ -177,7 +177,7 @@ export function generateExcelXml(students: ExportStudentItem[]): string {
         <Cell ss:StyleID="Header"><Data ss:Type="String">Thành viên</Data></Cell>
         <Cell ss:StyleID="Header"><Data ss:Type="String">Mã sinh viên (MSSV)</Data></Cell>
         <Cell ss:StyleID="Header"><Data ss:Type="String">Email</Data></Cell>
-        <Cell ss:StyleID="Header"><Data ss:Type="String">Chuỗi kỷ lục (Ngày)</Data></Cell>
+        <Cell ss:StyleID="Header"><Data ss:Type="String">Chuỗi hiện tại (Ngày)</Data></Cell>
       </Row>
 ${rowsXml}
     </Table>
@@ -190,13 +190,13 @@ ${rowsXml}
  */
 export function generateCsvContent(students: ExportStudentItem[]): string {
   const BOM = "\uFEFF";
-  const headers = ["STT", "Thành viên", "Mã sinh viên (MSSV)", "Email", "Chuỗi kỷ lục (Ngày)"];
+  const headers = ["STT", "Thành viên", "Mã sinh viên (MSSV)", "Email", "Chuỗi hiện tại (Ngày)"];
   const rows = students.map((s) => [
     s.stt,
     `"${s.displayName.replace(/"/g, '""')}"`,
     `"${s.studentCode}"`,
     `"${s.email.replace(/"/g, '""')}"`,
-    s.longestStreak,
+    s.currentStreak,
   ]);
 
   return (
@@ -243,7 +243,7 @@ export function generatePrintablePdfHtml(students: ExportStudentItem[]): string 
         <td><strong>${escapeHtml(s.displayName)}</strong></td>
         <td class="center font-mono">${escapeHtml(s.studentCode)}</td>
         <td>${escapeHtml(s.email)}</td>
-        <td class="center"><span class="streak-badge">🔥 ${s.longestStreak} ngày</span></td>
+        <td class="center"><span class="streak-badge">🔥 ${s.currentStreak} ngày</span></td>
       </tr>`
     )
     .join("\n");
@@ -396,7 +396,7 @@ export function generatePrintablePdfHtml(students: ExportStudentItem[]): string 
 
   <div class="doc-title-container">
     <h1 class="doc-title">BẢNG XẾP HẠNG CHUỖI CHECK-IN THÀNH VIÊN</h1>
-    <p class="doc-subtitle">Tổng số: <strong>${students.length} sinh viên</strong> • Sắp xếp theo chuỗi kỷ lục cao nhất giảm dần</p>
+    <p class="doc-subtitle">Tổng số: <strong>${students.length} sinh viên</strong> • Sắp xếp theo chuỗi hiện tại cao nhất giảm dần</p>
   </div>
 
   <table>
@@ -406,7 +406,7 @@ export function generatePrintablePdfHtml(students: ExportStudentItem[]): string 
         <th style="width: 28%;">Thành viên</th>
         <th class="center" style="width: 22%;">Mã sinh viên (MSSV)</th>
         <th style="width: 32%;">Email</th>
-        <th class="center" style="width: 18%;">Chuỗi kỷ lục</th>
+        <th class="center" style="width: 18%;">Chuỗi hiện tại</th>
       </tr>
     </thead>
     <tbody>

@@ -135,22 +135,24 @@ test("prepareStudentExportData filters out ADMIN accounts and sorts by highest s
     "Không chứa bất kỳ Admin nào"
   );
 
-  // 2. Sắp xếp giảm dần theo chuỗi cao nhất (longestStreak)
-  // user-3 (25) -> user-1 (14) -> user-2 (8) -> user-4 (0)
+  // 2. Sắp xếp giảm dần theo chuỗi hiện tại tại thời điểm xuất file (currentStreak)
+  // user-3 (current: 12) -> user-1 (current: 5, longest: 14) -> user-2 (current: 5, longest: 8) -> user-4 (current: 0)
   assert.equal(result[0].displayName, "haan280908");
-  assert.equal(result[0].longestStreak, 25);
+  assert.equal(result[0].currentStreak, 12);
   assert.equal(result[0].stt, 1);
 
   assert.equal(result[1].displayName, "thungan0699");
+  assert.equal(result[1].currentStreak, 5);
   assert.equal(result[1].longestStreak, 14);
   assert.equal(result[1].stt, 2);
 
   assert.equal(result[2].displayName, "tuongwfvhy14");
+  assert.equal(result[2].currentStreak, 5);
   assert.equal(result[2].longestStreak, 8);
   assert.equal(result[2].stt, 3);
 
   assert.equal(result[3].displayName, "nguyenthaobui2504");
-  assert.equal(result[3].longestStreak, 0); // Không có trong streakRanking -> default 0
+  assert.equal(result[3].currentStreak, 0); // Không có trong streakRanking -> default 0
   assert.equal(result[3].stt, 4);
 
   // 3. Đúng 3 trường thông tin yêu cầu + STT + streak
@@ -177,8 +179,8 @@ test("generateExcelXml produces valid SpreadsheetML with Vietnamese characters a
   assert.ok(xml.includes("Nguyễn Văn Đạt"));
   assert.ok(xml.includes("2404060001"));
   assert.ok(xml.includes("dat.nguyen@gmail.com"));
-  assert.ok(xml.includes("<Data ss:Type=\"Number\">30</Data>"));
-  assert.ok(xml.includes("Chuỗi kỷ lục (Ngày)"));
+  assert.ok(xml.includes('<Data ss:Type="Number">15</Data>')); // Chuỗi hiện tại 15
+  assert.ok(xml.includes("Chuỗi hiện tại (Ngày)"));
 });
 
 test("generateCsvContent produces UTF-8 BOM CSV with proper quoting", () => {
@@ -197,10 +199,10 @@ test("generateCsvContent produces UTF-8 BOM CSV with proper quoting", () => {
 
   // Starts with UTF-8 BOM
   assert.ok(csv.startsWith("\uFEFF"));
-  assert.ok(csv.includes("STT,Thành viên,Mã sinh viên (MSSV),Email,Chuỗi kỷ lục (Ngày)"));
+  assert.ok(csv.includes("STT,Thành viên,Mã sinh viên (MSSV),Email,Chuỗi hiện tại (Ngày)"));
   assert.ok(csv.includes('"Trần ""Thanh"" Mai"'));
   assert.ok(csv.includes('"2404060002"'));
-  assert.ok(csv.includes("18"));
+  assert.ok(csv.includes("2")); // Chuỗi hiện tại 2
 });
 
 test("generatePrintablePdfHtml produces structured HTML with A4 styling, Hanu branding and table rows", () => {
@@ -210,8 +212,8 @@ test("generatePrintablePdfHtml produces structured HTML with A4 styling, Hanu br
       displayName: "Vũ Hoàng Long",
       studentCode: "2404060003",
       email: "long.vu@gmail.com",
-      longestStreak: 22,
-      currentStreak: 22,
+      longestStreak: 30,
+      currentStreak: 7,
     },
   ];
 
@@ -223,6 +225,7 @@ test("generatePrintablePdfHtml produces structured HTML with A4 styling, Hanu br
   assert.ok(html.includes("Vũ Hoàng Long"));
   assert.ok(html.includes("2404060003"));
   assert.ok(html.includes("long.vu@gmail.com"));
-  assert.ok(html.includes("🔥 22 ngày"));
+  assert.ok(html.includes("🔥 7 ngày")); // Chuỗi hiện tại 7
+  assert.ok(html.includes("Chuỗi hiện tại"));
   assert.ok(html.includes("@page"));
 });
