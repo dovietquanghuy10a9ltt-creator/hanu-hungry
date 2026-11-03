@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   Users,
@@ -13,10 +13,15 @@ import {
   ChevronsLeft,
   ChevronsRight,
   SearchX,
+  Download,
+  FileText,
+  FileSpreadsheet,
+  ChevronDown,
 } from "lucide-react";
-import type { SystemAccount, VercelAnalyticsData } from "./types";
+import type { SystemAccount, VercelAnalyticsData, UserStreakRankingItem } from "./types";
 import { formatRelativeTime } from "./utils";
 import { VercelReferrersCard } from "./VercelReferrersCard";
+import { prepareStudentExportData, exportToExcelFile, exportToPdfPrint } from "./exportUtils";
 
 const ACCOUNTS_PER_PAGE = 15;
 const CLUSTER_SIZE = 3;
@@ -24,12 +29,41 @@ const CLUSTER_SIZE = 3;
 interface AccountsTableProps {
   accounts: SystemAccount[];
   vercelAnalytics?: VercelAnalyticsData;
+  streakRanking?: UserStreakRankingItem[];
 }
 
-export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps) {
+export function AccountsTable({ accounts, vercelAnalytics, streakRanking }: AccountsTableProps) {
   const [accountSearch, setAccountSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
   const [accountPage, setAccountPage] = useState(1);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+
+  // Đóng menu xuất file khi click ra ngoài hoặc bấm Escape
+  useEffect(() => {
+    if (!isExportMenuOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setIsExportMenuOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsExportMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isExportMenuOpen]);
+
+  // Chuẩn bị danh sách sinh viên xuất file (không bao gồm admin, sắp xếp theo chuỗi cao nhất giảm dần)
+  const exportStudents = useMemo(() => {
+    return prepareStudentExportData(accounts, streakRanking);
+  }, [accounts, streakRanking]);
 
   // Sắp xếp tài khoản:
   // 1. Tất cả tài khoản Quản trị viên (ADMIN) luôn được ghim lên đầu trang (STT 1 và 2)
@@ -144,14 +178,85 @@ export function AccountsTable({ accounts, vercelAnalytics }: AccountsTableProps)
       <div className="rounded-2xl border border-[var(--color-line)] bg-white shadow-xs overflow-hidden">
         {/* Header, Search & Filter Controls */}
         <div className="p-4 sm:p-5 border-b border-[var(--color-line)] flex flex-col gap-3 sm:gap-4">
-          <div>
-            <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
-              <Users className="h-4 w-4 text-[var(--color-red)]" />
-              <span>Danh sách người dùng trong hệ thống</span>
-            </h3>
-            <p className="text-xs text-[var(--color-muted)] mt-0.5">
-              Hiển thị {filteredAccounts.length} / {accounts.length} tài khoản (15 tài khoản mỗi trang)
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-base font-extrabold text-[var(--color-ink)] flex items-center gap-2">
+                <Users className="h-4 w-4 text-[var(--color-red)]" />
+                <span>Danh sách người dùng trong hệ thống</span>
+              </h3>
+              <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                Hiển thị {filteredAccounts.length} / {accounts.length} tài khoản (15 tài khoản mỗi trang)
+              </p>
+            </div>
+
+            {/* Nút Xuất danh sách (PDF & Excel) */}
+            <div className="relative shrink-0 self-start sm:self-auto" ref={exportMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsExportMenuOpen((prev) => !prev)}
+                aria-expanded={isExportMenuOpen}
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-line)] bg-white hover:bg-[var(--color-pale)] px-3.5 py-2 text-xs font-bold text-[var(--color-ink)] shadow-xs transition cursor-pointer"
+                title="Xuất danh sách sinh viên xếp theo chuỗi cao nhất giảm dần"
+              >
+                <Download className="h-4 w-4 text-[var(--color-red)]" />
+                <span>Xuất danh sách</span>
+                <span className="text-[11px] font-medium text-[var(--color-muted)] hidden md:inline">
+                  ({exportStudents.length})
+                </span>
+                <ChevronDown
+                  className={`h-3.5 w-3.5 text-[var(--color-muted)] transition-transform duration-200 ${
+                    isExportMenuOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isExportMenuOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-68 rounded-2xl border border-[var(--color-line)] bg-white p-1.5 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="px-2.5 py-2 border-b border-[var(--color-line)] mb-1">
+                    <p className="text-[11px] font-bold text-[var(--color-ink)] uppercase tracking-wider">
+                      Tùy chọn xuất file
+                    </p>
+                    <p className="text-[10px] text-[var(--color-muted)] mt-0.5 leading-snug">
+                      {exportStudents.length} sinh viên (xếp theo chuỗi cao nhất giảm dần, không gồm Admin)
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsExportMenuOpen(false);
+                      exportToPdfPrint(exportStudents);
+                    }}
+                    className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-red-50 flex items-center justify-center shrink-0 border border-red-100 group-hover:scale-105 transition">
+                      <FileText className="h-4 w-4 text-[#b51b2c]" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file PDF</p>
+                      <p className="text-[10px] text-[var(--color-muted)]">Bản in A4 chuẩn (Lưu dạng PDF)</p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsExportMenuOpen(false);
+                      exportToExcelFile(exportStudents);
+                    }}
+                    className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left hover:bg-[var(--color-pale)] transition cursor-pointer group mt-0.5"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:scale-105 transition">
+                      <FileSpreadsheet className="h-4 w-4 text-emerald-700" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-[var(--color-ink)]">Xuất file Excel</p>
+                      <p className="text-[10px] text-[var(--color-muted)]">Bảng tính .xls mở bằng Excel</p>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Filters & Search Row */}

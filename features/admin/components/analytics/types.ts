@@ -59,3 +59,12 @@ export type VercelAnalyticsData = {
   error?: string;
 };
 
+export type ExportStudentItem = {
+  stt: number;
+  displayName: string;
+  studentCode: string;
+  email: string;
+  longestStreak: number;
+  currentStreak: number;
+};
+

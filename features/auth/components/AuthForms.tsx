@@ -257,6 +257,7 @@ export function RegisterForm() {
           if (code) saveRegisteredMssv(code);
         }}
         className="mt-7 space-y-5"
+      >
         {/* Anti-bot Honeypot Trap: người thật không nhìn thấy, bot cào form tự động điền sẽ bị phát hiện */}
         <div aria-hidden="true" style={{ opacity: 0, position: "absolute", top: 0, left: 0, height: 0, width: 0, zIndex: -1, pointerEvents: "none" }}>
           <label htmlFor="user_phone_hp">Số điện thoại phụ</label>

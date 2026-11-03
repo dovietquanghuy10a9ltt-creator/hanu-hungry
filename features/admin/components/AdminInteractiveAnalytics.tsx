@@ -298,7 +298,11 @@ export function AdminInteractiveAnalytics({
 
       {/* 1. ACCOUNTS DIRECTORY TAB */}
       {activeTab === "accounts" && (
-        <AccountsTable accounts={accounts} vercelAnalytics={vercelAnalytics} />
+        <AccountsTable
+          accounts={accounts}
+          vercelAnalytics={vercelAnalytics}
+          streakRanking={streakRanking}
+        />
       )}
 
       {/* 2. STREAKS LEADERBOARD TAB */}
