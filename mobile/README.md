@@ -68,3 +68,4 @@ npx expo start
    - **iPhone**: Dùng ứng dụng Camera quét mã QR $\rightarrow$ bấm mở trong Expo Go.
    - **Android**: Mở ứng dụng Expo Go $\rightarrow$ chọn "Scan QR code".
 3. Ứng dụng sẽ nạp mã nguồn và chạy trực tiếp trên điện thoại của bạn với đầy đủ tính năng rung xúc giác và kết nối trực tiếp vào cơ sở dữ liệu Supabase!
+

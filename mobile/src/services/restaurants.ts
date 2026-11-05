@@ -175,3 +175,4 @@ export async function getUserCheckIns(userId: string): Promise<CheckIn[]> {
     dish: item.dishes,
   }));
 }
+

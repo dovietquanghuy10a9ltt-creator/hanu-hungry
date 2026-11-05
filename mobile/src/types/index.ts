@@ -60,3 +60,4 @@ export interface StreakStats {
   isTodayCheckedIn: boolean;
   totalCheckIns: number;
 }
+
