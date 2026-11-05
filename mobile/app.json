@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Hanu Hungry",
+    "slug": "hanu-hungry",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "hanuhungry",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#B51B2C"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "vn.id.hanuhungry.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Hanu Hungry cần quyền vị trí để tự động phát hiện quán ăn quanh cổng trường HANU và hỗ trợ bạn check-in giữ chuỗi.",
+        "NSCameraUsageDescription": "Hanu Hungry cần quyền camera để bạn chụp ảnh món ăn khi check-in hoặc đánh giá quán ăn."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#B51B2C"
+      },
+      "package": "vn.id.hanuhungry.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Hanu Hungry cần quyền vị trí để hỗ trợ check-in tại quán ăn quanh cổng HANU."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
