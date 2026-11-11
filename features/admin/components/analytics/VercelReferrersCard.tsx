@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Globe, Users, TrendingUp, Loader2, ChevronDown } from "lucide-react";
 import type { VercelAnalyticsData, VercelReferrerItem } from "./types";
 
@@ -184,14 +184,9 @@ function ReferrerIcon({ name }: { name: string }) {
 
 export function VercelReferrersCard({ data }: VercelReferrersCardProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
-  const [liveData, setLiveData] = useState<VercelAnalyticsData | undefined>(data);
+  const [liveData, setLiveData] = useState<VercelAnalyticsData | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (data) {
-      setLiveData(data);
-    }
-  }, [data]);
+  const currentData = liveData ?? data;
 
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -216,11 +211,11 @@ export function VercelReferrersCard({ data }: VercelReferrersCardProps) {
   }
 
   const currentPreview = PREVIEW_BY_RANGE[timeRange];
-  const hasLive = Boolean(liveData?.isConnected && liveData?.referrers?.length);
+  const hasLive = Boolean(currentData?.isConnected && currentData?.referrers?.length);
 
-  const displayReferrers = hasLive ? liveData!.referrers : currentPreview.referrers;
+  const displayReferrers = hasLive ? currentData!.referrers : currentPreview.referrers;
   const totalVisitors = hasLive
-    ? liveData!.totalVisitors || displayReferrers.reduce((s, r) => s + r.visitors, 0)
+    ? currentData!.totalVisitors || displayReferrers.reduce((s, r) => s + r.visitors, 0)
     : currentPreview.visitors;
 
   const topSource = displayReferrers[0];

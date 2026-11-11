@@ -2,10 +2,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getBlogPostBySlug } from "@/features/blog/data";
+import { getBlogPostBySlug, listPublishedBlogPosts } from "@/features/blog/data";
 import { sanitizeBlogHtml } from "@/features/blog/sanitize";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  try {
+    const posts = await listPublishedBlogPosts();
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch {
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

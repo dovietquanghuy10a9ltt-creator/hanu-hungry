@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export type BlogPostSummary = {
   id: string;
@@ -26,7 +26,7 @@ const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export async function listRecentBlogPosts(limit = 5): Promise<BlogPostSummary[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("blog_posts")
       .select("id,slug,title,excerpt,cover_image_url,published_at")
@@ -41,7 +41,7 @@ export async function listRecentBlogPosts(limit = 5): Promise<BlogPostSummary[]>
 }
 
 export async function listPublishedBlogPosts(): Promise<BlogPostSummary[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("id,slug,title,excerpt,cover_image_url,published_at")
@@ -57,7 +57,7 @@ export async function listPublishedBlogPosts(): Promise<BlogPostSummary[]> {
 
 export const getBlogPostBySlug = cache(async function getBlogPostBySlug(slug: string): Promise<BlogPostDetail | null> {
   if (!SLUG_PATTERN.test(slug)) return null;
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("id,slug,title,excerpt,content,cover_image_url,published_at,seo_title,seo_description")

@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const revalidate = 3600;
+
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-10 pb-12">

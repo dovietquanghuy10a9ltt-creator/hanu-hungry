@@ -1,16 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 import {
   displayNameFromEmail,
   isValidStudentCode,
   isValidHanuStudentCode,
   isDisposableOrSpamEmail,
+  isAllowedRegistrationEmail,
   isValidEmail,
   normalizeEmail,
   safeReturnPath,
   siteUrl,
   validatePassword,
 } from "../lib/auth/validation.ts";
+import {
+  generateFormGuardToken,
+  verifyFormGuardToken,
+} from "../lib/security/form-guard.ts";
 
 test("MSSV is exactly ten ASCII digits", () => {
   assert.equal(isValidStudentCode("1234567890"), true);
@@ -64,10 +70,73 @@ test("isDisposableOrSpamEmail blocks attack patterns and disposable domains", ()
   assert.equal(isDisposableOrSpamEmail("spam@tempmail.com"), true);
   assert.equal(isDisposableOrSpamEmail("user@mailinator.com"), true);
 
+  // Security audit and test domains (RFC 2606)
+  assert.equal(isDisposableOrSpamEmail("security-audit-20261104-e6d155@example.invalid"), true);
+  assert.equal(isValidEmail("security-audit-20261104-e6d155@example.invalid"), false);
+  assert.equal(isDisposableOrSpamEmail("security-audit-b-20261104-364f60@example.invalid"), true);
+  assert.equal(isValidEmail("security-audit-b-20261104-364f60@example.invalid"), false);
+  assert.equal(isDisposableOrSpamEmail("test@domain.test"), true);
+  assert.equal(isDisposableOrSpamEmail("user@local.localhost"), true);
+
   // Legitimate student emails
   assert.equal(isDisposableOrSpamEmail("2401050341@hanu.edu.vn"), false);
   assert.equal(isValidEmail("2401050341@hanu.edu.vn"), true);
   assert.equal(isDisposableOrSpamEmail("huyennhung1213@gmail.com"), false);
   assert.equal(isValidEmail("huyennhung1213@gmail.com"), true);
+});
+
+test("isAllowedRegistrationEmail whitelists trusted providers and university domains", () => {
+  // Allowed providers
+  assert.equal(isAllowedRegistrationEmail("sinhvien@gmail.com"), true);
+  assert.equal(isAllowedRegistrationEmail("student@googlemail.com"), true);
+  assert.equal(isAllowedRegistrationEmail("user@outlook.com"), true);
+  assert.equal(isAllowedRegistrationEmail("user@hotmail.com"), true);
+  assert.equal(isAllowedRegistrationEmail("user@icloud.com"), true);
+  assert.equal(isAllowedRegistrationEmail("user@yahoo.com"), true);
+  assert.equal(isAllowedRegistrationEmail("user@yahoo.com.vn"), true);
+  assert.equal(isAllowedRegistrationEmail("2401050341@hanu.edu.vn"), true);
+  assert.equal(isAllowedRegistrationEmail("2401050341@s.hanu.edu.vn"), true);
+  assert.equal(isAllowedRegistrationEmail("admin1@hanu.vn"), true);
+
+  // Rejected unapproved / custom / attacker domains
+  assert.equal(isAllowedRegistrationEmail("security-audit-20261104-e6d155@example.invalid"), false);
+  assert.equal(isAllowedRegistrationEmail("attacker@evil-server.xyz"), false);
+  assert.equal(isAllowedRegistrationEmail("random@contact.me"), false);
+  assert.equal(isAllowedRegistrationEmail("user@protonmail.com"), false);
+});
+
+test("Form guard token creates valid signatures and catches manipulation or fast bot submission", () => {
+  const { timestamp, token } = generateFormGuardToken();
+  assert.ok(timestamp > 0);
+  assert.ok(typeof token === "string" && token.length === 64);
+
+  // Valid signature (setting minDurationMs: 0 for instant test execution)
+  const validCheck = verifyFormGuardToken(String(timestamp), token, { minDurationMs: 0 });
+  assert.equal(validCheck.valid, true);
+
+  // Missing or altered parameters
+  assert.equal(verifyFormGuardToken(null, token).valid, false);
+  assert.equal(verifyFormGuardToken(String(timestamp), "tampered_token").valid, false);
+
+  // Too fast submission check (explicitly setting minDurationMs)
+  const fastGuard = generateFormGuardToken();
+  const fastCheck = verifyFormGuardToken(String(fastGuard.timestamp), fastGuard.token, { minDurationMs: 5000 });
+  assert.equal(fastCheck.valid, false);
+  if (!fastCheck.valid) {
+    assert.equal(fastCheck.reason, "too_fast");
+  }
+
+  // Expired token check
+  const staleTimestamp = Date.now() - 3 * 60 * 60 * 1000;
+  // compute valid signature for stale timestamp
+  const staleGuard = generateFormGuardToken();
+  const staleToken = createHmac("sha256", process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.BOOTSTRAP_ADMIN_1_PASSWORD || "hanu-hungry-form-guard-secret-salt")
+    .update(`form_register:${staleTimestamp}`)
+    .digest("hex");
+  const expiredCheck = verifyFormGuardToken(String(staleTimestamp), staleToken, { minDurationMs: 0, maxDurationMs: 1000 });
+  assert.equal(expiredCheck.valid, false);
+  if (!expiredCheck.valid) {
+    assert.equal(expiredCheck.reason, "expired");
+  }
 });
 

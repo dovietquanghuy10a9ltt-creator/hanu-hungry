@@ -5,10 +5,12 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, clearRateLimit } from "@/lib/security/rate-limit";
+import { verifyFormGuardToken } from "@/lib/security/form-guard";
 import {
   isValidEmail,
   isValidStudentCode,
   isValidHanuStudentCode,
+  isAllowedRegistrationEmail,
   normalizeEmail,
   safeReturnPath,
   siteUrl,
@@ -41,6 +43,15 @@ export async function registerAction(
     return error("Yêu cầu không hợp lệ. Vui lòng thử lại.");
   }
 
+  // 0.1. Anti-bot Form Guard: Chặn bot gửi form tức thì hoặc gửi HTTP POST trực tiếp ngoài giao diện
+  const guardTimestamp = field(form, "guard_timestamp");
+  const guardToken = field(form, "guard_token");
+  const guardCheck = verifyFormGuardToken(guardTimestamp, guardToken);
+  if (!guardCheck.valid) {
+    console.warn(`[anti-bot] Form guard rejected registration attempt: ${guardCheck.reason}`);
+    return error(guardCheck.message);
+  }
+
   const studentCode = field(form, "student_code").trim();
   const email = normalizeEmail(field(form, "email"));
   const password = field(form, "password");
@@ -50,6 +61,9 @@ export async function registerAction(
   }
   if (!isValidEmail(email)) {
     return error("Địa chỉ email không hợp lệ hoặc thuộc danh sách bị hạn chế. Vui lòng sử dụng email cá nhân chính thức.");
+  }
+  if (!isAllowedRegistrationEmail(email)) {
+    return error("Vui lòng sử dụng địa chỉ email chính thức (Gmail, Outlook, iCloud, Yahoo hoặc email trường @hanu.edu.vn / @s.hanu.edu.vn).");
   }
   const passwordError = validatePassword(password);
   if (passwordError) return error(passwordError);

@@ -244,7 +244,7 @@ export function LoginForm({ next, resetDone }: { next: string; resetDone: boolea
   );
 }
 
-export function RegisterForm() {
+export function RegisterForm({ guardToken }: { guardToken?: { timestamp: number; token: string } } = {}) {
   const [state, action] = useActionState(registerAction, initialState);
   return (
     <>
@@ -258,6 +258,14 @@ export function RegisterForm() {
         }}
         className="mt-7 space-y-5"
       >
+        {/* Anti-bot Form Guard: Token bảo vệ phiên & thời gian chống bot submit tự động */}
+        {guardToken ? (
+          <>
+            <input type="hidden" name="guard_timestamp" value={guardToken.timestamp} />
+            <input type="hidden" name="guard_token" value={guardToken.token} />
+          </>
+        ) : null}
+
         {/* Anti-bot Honeypot Trap: người thật không nhìn thấy, bot cào form tự động điền sẽ bị phát hiện */}
         <div aria-hidden="true" style={{ opacity: 0, position: "absolute", top: 0, left: 0, height: 0, width: 0, zIndex: -1, pointerEvents: "none" }}>
           <label htmlFor="user_phone_hp">Số điện thoại phụ</label>

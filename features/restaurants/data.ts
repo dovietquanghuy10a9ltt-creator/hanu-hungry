@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { isUuid } from "@/lib/validation";
 import type { RestaurantDetail, RestaurantSummary } from "./types";
 
@@ -11,7 +11,7 @@ export type RestaurantFilters = {
 };
 
 export async function listRestaurants(filters: RestaurantFilters = {}): Promise<RestaurantSummary[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase.rpc("search_restaurants", {
     query: filters.query?.trim() || undefined,
     category_slug: filters.category || undefined,
@@ -26,7 +26,7 @@ export async function listRestaurants(filters: RestaurantFilters = {}): Promise<
 }
 
 export async function listCategories() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase.from("categories").select("id, name, slug").order("name");
   if (error) {
     console.error("[restaurants] listCategories error:", error.message);
@@ -37,7 +37,7 @@ export async function listCategories() {
 
 export const getRestaurant = cache(async function getRestaurant(id: string): Promise<RestaurantDetail | null> {
   if (!isUuid(id)) return null;
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase.from("restaurants")
     .select("id,name,area,address_text,plus_code,latitude,longitude,description,image_url,notes,dishes(id,name,price_text,price_min_vnd,price_max_vnd,notes,is_active,image_url),restaurant_categories(categories(id,name,slug))")
     .eq("id", id).eq("is_active", true).maybeSingle();

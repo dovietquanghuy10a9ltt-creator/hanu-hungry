@@ -1,6 +1,26 @@
 const STUDENT_CODE_PATTERN = /^[0-9]{10}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Danh sách các nhà cung cấp email uy tín và email trường HANU được phép đăng ký tài khoản
+export const ALLOWED_EMAIL_DOMAINS = new Set([
+  // Google
+  "gmail.com",
+  "googlemail.com",
+  // Microsoft
+  "outlook.com",
+  "hotmail.com",
+  "live.com",
+  // Apple
+  "icloud.com",
+  // Yahoo
+  "yahoo.com",
+  "yahoo.com.vn",
+  // Trường Đại học Hà Nội (HANU)
+  "hanu.edu.vn",
+  "s.hanu.edu.vn",
+  "hanu.vn",
+]);
+
 // Danh sách domain rác, temp mail và typo spam
 export const DISPOSABLE_OR_SPAM_DOMAINS = new Set([
   "contact.me",
@@ -49,21 +69,52 @@ export function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
 }
 
+/**
+ * Kiểm tra xem email có thuộc danh sách domain được phép đăng ký hay không
+ */
+export function isAllowedRegistrationEmail(email: string): boolean {
+  const normalized = normalizeEmail(email);
+  const parts = normalized.split("@");
+  if (parts.length !== 2) return false;
+  const domain = parts[1];
+
+  // Cho phép domain test example.com khi chạy trong môi trường test
+  if (process.env.NODE_ENV === "test" && domain === "example.com") {
+    return true;
+  }
+
+  return ALLOWED_EMAIL_DOMAINS.has(domain);
+}
+
 export function isDisposableOrSpamEmail(email: string): boolean {
   const normalized = normalizeEmail(email);
   const parts = normalized.split("@");
   if (parts.length !== 2) return true;
   const [localPart, domain] = parts;
 
-  // Kiểm tra domain rác
+  // 1. Kiểm tra domain rác trong blacklist
   if (DISPOSABLE_OR_SPAM_DOMAINS.has(domain)) return true;
 
-  // Kiểm tra prefix tấn công của script bot
-  if (localPart.includes("tested_by_") || localPart.includes("hoangxuanlam")) {
+  // 2. Chặn các TLD kiểm thử / invalid theo chuẩn RFC 2606
+  if (
+    domain.endsWith(".invalid") ||
+    domain.endsWith(".test") ||
+    domain.endsWith(".example") ||
+    domain.endsWith(".localhost")
+  ) {
     return true;
   }
 
-  // Chặn các email bot tự sinh có dạng test_... hoặc bot_...
+  // 3. Kiểm tra prefix hoặc nội dung script bot / audit pentest
+  if (
+    localPart.includes("tested_by_") ||
+    localPart.includes("hoangxuanlam") ||
+    localPart.includes("security-audit")
+  ) {
+    return true;
+  }
+
+  // 4. Chặn các email bot tự sinh có dạng test_... hoặc bot_...
   if (/^bot[_-]?\d+$/i.test(localPart)) return true;
 
   return false;

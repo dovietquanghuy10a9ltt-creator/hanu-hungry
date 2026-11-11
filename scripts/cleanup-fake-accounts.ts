@@ -81,6 +81,20 @@ function evaluateAccountSpam(user: User): SpamCheckResult {
     return { isSpam: true, reason: "Tài khoản bot test tewee@gmail.com" };
   }
 
+  // 7. Tài khoản kiểm thử an ninh / pentest tự sinh (@example.invalid, security-audit...)
+  if (
+    email.includes("security-audit") ||
+    email.endsWith(".invalid") ||
+    email.endsWith(".test")
+  ) {
+    return { isSpam: true, reason: "Tài khoản kiểm thử an ninh / pentest tự sinh (security-audit / .invalid)" };
+  }
+
+  const rawMetadata = JSON.stringify(user.user_metadata || {});
+  if (rawMetadata.includes("HH_A_REQUEST_FOR_B") || rawMetadata.includes("HH_PRIVATE_B")) {
+    return { isSpam: true, reason: "Tài khoản kiểm thử phân quyền IDOR (HH_A_REQUEST_FOR_B / HH_PRIVATE_B)" };
+  }
+
   return { isSpam: false };
 }
 

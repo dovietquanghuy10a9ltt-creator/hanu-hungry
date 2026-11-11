@@ -1,5 +1,5 @@
-import { RevealOnScroll } from "@/components/shared/reveal-on-scroll";
 import Link from "next/link";
+import { RevealOnScroll } from "@/components/shared/reveal-on-scroll";
 import { RestaurantCard } from "@/components/shared/restaurant-card";
 import { listCategories } from "@/features/restaurants/data";
 import { listCatalog } from "@/features/restaurants/catalog";
@@ -7,22 +7,23 @@ import { QuickSearch } from "@/features/restaurants/components/QuickSearch";
 import { SystemIntro } from "@/components/landing/system-intro";
 import { BlogNewsWidget } from "@/components/shared/blog-news-widget";
 import { listRecentBlogPosts } from "@/features/blog/data";
-import { createClient } from "@/lib/supabase/server";
+import { HomeViewSwitcher } from "@/components/home/home-view-switcher";
+
+export const revalidate = 3600; // Cache on CDN for 1 hour
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [recentPosts, catalog, categories] = await Promise.all([
+    listRecentBlogPosts(5),
+    listCatalog(),
+    listCategories(),
+  ]);
 
-  const recentPosts = await listRecentBlogPosts(5);
-
-  if (!user) {
-    return <SystemIntro recentPosts={recentPosts} />;
-  }
-
-  const [catalog, categories] = await Promise.all([listCatalog(), listCategories()]);
   const restaurants = catalog.slice(0, 6);
-  return (
-    <div className="home-page">
+
+  const guestView = <SystemIntro recentPosts={recentPosts} />;
+
+  const studentView = (
+    <div className="home-page animate-fadeIn">
       <section className="home-hero">
         <div className="hero-copy">
           <p className="eyebrow">Chiếc bụng đói · Một vòng Hanu</p>
@@ -66,19 +67,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <RevealOnScroll><section className="home-categories">
-        <p className="eyebrow">Bạn đang thèm gì?</p>
-        <div className="category-strip">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/restaurants?category=${encodeURIComponent(category.slug)}`}
-            >
-              {category.name}
-            </Link>
-          ))}
-        </div>
-      </section></RevealOnScroll>
+      <RevealOnScroll>
+        <section className="home-categories">
+          <p className="eyebrow">Bạn đang thèm gì?</p>
+          <div className="category-strip">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/restaurants?category=${encodeURIComponent(category.slug)}`}
+              >
+                {category.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      </RevealOnScroll>
 
       <section className="space-y-6">
         <div className="section-heading">
@@ -102,30 +105,34 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <RevealOnScroll><section className="home-bottom">
-        <Link href="/gacha" className="gacha-invitation">
-          <span className="cosmic-heading">Tín hiệu từ vũ trụ</span>
-          <h2>
-            Không biết ăn gì?
-            <br />
-            Quay một vòng xem sao.
-          </h2>
-          <span className="button button-primary mt-5">Thử Gacha ↗</span>
-          <span className="invitation-star" aria-hidden="true">
-            ✦
-          </span>
-        </Link>
-        <Link href="/history" className="history-invitation">
-          <span className="eyebrow">Nhật ký của bạn</span>
-          <h2>
-            Bữa ngon thì
-            <br />
-            nhớ lâu một chút.
-          </h2>
-          <p>Lưu quán đã ghé, món đã thử. Lần tới rủ bạn bè đi cùng.</p>
-          <span className="text-link mt-5">Mở nhật ký ↗</span>
-        </Link>
-      </section></RevealOnScroll>
+      <RevealOnScroll>
+        <section className="home-bottom">
+          <Link href="/gacha" className="gacha-invitation">
+            <span className="cosmic-heading">Tín hiệu từ vũ trụ</span>
+            <h2>
+              Không biết ăn gì?
+              <br />
+              Quay một vòng xem sao.
+            </h2>
+            <span className="button button-primary mt-5">Thử Gacha ↗</span>
+            <span className="invitation-star" aria-hidden="true">
+              ✦
+            </span>
+          </Link>
+          <Link href="/history" className="history-invitation">
+            <span className="eyebrow">Nhật ký của bạn</span>
+            <h2>
+              Bữa ngon thì
+              <br />
+              nhớ lâu một chút.
+            </h2>
+            <p>Lưu quán đã ghé, món đã thử. Lần tới rủ bạn bè đi cùng.</p>
+            <span className="text-link mt-5">Mở nhật ký ↗</span>
+          </Link>
+        </section>
+      </RevealOnScroll>
     </div>
   );
+
+  return <HomeViewSwitcher guestView={guestView} studentView={studentView} />;
 }

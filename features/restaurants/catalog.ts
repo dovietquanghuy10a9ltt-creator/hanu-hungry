@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CatalogRestaurant } from "./search";
 
@@ -19,7 +19,7 @@ function isSideDishOrAddon(dishName: string, price: number | null): boolean {
 
 /** Public catalog only. No profiles or private user data enter the browser. */
 export const listCatalog = cache(async function listCatalog(): Promise<CatalogRestaurant[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("restaurants")
     .select(
