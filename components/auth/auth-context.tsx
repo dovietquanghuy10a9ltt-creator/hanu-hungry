@@ -40,6 +40,9 @@ const AuthContext = createContext<AuthState>({
   refresh: async () => {},
 });
 
+const AUTH_CACHE_KEY = "hanu_auth_cache_v1";
+const AUTH_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
@@ -49,24 +52,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [streakData, setStreakData] = useState<StreakData>(defaultStreakData);
 
-  const fetchSession = useCallback(async () => {
-    try {
-      const res = await fetch("/api/me", { cache: "no-store" });
-      if (!res.ok) {
-        setAuthenticated(false);
-        setUser(null);
-        setProfile(null);
-        setIsAdmin(false);
-        setUnreadCount(0);
-        setStreakData(defaultStreakData);
-        setLoading(false);
-        return;
-      }
-      const data = await res.json();
-      if (data.authenticated) {
+  const applyData = useCallback(
+    (data: {
+      authenticated: boolean;
+      user?: { id: string; email?: string } | null;
+      profile?: Profile | null;
+      isAdmin?: boolean;
+      unreadNotificationsCount?: number;
+      streakData?: StreakData;
+    }) => {
+      if (data.authenticated && data.user) {
         setAuthenticated(true);
         setUser(data.user);
-        setProfile(data.profile);
+        setProfile(data.profile ?? null);
         setIsAdmin(Boolean(data.isAdmin));
         setUnreadCount(data.unreadNotificationsCount || 0);
         setStreakData(data.streakData || defaultStreakData);
@@ -78,59 +76,116 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUnreadCount(0);
         setStreakData(defaultStreakData);
       }
-    } catch {
-      setAuthenticated(false);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
+
+  const fetchSession = useCallback(
+    async (force = false) => {
+      try {
+        if (!force && typeof window !== "undefined") {
+          try {
+            const cached = sessionStorage.getItem(AUTH_CACHE_KEY);
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Date.now() - parsed.timestamp < AUTH_CACHE_TTL_MS && parsed.data) {
+                applyData(parsed.data);
+                setLoading(false);
+                return;
+              }
+            }
+          } catch {
+            // ignore cache parse error
+          }
+        }
+
+        const res = await fetch("/api/me", { cache: "no-store" });
+        if (!res.ok) {
+          applyData({ authenticated: false });
+          if (typeof window !== "undefined") sessionStorage.removeItem(AUTH_CACHE_KEY);
+          return;
+        }
+        const data = await res.json();
+        applyData(data);
+        if (typeof window !== "undefined") {
+          if (data.authenticated) {
+            sessionStorage.setItem(AUTH_CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
+          } else {
+            sessionStorage.removeItem(AUTH_CACHE_KEY);
+          }
+        }
+      } catch {
+        applyData({ authenticated: false });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [applyData]
+  );
 
   useEffect(() => {
     let active = true;
 
     async function init() {
+      // 1. Check if auth cookie exists before doing ANY work
+      const hasCookie =
+        typeof document !== "undefined" &&
+        document.cookie.split(";").some((c) => {
+          const name = c.trim().split("=")[0];
+          return name.startsWith("sb-") && name.includes("auth-token");
+        });
+
+      if (!hasCookie) {
+        // Guest or bot: do not call /api/me at all!
+        if (active) setLoading(false);
+        return;
+      }
+
+      // 2. Auth cookie found: check sessionStorage cache first
       try {
-        const res = await fetch("/api/me", { cache: "no-store" });
-        if (!active) return;
-        if (!res.ok) {
-          setAuthenticated(false);
-          setLoading(false);
-          return;
-        }
-        const data = await res.json();
-        if (!active) return;
-        if (data.authenticated) {
-          setAuthenticated(true);
-          setUser(data.user);
-          setProfile(data.profile);
-          setIsAdmin(Boolean(data.isAdmin));
-          setUnreadCount(data.unreadNotificationsCount || 0);
-          setStreakData(data.streakData || defaultStreakData);
-        } else {
-          setAuthenticated(false);
+        const cached = sessionStorage.getItem(AUTH_CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Date.now() - parsed.timestamp < AUTH_CACHE_TTL_MS && parsed.data?.authenticated) {
+            if (active) {
+              applyData(parsed.data);
+              setLoading(false);
+            }
+            return;
+          }
         }
       } catch {
-        if (active) setAuthenticated(false);
-      } finally {
-        if (active) setLoading(false);
+        // ignore cache error
+      }
+
+      // 3. Cache expired or missing: fetch /api/me
+      if (active) {
+        await fetchSession(true);
       }
     }
 
     init();
 
-    // Listen for auth state changes in the browser (e.g. sign in, sign out)
+    // Listen for real auth events (sign in, sign out)
     const supabase = createClient();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      fetchSession();
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        if (typeof window !== "undefined") sessionStorage.removeItem(AUTH_CACHE_KEY);
+        fetchSession(true);
+      } else if (event === "SIGNED_OUT") {
+        if (typeof window !== "undefined") sessionStorage.removeItem(AUTH_CACHE_KEY);
+        applyData({ authenticated: false });
+        setLoading(false);
+      }
     });
 
     return () => {
       active = false;
       subscription.unsubscribe();
     };
-  }, [fetchSession]);
+  }, [applyData, fetchSession]);
 
   return (
     <AuthContext.Provider

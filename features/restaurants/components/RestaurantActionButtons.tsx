@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, CheckCircle, Flame, Loader2 } from "lucide-react";
 import { quickCheckIn } from "@/features/history/actions";
+import { useAuth } from "@/components/auth/auth-context";
 
 type Props = {
   mapLink?: string | null;
@@ -16,11 +17,14 @@ type Props = {
 export function RestaurantActionButtons({
   mapLink,
   restaurantId,
-  isLoggedIn = false,
+  restaurantName,
+  isLoggedIn: initialIsLoggedIn = false,
   initialCheckedInToday = false,
 }: Props) {
   const router = useRouter();
-  const [isCheckedIn, setIsCheckedIn] = useState(initialCheckedInToday);
+  const { authenticated, streakData } = useAuth();
+  const isLoggedIn = initialIsLoggedIn || authenticated;
+  const [isCheckedIn, setIsCheckedIn] = useState(initialCheckedInToday || streakData?.isTodayCheckedIn || false);
   const [isPending, startTransition] = useTransition();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 

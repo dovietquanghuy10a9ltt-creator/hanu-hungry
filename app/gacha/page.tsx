@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { listCatalog } from "@/features/restaurants/catalog";
 import { isDrinkDish } from "@/features/gacha/random";
-import { GachaExperience, type GachaMode } from "@/features/gacha/components/GachaExperience";
+import { GachaPageWrapper } from "@/features/gacha/components/GachaPageWrapper";
 
 export const metadata: Metadata = {
   title: "Vòng quay Gacha Chọn món",
@@ -17,9 +18,11 @@ export const metadata: Metadata = {
     url: "https://hanuhungry.id.vn/gacha",
   },
 };
-export default async function GachaPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
-  const [params, catalog] = await Promise.all([searchParams, listCatalog()]);
-  const initialMode: GachaMode = (params.mode === "food" || params.mode === "dish") ? "food" : params.mode === "drink" ? "drink" : "restaurant";
+
+export const revalidate = 3600;
+
+export default async function GachaPage() {
+  const catalog = await listCatalog();
   const restaurantNames = catalog.map((item) => item.name);
   const foodNames = catalog.flatMap((item) =>
     item.dishes.filter((dish) => !isDrinkDish(dish.name, item.category_slugs)).map((dish) => dish.name)
@@ -35,13 +38,20 @@ export default async function GachaPage({ searchParams }: { searchParams: Promis
         <h1>Hôm nay ăn gì?</h1>
         <p>Chiếc bụng đói cần một gợi ý. Vũ trụ thì có cả một danh sách.</p>
       </header>
-      <GachaExperience
-        catalog={catalog}
-        restaurantNames={restaurantNames}
-        foodNames={foodNames}
-        drinkNames={drinkNames}
-        initialMode={initialMode}
-      />
+      <Suspense
+        fallback={
+          <div className="py-12 text-center text-[var(--color-muted)] font-medium">
+            Đang tải vòng quay...
+          </div>
+        }
+      >
+        <GachaPageWrapper
+          catalog={catalog}
+          restaurantNames={restaurantNames}
+          foodNames={foodNames}
+          drinkNames={drinkNames}
+        />
+      </Suspense>
     </div>
   );
 }
