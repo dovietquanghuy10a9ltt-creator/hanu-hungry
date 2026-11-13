@@ -5,6 +5,10 @@ import { historyStats, localDayOrdinal } from "@/features/history/stats";
 import type { StreakData } from "@/components/shared/streak-indicator";
 
 export async function GET() {
+  if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true") {
+    return NextResponse.json({ authenticated: false, maintenance: true });
+  }
+
   const account = await getCurrentProfile();
   if (!account) {
     return NextResponse.json({ authenticated: false });
