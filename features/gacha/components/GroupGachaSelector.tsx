@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, X, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Search, X, ChevronDown, ChevronUp } from "lucide-react";
 import type { CatalogRestaurant } from "@/features/restaurants/search";
 
 export type GroupLimit = 3 | 5 | 7 | 10;
@@ -37,7 +37,8 @@ export function GroupGachaSelector({
 
   const isMaxReached = selectedRestaurants.length >= maxLimit;
 
-  // Filter and sort: selected restaurants appear first, then alphabetical
+  // Filter and sort: strictly fixed alphabetical A-Z order
+  // Keeping order fixed prevents the list and scroll position from jumping when ticking items
   const displayRestaurants = useMemo(() => {
     const term = searchTerm.toLowerCase().trim();
     const list = term
@@ -48,14 +49,8 @@ export function GroupGachaSelector({
         )
       : catalog;
 
-    return [...list].sort((a, b) => {
-      const isSelA = selectedIds.has(a.id);
-      const isSelB = selectedIds.has(b.id);
-      if (isSelA && !isSelB) return -1;
-      if (!isSelA && isSelB) return 1;
-      return a.name.localeCompare(b.name, "vi");
-    });
-  }, [catalog, searchTerm, selectedIds]);
+    return [...list].sort((a, b) => a.name.localeCompare(b.name, "vi"));
+  }, [catalog, searchTerm]);
 
   return (
     <div className="w-full max-w-xl mx-auto space-y-3 rounded-3xl border-2 border-[#d2bca3] bg-[#fffdf8] p-3.5 sm:p-5 shadow-sm">
@@ -174,7 +169,7 @@ export function GroupGachaSelector({
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Tìm quán quanh HANU theo tên hoặc ngõ..."
+          placeholder={`Tìm trong ${catalog.length} quán quanh HANU theo tên hoặc ngõ...`}
           className="w-full rounded-2xl border-2 border-[#d2bca3] bg-white py-2 pl-10 pr-9 text-xs sm:text-sm font-semibold text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-red)] focus:outline-hidden"
         />
         {searchTerm && (
@@ -189,16 +184,8 @@ export function GroupGachaSelector({
         )}
       </div>
 
-      {/* Status banner when max is reached */}
-      {isMaxReached && (
-        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-[11px] sm:text-xs font-bold text-emerald-800 flex items-center gap-1.5 animate-fadeIn">
-          <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-          <span>Đã chọn đủ {maxLimit} quán. Bỏ tick 1 quán bất kỳ để chọn quán khác.</span>
-        </div>
-      )}
-
       {/* Checkbox List */}
-      <div className="max-h-56 sm:max-h-64 overflow-y-auto rounded-2xl border-2 border-[#e6d8c8] bg-white divide-y divide-[#f2e7db] overscroll-contain shadow-inner">
+      <div className="max-h-72 sm:max-h-80 overflow-y-auto rounded-2xl border-2 border-[#e6d8c8] bg-white divide-y divide-[#f2e7db] overscroll-contain shadow-inner">
         {displayRestaurants.length > 0 ? (
           displayRestaurants.map((restaurant) => {
             const isChecked = selectedIds.has(restaurant.id);
@@ -235,11 +222,6 @@ export function GroupGachaSelector({
                     </p>
                   </div>
                 </div>
-                {isChecked && (
-                  <span className="shrink-0 text-[10px] sm:text-[11px] font-bold text-[var(--color-red)] bg-white/80 px-2 py-0.5 rounded-full border border-[var(--color-red)]/30">
-                    Đã chọn ✓
-                  </span>
-                )}
               </label>
             );
           })
