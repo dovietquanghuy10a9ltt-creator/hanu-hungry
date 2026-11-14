@@ -155,6 +155,9 @@ export function GachaExperience({
     return null;
   }
 
+  const isGroupReady = scope === "group" && selectedGroupRestaurants.length === groupLimit;
+  const canRoll = phase === "idle" && (scope === "solo" || isGroupReady);
+
   const handleLimitChange = (newLimit: GroupLimit) => {
     if (phase === "rolling") return;
     setGroupLimit(newLimit);
@@ -189,8 +192,8 @@ export function GachaExperience({
     if (phase === "rolling") return;
 
     if (scope === "group") {
-      if (selectedGroupRestaurants.length < 2) {
-        setError(`Vui lòng chọn ít nhất 2 quán (tối đa ${groupLimit} quán) để bắt đầu quay nhóm nhé!`);
+      if (selectedGroupRestaurants.length !== groupLimit) {
+        setError(`Vui lòng chọn đủ ${groupLimit} quán để bắt đầu quay nhé!`);
         return;
       }
     }
@@ -569,17 +572,17 @@ export function GachaExperience({
             </div>
           ) : (
             <div
-              className={`reel-window ${phase === "idle" ? "cursor-pointer select-none" : ""}`}
-              onClick={phase === "idle" ? roll : undefined}
-              role={phase === "idle" ? "button" : undefined}
-              tabIndex={phase === "idle" ? 0 : undefined}
+              className={`reel-window ${canRoll ? "cursor-pointer select-none" : ""}`}
+              onClick={canRoll ? roll : undefined}
+              role={canRoll ? "button" : undefined}
+              tabIndex={canRoll ? 0 : undefined}
               onKeyDown={(e) => {
-                if (phase === "idle" && (e.key === "Enter" || e.key === " ")) {
+                if (canRoll && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();
                   roll();
                 }
               }}
-              title={phase === "idle" ? "Bấm vào thẻ để quay" : undefined}
+              title={canRoll ? "Bấm vào thẻ để quay" : undefined}
             >
               <div className={`reel-symbol ${phase === "rolling" ? "is-spinning" : ""}`} aria-hidden="true">
                 ✦
@@ -603,28 +606,36 @@ export function GachaExperience({
       </div>
 
       <div className="gacha-controls flex flex-col items-center">
-        <button
-          type="button"
-          className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none w-full sm:w-auto"
-          onClick={roll}
-          disabled={phase === "rolling" || (scope === "group" && phase === "idle" && selectedGroupRestaurants.length < 2)}
-        >
-          <span aria-hidden="true" className={phase === "rolling" ? "spin-small inline-block" : "inline-block"}>
-            ✳
-          </span>
-          {phase === "rolling"
-            ? "Đang bắt tín hiệu…"
-            : phase === "result"
-            ? scope === "group"
+        {scope === "group" && phase === "idle" && !isGroupReady ? (
+          <button
+            type="button"
+            onClick={() => setIsGroupConfigOpen(true)}
+            className="button button-outline cursor-pointer shadow-xs py-3 px-6 text-xs sm:text-sm font-bold text-[var(--color-red)] border-2 border-dashed border-[var(--color-red)] bg-[#fffdf8] hover:bg-white active:scale-95 transition animate-fadeIn"
+          >
+            <span>
+              👥 Chọn thêm {groupLimit - selectedGroupRestaurants.length} quán nữa để quay ({selectedGroupRestaurants.length}/{groupLimit}) ▾
+            </span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none w-full sm:w-auto animate-fadeIn"
+            onClick={roll}
+            disabled={phase === "rolling"}
+          >
+            <span aria-hidden="true" className={phase === "rolling" ? "spin-small inline-block" : "inline-block"}>
+              ✳
+            </span>
+            {phase === "rolling"
+              ? "Đang bắt tín hiệu…"
+              : phase === "result"
               ? "Quay lại trong nhóm này"
-              : "Quay thêm một lần"
-            : scope === "group" && selectedGroupRestaurants.length < 2
-            ? `Chọn ít nhất 2 quán để quay (${selectedGroupRestaurants.length}/${groupLimit})`
-            : scope === "group"
-            ? `Quay chọn quán nhóm (${selectedGroupRestaurants.length} quán)`
-            : "Quay một vòng"}
-          <span aria-hidden="true">↗</span>
-        </button>
+              : scope === "group"
+              ? `Quay chọn quán nhóm (${groupLimit} quán)`
+              : "Quay một vòng"}
+            <span aria-hidden="true">↗</span>
+          </button>
+        )}
 
         {phase === "result" && scope === "group" && (
           <button
@@ -644,7 +655,9 @@ export function GachaExperience({
           {phase === "result"
             ? "Hợp duyên thì ghé. Chưa hợp thì quay tiếp."
             : scope === "group"
-            ? "Vũ trụ sẽ chọn công bằng 1 quán duy nhất từ danh sách của nhóm."
+            ? isGroupReady
+              ? "Vũ trụ sẽ chọn công bằng 1 quán duy nhất từ danh sách của nhóm."
+              : `Cần chọn đủ ${groupLimit} quán để mở khóa vòng quay nhóm.`
             : "Quán thật, món thật. Còn lựa chọn là một bất ngờ."}
         </p>
       </div>

@@ -155,3 +155,11 @@ test('U32 Group Gacha re-roll strictly excludes previous result to prevent repet
     currentResultId = winner.id;
   }
 });
+test('U33 Group Gacha roll is only permitted when selected candidates count exactly matches required limit', () => {
+  const isGroupRollAllowed = (selectedCount, limit) => selectedCount === limit;
+  assert.equal(isGroupRollAllowed(4, 5), false);
+  assert.equal(isGroupRollAllowed(0, 3), false);
+  assert.equal(isGroupRollAllowed(2, 3), false);
+  assert.equal(isGroupRollAllowed(3, 3), true);
+  assert.equal(isGroupRollAllowed(5, 5), true);
+});

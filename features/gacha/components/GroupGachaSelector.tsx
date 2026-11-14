@@ -280,9 +280,17 @@ export function GroupGachaSelector({
       <button
         type="button"
         onClick={() => setIsOpen(false)}
-        className="w-full py-2.5 rounded-xl bg-[var(--color-pale)] text-[var(--color-red)] font-bold text-xs sm:text-sm border border-[var(--color-red)]/30 hover:bg-[#faebd7] active:scale-[0.99] transition cursor-pointer flex items-center justify-center gap-1.5"
+        className={`w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm border transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.99] ${
+          isMaxReached
+            ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700 shadow-xs"
+            : "bg-[var(--color-pale)] text-[var(--color-red)] border-[var(--color-red)]/30 hover:bg-[#faebd7]"
+        }`}
       >
-        <span>Thu gọn / Sẵn sàng quay</span>
+        <span>
+          {isMaxReached
+            ? `✓ Đã chọn đủ ${maxLimit}/${maxLimit} quán — Thu gọn để quay`
+            : `Thu gọn (còn thiếu ${maxLimit - selectedRestaurants.length} quán)`}
+        </span>
         <ChevronUp className="h-4 w-4" />
       </button>
     </div>
