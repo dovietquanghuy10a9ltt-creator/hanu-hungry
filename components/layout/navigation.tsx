@@ -6,6 +6,7 @@ import { siteConfig } from "@/config/site";
 import {
   Home,
   Compass,
+  MapPin,
   Sparkles,
   BookOpen,
   HelpCircle,
@@ -17,6 +18,7 @@ import {
 const NAV_ICONS: Record<string, LucideIcon> = {
   "/": Home,
   "/restaurants": Compass,
+  "/map": MapPin,
   "/gacha": Sparkles,
   "/blog": BookOpen,
   "/support": HelpCircle,

@@ -7,6 +7,7 @@ export const siteConfig = {
   navigation: [
     { href: "/", label: "Trang chủ" },
     { href: "/restaurants", label: "Khám phá" },
+    { href: "/map", label: "Bản đồ" },
     { href: "/gacha", label: "Gacha" },
     { href: "/blog", label: "Blog" },
   ],

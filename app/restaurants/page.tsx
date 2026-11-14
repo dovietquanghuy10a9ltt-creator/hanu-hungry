@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { listCategories } from "@/features/restaurants/data";
 import { listCatalog } from "@/features/restaurants/catalog";
@@ -25,7 +26,7 @@ export default async function RestaurantsPage() {
   const [catalog, categories] = await Promise.all([listCatalog(), listCategories()]);
   return (
     <div className="space-y-8">
-      <header className="page-intro">
+      <header className="page-intro flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Sổ địa điểm · Hanu</p>
           <h1 className="section-title mt-3">Một vòng quanh trường.</h1>
@@ -33,6 +34,13 @@ export default async function RestaurantsPage() {
             Từ món quen đến quán mới. Gõ một từ, chọn danh mục — tìm chỗ hợp gu của bạn.
           </p>
         </div>
+        <Link
+          href="/map"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--color-red)] text-white text-xs sm:text-sm font-bold shadow-md hover:bg-[#831e1c] transition active:translate-y-0.5 shrink-0 self-start sm:self-auto cursor-pointer"
+        >
+          <span>🗺️ Xem trên bản đồ</span>
+          <span aria-hidden="true">↗</span>
+        </Link>
       </header>
       <Suspense
         fallback={

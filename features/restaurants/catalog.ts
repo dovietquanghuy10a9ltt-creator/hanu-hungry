@@ -1,7 +1,8 @@
 import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { CatalogRestaurant } from "./search";
+import type { CatalogRestaurant, CatalogDish } from "./search";
+export type { CatalogRestaurant, CatalogDish };
 
 /** Helper to identify common side dishes, extra toppings, free items or basic add-on beverages. */
 function isSideDishOrAddon(dishName: string, price: number | null): boolean {

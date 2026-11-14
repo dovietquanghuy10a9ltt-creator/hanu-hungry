@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs tests/domain.test.mjs scripts/import-food-data.test.mjs tests/search.test.mjs tests/edge-cases.test.mjs tests/avatar-validation.test.mjs tests/rate-limit.test.mjs tests/blog-sanitize.test.mjs tests/full-stack-features.test.mjs tests/admin-streak-ranking.test.mjs tests/vercel-analytics.test.mjs tests/admin-account-export.test.mjs",
+    "test": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs tests/domain.test.mjs scripts/import-food-data.test.mjs tests/search.test.mjs tests/edge-cases.test.mjs tests/avatar-validation.test.mjs tests/rate-limit.test.mjs tests/blog-sanitize.test.mjs tests/full-stack-features.test.mjs tests/admin-streak-ranking.test.mjs tests/vercel-analytics.test.mjs tests/admin-account-export.test.mjs tests/map-feature.test.mjs",
     "test:auth": "node --experimental-strip-types --test tests/auth-validation.test.mjs tests/bootstrap-admins.test.mjs",
     "test:data": "node --experimental-strip-types --test scripts/import-food-data.test.mjs",
     "test:domain": "node --experimental-strip-types --test tests/domain.test.mjs",
@@ -23,7 +23,9 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
+    "@types/leaflet": "^1.9.22",
     "@vercel/analytics": "^2.0.1",
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.61.0",
     "next": "16.3.6",
     "react": "19.2.8",
