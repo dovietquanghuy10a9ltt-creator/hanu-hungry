@@ -48,6 +48,7 @@ export function GachaExperience({
   const [mode, setMode] = useState<GachaMode>(initialMode);
   const [groupLimit, setGroupLimit] = useState<GroupLimit>(3);
   const [selectedGroupRestaurants, setSelectedGroupRestaurants] = useState<CatalogRestaurant[]>([]);
+  const [isGroupConfigOpen, setIsGroupConfigOpen] = useState(false);
   const [phase, setPhase] = useState<"idle" | "rolling" | "result">("idle");
   const [result, setResult] = useState<GachaResult | null>(null);
   const [error, setError] = useState("");
@@ -345,6 +346,9 @@ export function GachaExperience({
               setPhase("idle");
               setResult(null);
               setError("");
+              if (selectedGroupRestaurants.length === 0) {
+                setIsGroupConfigOpen(true);
+              }
             }}
             className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm font-bold transition cursor-pointer disabled:opacity-50 ${
               scope === "group"
@@ -442,6 +446,8 @@ export function GachaExperience({
               onLimitChange={handleLimitChange}
               onToggleRestaurant={toggleGroupRestaurant}
               onClearAll={clearGroupRestaurants}
+              isOpen={isGroupConfigOpen}
+              onToggleOpen={setIsGroupConfigOpen}
             />
           </div>
         )
@@ -626,6 +632,7 @@ export function GachaExperience({
             onClick={() => {
               setPhase("idle");
               setResult(null);
+              setIsGroupConfigOpen(true);
             }}
             className="mt-3.5 inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-red)] bg-white border border-[var(--color-line)] shadow-xs hover:bg-[#fff9f2] active:scale-95 transition cursor-pointer"
           >
