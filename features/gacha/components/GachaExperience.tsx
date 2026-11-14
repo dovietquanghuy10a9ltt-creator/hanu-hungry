@@ -23,7 +23,7 @@ import { rollGacha, type GachaResult } from "@/features/gacha/actions";
 import { formatCardPrice, formatPrice, mapsUrl } from "@/features/restaurants/format";
 import { isDrinkDish, pickRandom } from "@/features/gacha/random";
 import { quickCheckIn } from "@/features/history/actions";
-import { GroupGachaSelector } from "./GroupGachaSelector";
+import { GroupGachaSelector, type GroupLimit } from "./GroupGachaSelector";
 import type { CatalogDish, CatalogRestaurant } from "@/features/restaurants/search";
 import type { RestaurantSummary } from "@/features/restaurants/types";
 
@@ -46,6 +46,7 @@ export function GachaExperience({
   const router = useRouter();
   const [scope, setScope] = useState<GachaScope>("solo");
   const [mode, setMode] = useState<GachaMode>(initialMode);
+  const [groupLimit, setGroupLimit] = useState<GroupLimit>(3);
   const [selectedGroupRestaurants, setSelectedGroupRestaurants] = useState<CatalogRestaurant[]>([]);
   const [phase, setPhase] = useState<"idle" | "rolling" | "result">("idle");
   const [result, setResult] = useState<GachaResult | null>(null);
@@ -153,6 +154,15 @@ export function GachaExperience({
     return null;
   }
 
+  const handleLimitChange = (newLimit: GroupLimit) => {
+    if (phase === "rolling") return;
+    setGroupLimit(newLimit);
+    setError("");
+    if (selectedGroupRestaurants.length > newLimit) {
+      setSelectedGroupRestaurants((prev) => prev.slice(0, newLimit));
+    }
+  };
+
   const toggleGroupRestaurant = (restaurant: CatalogRestaurant) => {
     if (phase === "rolling") return;
     setError("");
@@ -161,7 +171,7 @@ export function GachaExperience({
       if (exists) {
         return prev.filter((r) => r.id !== restaurant.id);
       }
-      if (prev.length >= 8) {
+      if (prev.length >= groupLimit) {
         return prev;
       }
       return [...prev, restaurant];
@@ -179,7 +189,7 @@ export function GachaExperience({
 
     if (scope === "group") {
       if (selectedGroupRestaurants.length < 2) {
-        setError("Vui lòng chọn ít nhất 2 quán để bắt đầu quay nhóm nhé!");
+        setError(`Vui lòng chọn ít nhất 2 quán (tối đa ${groupLimit} quán) để bắt đầu quay nhóm nhé!`);
         return;
       }
     }
@@ -214,7 +224,14 @@ export function GachaExperience({
       let chosenError: string | null = null;
 
       if (scope === "group") {
-        const winner = pickRandom(selectedGroupRestaurants);
+        let candidatePool = selectedGroupRestaurants;
+        // When re-rolling, exclude the current winner to guarantee picking a different restaurant
+        if (result?.restaurant?.id && selectedGroupRestaurants.length > 1) {
+          candidatePool = selectedGroupRestaurants.filter(
+            (r) => r.id !== result.restaurant.id
+          );
+        }
+        const winner = pickRandom(candidatePool) || pickRandom(selectedGroupRestaurants);
         if (winner) {
           const restaurant: RestaurantSummary = {
             id: winner.id,
@@ -421,6 +438,8 @@ export function GachaExperience({
             <GroupGachaSelector
               catalog={catalog || []}
               selectedRestaurants={selectedGroupRestaurants}
+              maxLimit={groupLimit}
+              onLimitChange={handleLimitChange}
               onToggleRestaurant={toggleGroupRestaurant}
               onClearAll={clearGroupRestaurants}
             />
@@ -577,10 +596,10 @@ export function GachaExperience({
         </div>
       </div>
 
-      <div className="gacha-controls">
+      <div className="gacha-controls flex flex-col items-center">
         <button
           type="button"
-          className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none"
+          className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none w-full sm:w-auto"
           onClick={roll}
           disabled={phase === "rolling" || (scope === "group" && phase === "idle" && selectedGroupRestaurants.length < 2)}
         >
@@ -594,7 +613,7 @@ export function GachaExperience({
               ? "Quay lại trong nhóm này"
               : "Quay thêm một lần"
             : scope === "group" && selectedGroupRestaurants.length < 2
-            ? `Chọn thêm ${2 - selectedGroupRestaurants.length} quán để quay`
+            ? `Chọn ít nhất 2 quán để quay (${selectedGroupRestaurants.length}/${groupLimit})`
             : scope === "group"
             ? `Quay chọn quán nhóm (${selectedGroupRestaurants.length} quán)`
             : "Quay một vòng"}
@@ -608,13 +627,13 @@ export function GachaExperience({
               setPhase("idle");
               setResult(null);
             }}
-            className="mt-3 inline-flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer"
+            className="mt-3.5 inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-red)] bg-white border border-[var(--color-line)] shadow-xs hover:bg-[#fff9f2] active:scale-95 transition cursor-pointer"
           >
             <span>← Đổi danh sách quán đã chọn</span>
           </button>
         )}
 
-        <p className="mt-3 text-xs text-[var(--color-muted)]">
+        <p className="mt-3 text-xs text-[var(--color-muted)] text-center">
           {phase === "result"
             ? "Hợp duyên thì ghé. Chưa hợp thì quay tiếp."
             : scope === "group"

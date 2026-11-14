@@ -139,3 +139,19 @@ test('U31 Group Gacha selects strictly from group candidate pool and respects bo
   }
   assert.equal(pickRandom([]), null);
 });
+test('U32 Group Gacha re-roll strictly excludes previous result to prevent repetitive rolls', () => {
+  const groupCandidates = [
+    { id: 'h1', name: 'Hanu Chicken' },
+    { id: 'h2', name: 'Bún bò Huế 18' },
+    { id: 'h3', name: 'Sinh viên quán' },
+    { id: 'h4', name: 'Cơm gà Tố Uyên' },
+  ];
+  let currentResultId = 'h3'; // Sinh viên quán
+  for (let i = 0; i < 50; i++) {
+    const candidatePool = groupCandidates.filter((r) => r.id !== currentResultId);
+    const winner = pickRandom(candidatePool);
+    assert.ok(winner !== null);
+    assert.notEqual(winner.id, currentResultId, 'Re-roll must never match previous winner');
+    currentResultId = winner.id;
+  }
+});
