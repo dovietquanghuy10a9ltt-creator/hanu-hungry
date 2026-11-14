@@ -13,9 +13,8 @@ interface GroupGachaSelectorProps {
   onLimitChange: (limit: GroupLimit) => void;
   onToggleRestaurant: (restaurant: CatalogRestaurant) => void;
   onClearAll: () => void;
+  onStartRoll: () => void;
   disabled?: boolean;
-  isOpen?: boolean;
-  onToggleOpen?: (open: boolean) => void;
 }
 
 export function GroupGachaSelector({
@@ -25,17 +24,9 @@ export function GroupGachaSelector({
   onLimitChange,
   onToggleRestaurant,
   onClearAll,
+  onStartRoll,
   disabled = false,
-  isOpen: externalIsOpen,
-  onToggleOpen,
 }: GroupGachaSelectorProps) {
-  const [internalOpen, setInternalOpen] = useState(false);
-  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalOpen;
-  const setIsOpen = (open: boolean) => {
-    setInternalOpen(open);
-    onToggleOpen?.(open);
-  };
-
   const [searchTerm, setSearchTerm] = useState("");
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
 
@@ -60,48 +51,13 @@ export function GroupGachaSelector({
     return [...list].sort((a, b) => a.name.localeCompare(b.name, "vi"));
   }, [catalog, searchTerm]);
 
-  // Collapsed state: neat, single-row card that leaves full view for ticket and roll button
-  if (!isOpen) {
-    return (
-      <div className="w-full max-w-xl mx-auto">
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => setIsOpen(true)}
-          className="w-full flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl border-2 border-[#d2bca3] bg-[#fffdf8] shadow-xs cursor-pointer hover:bg-white active:scale-[0.99] transition select-none"
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base sm:text-lg">👥</span>
-            <span className="font-heading font-black text-xs sm:text-sm text-[var(--color-ink)] truncate">
-              Danh sách quán nhóm
-            </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-black shrink-0 ${
-                isMaxReached
-                  ? "bg-emerald-100 text-emerald-800"
-                  : "bg-amber-100 text-amber-800"
-              }`}
-            >
-              {selectedRestaurants.length}/{maxLimit}
-            </span>
-          </div>
-          <span className="text-xs font-bold text-[var(--color-red)] flex items-center gap-1 shrink-0">
-            <span>Chọn / Đổi quán</span>
-            <ChevronDown className="h-3.5 w-3.5" />
-          </span>
-        </button>
-      </div>
-    );
-  }
-
-  // Expanded state: form to configure candidates
   return (
     <div className="w-full max-w-xl mx-auto space-y-3 rounded-3xl border-2 border-[#d2bca3] bg-[#fffdf8] p-3.5 sm:p-5 shadow-sm animate-fadeIn">
-      {/* Target limit dropdown & Collapse button */}
+      {/* Target limit dropdown & Count badge */}
       <div className="flex items-center justify-between gap-2 border-b border-[var(--color-line)] pb-2.5">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-[var(--color-ink)]">
-            Số lượng:
+            Số lượng quán:
           </span>
           <select
             value={maxLimit}
@@ -116,25 +72,15 @@ export function GroupGachaSelector({
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-black ${
-              isMaxReached
-                ? "bg-emerald-100 text-emerald-800"
-                : "bg-amber-100 text-amber-800"
-            }`}
-          >
-            {selectedRestaurants.length}/{maxLimit}
-          </span>
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            className="text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer flex items-center gap-0.5"
-          >
-            <span>Thu gọn</span>
-            <ChevronUp className="h-3.5 w-3.5" />
-          </button>
-        </div>
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-xs font-black ${
+            isMaxReached
+              ? "bg-emerald-100 text-emerald-800"
+              : "bg-amber-100 text-amber-800"
+          }`}
+        >
+          {selectedRestaurants.length}/{maxLimit}
+        </span>
       </div>
 
       {/* Collapsible Accordion: Danh sách đã chọn */}
@@ -276,22 +222,24 @@ export function GroupGachaSelector({
         )}
       </div>
 
-      {/* Bottom Button to Collapse and Ready to Roll */}
+      {/* Primary Action Button: Tiến sang bước quay */}
       <button
         type="button"
-        onClick={() => setIsOpen(false)}
-        className={`w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm border transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.99] ${
+        disabled={!isMaxReached || disabled}
+        onClick={onStartRoll}
+        className={`w-full py-3 px-6 rounded-2xl font-bold text-xs sm:text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2 ${
           isMaxReached
-            ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700 shadow-xs"
-            : "bg-[var(--color-pale)] text-[var(--color-red)] border-[var(--color-red)]/30 hover:bg-[#faebd7]"
+            ? "button-primary active:translate-y-0.5"
+            : "bg-stone-200 text-stone-500 cursor-not-allowed"
         }`}
       >
+        <span>✳</span>
         <span>
           {isMaxReached
-            ? `✓ Đã chọn đủ ${maxLimit}/${maxLimit} quán — Thu gọn để quay`
-            : `Thu gọn (còn thiếu ${maxLimit - selectedRestaurants.length} quán)`}
+            ? `Bắt đầu quay nhóm (${maxLimit} quán)`
+            : `Chọn thêm ${maxLimit - selectedRestaurants.length} quán để bắt đầu quay (${selectedRestaurants.length}/${maxLimit})`}
         </span>
-        <ChevronUp className="h-4 w-4" />
+        {isMaxReached && <span aria-hidden="true">↗</span>}
       </button>
     </div>
   );

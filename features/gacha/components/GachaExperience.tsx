@@ -48,7 +48,7 @@ export function GachaExperience({
   const [mode, setMode] = useState<GachaMode>(initialMode);
   const [groupLimit, setGroupLimit] = useState<GroupLimit>(3);
   const [selectedGroupRestaurants, setSelectedGroupRestaurants] = useState<CatalogRestaurant[]>([]);
-  const [isGroupConfigOpen, setIsGroupConfigOpen] = useState(false);
+  const [groupStep, setGroupStep] = useState<"select" | "ready">("select");
   const [phase, setPhase] = useState<"idle" | "rolling" | "result">("idle");
   const [result, setResult] = useState<GachaResult | null>(null);
   const [error, setError] = useState("");
@@ -156,7 +156,7 @@ export function GachaExperience({
   }
 
   const isGroupReady = scope === "group" && selectedGroupRestaurants.length === groupLimit;
-  const canRoll = phase === "idle" && (scope === "solo" || isGroupReady);
+  const canRoll = phase === "idle" && (scope === "solo" || (scope === "group" && groupStep === "ready" && isGroupReady));
 
   const handleLimitChange = (newLimit: GroupLimit) => {
     if (phase === "rolling") return;
@@ -194,6 +194,7 @@ export function GachaExperience({
     if (scope === "group") {
       if (selectedGroupRestaurants.length !== groupLimit) {
         setError(`Vui lòng chọn đủ ${groupLimit} quán để bắt đầu quay nhé!`);
+        setGroupStep("select");
         return;
       }
     }
@@ -349,8 +350,8 @@ export function GachaExperience({
               setPhase("idle");
               setResult(null);
               setError("");
-              if (selectedGroupRestaurants.length === 0) {
-                setIsGroupConfigOpen(true);
+              if (selectedGroupRestaurants.length < groupLimit) {
+                setGroupStep("select");
               }
             }}
             className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm font-bold transition cursor-pointer disabled:opacity-50 ${
@@ -439,228 +440,248 @@ export function GachaExperience({
             )}
           </div>
         </div>
+      ) : null}
+
+      {scope === "group" && groupStep === "select" && phase === "idle" ? (
+        <div className="mb-6 animate-fadeIn">
+          <GroupGachaSelector
+            catalog={catalog || []}
+            selectedRestaurants={selectedGroupRestaurants}
+            maxLimit={groupLimit}
+            onLimitChange={handleLimitChange}
+            onToggleRestaurant={toggleGroupRestaurant}
+            onClearAll={clearGroupRestaurants}
+            onStartRoll={() => {
+              if (selectedGroupRestaurants.length === groupLimit) {
+                setGroupStep("ready");
+                setError("");
+              } else {
+                setError(`Vui lòng chọn đủ ${groupLimit} quán để bắt đầu quay nhé!`);
+              }
+            }}
+          />
+        </div>
       ) : (
-        phase === "idle" && (
-          <div className="mb-6 animate-fadeIn">
-            <GroupGachaSelector
-              catalog={catalog || []}
-              selectedRestaurants={selectedGroupRestaurants}
-              maxLimit={groupLimit}
-              onLimitChange={handleLimitChange}
-              onToggleRestaurant={toggleGroupRestaurant}
-              onClearAll={clearGroupRestaurants}
-              isOpen={isGroupConfigOpen}
-              onToggleOpen={setIsGroupConfigOpen}
-            />
-          </div>
-        )
-      )}
-
-      <div className={`cosmic-stage ${phase}`} aria-busy={phase === "rolling"}>
-        <span className="cosmic-star star-one" aria-hidden="true">✦</span>
-        <span className="cosmic-star star-two" aria-hidden="true">✧</span>
-        <span className="cosmic-star star-three" aria-hidden="true">✳</span>
-        <div className="orbit orbit-one" aria-hidden="true" />
-        <div className="orbit orbit-two" aria-hidden="true" />
-
-        <div className="gacha-ticket">
-          <div className="ticket-top">
-            <span>Hanu Hungry</span>
-            <span>
-              LUCKY PICK /{" "}
-              {scope === "group"
-                ? "QUAY NHÓM"
-                : mode === "restaurant"
-                ? "QUÁN"
-                : mode === "drink"
-                ? "ĐỒ UỐNG"
-                : "ĐỒ ĂN"}
-            </span>
-          </div>
-
-          {phase === "result" && result ? (
-            <div className="gacha-reveal">
-              {result.restaurant.image_url && (
-                <div className="relative mb-5 aspect-[16/8] overflow-hidden rounded-lg">
-                  <Image
-                    src={result.restaurant.image_url}
-                    alt={`Không gian ${result.restaurant.name}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 90vw, 460px"
-                    unoptimized
-                  />
-                </div>
-              )}
-              <div className="flex items-center justify-center gap-2">
-                <PartyPopper className="h-7 w-7 text-[var(--color-red)] animate-bounce" />
-                <p className="eyebrow">Vũ trụ chọn cho bạn</p>
+        <>
+          {scope === "group" && (
+            <div className="w-full max-w-xl mx-auto flex items-center justify-between gap-3 p-3 rounded-2xl border-2 border-[#d2bca3] bg-[#fffdf8] shadow-xs mb-4 animate-fadeIn">
+              <div className="flex items-center gap-2 min-w-0">
+                <span>👥</span>
+                <span className="font-heading font-black text-xs sm:text-sm text-[var(--color-ink)] truncate">
+                  Đang quay trong {selectedGroupRestaurants.length} quán
+                </span>
+                <span className="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-xs font-black shrink-0">
+                  {selectedGroupRestaurants.length}/{groupLimit}
+                </span>
               </div>
-              <h2 className="mt-3 break-words text-3xl leading-tight sm:text-4xl">
-                {result.dish?.name || result.restaurant.name}
-              </h2>
-              {result.dish && <p className="mt-3 text-[var(--color-muted)]">Tại {result.restaurant.name}</p>}
-              <p className="mt-3 text-sm text-[var(--color-muted)]">
-                {result.restaurant.area || result.restaurant.address_text || "Quanh Đại học Hà Nội"}
-              </p>
-              <p className="mt-5 text-lg text-[var(--color-red)] font-black">
-                {result.dish
-                  ? formatPrice(result.dish.price_text, result.dish.price_min_vnd, result.dish.price_max_vnd)
-                  : formatCardPrice(result.restaurant.min_price_vnd, result.restaurant.max_price_vnd)}
-              </p>
-
-              {/* Direct Buttons: Maps, Direct Streak Check-in, View Details */}
-              {(() => {
-                const mapLink = mapsUrl(result.restaurant);
-                return (
-                  <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-center">
-                    {mapLink && (
-                      <a
-                        href={mapLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="button button-secondary inline-flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold"
-                      >
-                        <MapPin className="h-4 w-4 shrink-0 text-[var(--color-red)]" />
-                        <span>Chỉ đường Maps ↗</span>
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => handleCheckIn(result.restaurant.id)}
-                      disabled={isCheckingIn || checkedInMap[result.restaurant.id]}
-                      className={`button inline-flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold transition cursor-pointer ${
-                        checkedInMap[result.restaurant.id]
-                          ? "bg-emerald-600 text-white hover:bg-emerald-700 cursor-default"
-                          : "button-primary"
-                      }`}
-                    >
-                      {isCheckingIn ? (
-                        <>
-                          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                          <span>Đang lưu...</span>
-                        </>
-                      ) : checkedInMap[result.restaurant.id] ? (
-                        <>
-                          <CheckCircle2 className="h-4 w-4 shrink-0" />
-                          <span>Đã chọn hôm nay ✓</span>
-                        </>
-                      ) : (
-                        <>
-                          <Flame className="h-4 w-4 shrink-0 fill-amber-300 text-amber-300 animate-pulse" />
-                          <span>Chọn quán này</span>
-                        </>
-                      )}
-                    </button>
-                    <Link
-                      className="button button-outline inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold"
-                      href={`/restaurants/${result.restaurant.id}`}
-                    >
-                      <span>Chi tiết</span>
-                      <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
-                    </Link>
-                  </div>
-                );
-              })()}
-
-              {checkInToast && (
-                <div className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 text-xs font-bold text-emerald-800 animate-fadeIn">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                  <span>{checkInToast}</span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div
-              className={`reel-window ${canRoll ? "cursor-pointer select-none" : ""}`}
-              onClick={canRoll ? roll : undefined}
-              role={canRoll ? "button" : undefined}
-              tabIndex={canRoll ? 0 : undefined}
-              onKeyDown={(e) => {
-                if (canRoll && (e.key === "Enter" || e.key === " ")) {
-                  e.preventDefault();
-                  roll();
-                }
-              }}
-              title={canRoll ? "Bấm vào thẻ để quay" : undefined}
-            >
-              <div className={`reel-symbol ${phase === "rolling" ? "is-spinning" : ""}`} aria-hidden="true">
-                ✦
-              </div>
-              <p className={`reel-name ${phase === "rolling" ? "is-rolling" : ""}`} aria-hidden={phase === "rolling"}>
-                {phase === "rolling" ? reelName : "Hôm nay, để vũ trụ chọn."}
-              </p>
-              <p className="mt-3 text-sm text-[var(--color-muted)]">
-                {phase === "rolling"
-                  ? "Một chút hồi hộp trước khi gặp món hợp duyên…"
-                  : "Bấm quay. Đón một chiếc hẹn ăn uống bất ngờ."}
-              </p>
+              <button
+                type="button"
+                disabled={phase === "rolling"}
+                onClick={() => {
+                  setPhase("idle");
+                  setResult(null);
+                  setGroupStep("select");
+                }}
+                className="text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer flex items-center gap-1 shrink-0"
+              >
+                <span>← Đổi danh sách</span>
+              </button>
             </div>
           )}
 
-          <div className="ticket-bottom" aria-hidden="true">
-            <span>FROM Hanu, WITH APPETITE</span>
-            <span>✦ ✦ ✦</span>
+          <div className={`cosmic-stage ${phase}`} aria-busy={phase === "rolling"}>
+            <span className="cosmic-star star-one" aria-hidden="true">✦</span>
+            <span className="cosmic-star star-two" aria-hidden="true">✧</span>
+            <span className="cosmic-star star-three" aria-hidden="true">✳</span>
+            <div className="orbit orbit-one" aria-hidden="true" />
+            <div className="orbit orbit-two" aria-hidden="true" />
+
+            <div className="gacha-ticket">
+              <div className="ticket-top">
+                <span>Hanu Hungry</span>
+                <span>
+                  LUCKY PICK /{" "}
+                  {scope === "group"
+                    ? "QUAY NHÓM"
+                    : mode === "restaurant"
+                    ? "QUÁN"
+                    : mode === "drink"
+                    ? "ĐỒ UỐNG"
+                    : "ĐỒ ĂN"}
+                </span>
+              </div>
+
+              {phase === "result" && result ? (
+                <div className="gacha-reveal">
+                  {result.restaurant.image_url && (
+                    <div className="relative mb-5 aspect-[16/8] overflow-hidden rounded-lg">
+                      <Image
+                        src={result.restaurant.image_url}
+                        alt={`Không gian ${result.restaurant.name}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 90vw, 460px"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-center gap-2">
+                    <PartyPopper className="h-7 w-7 text-[var(--color-red)] animate-bounce" />
+                    <p className="eyebrow">Vũ trụ chọn cho bạn</p>
+                  </div>
+                  <h2 className="mt-3 break-words text-3xl leading-tight sm:text-4xl">
+                    {result.dish?.name || result.restaurant.name}
+                  </h2>
+                  {result.dish && <p className="mt-3 text-[var(--color-muted)]">Tại {result.restaurant.name}</p>}
+                  <p className="mt-3 text-sm text-[var(--color-muted)]">
+                    {result.restaurant.area || result.restaurant.address_text || "Quanh Đại học Hà Nội"}
+                  </p>
+                  <p className="mt-5 text-lg text-[var(--color-red)] font-black">
+                    {result.dish
+                      ? formatPrice(result.dish.price_text, result.dish.price_min_vnd, result.dish.price_max_vnd)
+                      : formatCardPrice(result.restaurant.min_price_vnd, result.restaurant.max_price_vnd)}
+                  </p>
+
+                  {/* Direct Buttons: Maps, Direct Streak Check-in, View Details */}
+                  {(() => {
+                    const mapLink = mapsUrl(result.restaurant);
+                    return (
+                      <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-center">
+                        {mapLink && (
+                          <a
+                            href={mapLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="button button-secondary inline-flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold"
+                          >
+                            <MapPin className="h-4 w-4 shrink-0 text-[var(--color-red)]" />
+                            <span>Chỉ đường Maps ↗</span>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleCheckIn(result.restaurant.id)}
+                          disabled={isCheckingIn || checkedInMap[result.restaurant.id]}
+                          className={`button inline-flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold transition cursor-pointer ${
+                            checkedInMap[result.restaurant.id]
+                              ? "bg-emerald-600 text-white hover:bg-emerald-700 cursor-default"
+                              : "button-primary"
+                          }`}
+                        >
+                          {isCheckingIn ? (
+                            <>
+                              <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                              <span>Đang lưu...</span>
+                            </>
+                          ) : checkedInMap[result.restaurant.id] ? (
+                            <>
+                              <CheckCircle2 className="h-4 w-4 shrink-0" />
+                              <span>Đã chọn hôm nay ✓</span>
+                            </>
+                          ) : (
+                            <>
+                              <Flame className="h-4 w-4 shrink-0 fill-amber-300 text-amber-300 animate-pulse" />
+                              <span>Chọn quán này</span>
+                            </>
+                          )}
+                        </button>
+                        <Link
+                          className="button button-outline inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold"
+                          href={`/restaurants/${result.restaurant.id}`}
+                        >
+                          <span>Chi tiết</span>
+                          <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
+                        </Link>
+                      </div>
+                    );
+                  })()}
+
+                  {checkInToast && (
+                    <div className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 text-xs font-bold text-emerald-800 animate-fadeIn">
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                      <span>{checkInToast}</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  className={`reel-window ${canRoll ? "cursor-pointer select-none" : ""}`}
+                  onClick={canRoll ? roll : undefined}
+                  role={canRoll ? "button" : undefined}
+                  tabIndex={canRoll ? 0 : undefined}
+                  onKeyDown={(e) => {
+                    if (canRoll && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault();
+                      roll();
+                    }
+                  }}
+                  title={canRoll ? "Bấm vào thẻ để quay" : undefined}
+                >
+                  <div className={`reel-symbol ${phase === "rolling" ? "is-spinning" : ""}`} aria-hidden="true">
+                    ✦
+                  </div>
+                  <p className={`reel-name ${phase === "rolling" ? "is-rolling" : ""}`} aria-hidden={phase === "rolling"}>
+                    {phase === "rolling" ? reelName : "Hôm nay, để vũ trụ chọn."}
+                  </p>
+                  <p className="mt-3 text-sm text-[var(--color-muted)]">
+                    {phase === "rolling"
+                      ? "Một chút hồi hộp trước khi gặp món hợp duyên…"
+                      : "Bấm quay. Đón một chiếc hẹn ăn uống bất ngờ."}
+                  </p>
+                </div>
+              )}
+
+              <div className="ticket-bottom" aria-hidden="true">
+                <span>FROM Hanu, WITH APPETITE</span>
+                <span>✦ ✦ ✦</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="gacha-controls flex flex-col items-center">
-        {scope === "group" && phase === "idle" && !isGroupReady ? (
-          <button
-            type="button"
-            onClick={() => setIsGroupConfigOpen(true)}
-            className="button button-outline cursor-pointer shadow-xs py-3 px-6 text-xs sm:text-sm font-bold text-[var(--color-red)] border-2 border-dashed border-[var(--color-red)] bg-[#fffdf8] hover:bg-white active:scale-95 transition animate-fadeIn"
-          >
-            <span>
-              👥 Chọn thêm {groupLimit - selectedGroupRestaurants.length} quán nữa để quay ({selectedGroupRestaurants.length}/{groupLimit}) ▾
-            </span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none w-full sm:w-auto animate-fadeIn"
-            onClick={roll}
-            disabled={phase === "rolling"}
-          >
-            <span aria-hidden="true" className={phase === "rolling" ? "spin-small inline-block" : "inline-block"}>
-              ✳
-            </span>
-            {phase === "rolling"
-              ? "Đang bắt tín hiệu…"
-              : phase === "result"
-              ? "Quay lại trong nhóm này"
-              : scope === "group"
-              ? `Quay chọn quán nhóm (${groupLimit} quán)`
-              : "Quay một vòng"}
-            <span aria-hidden="true">↗</span>
-          </button>
-        )}
+          <div className="gacha-controls flex flex-col items-center">
+            <button
+              type="button"
+              className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none w-full sm:w-auto animate-fadeIn"
+              onClick={roll}
+              disabled={phase === "rolling"}
+            >
+              <span aria-hidden="true" className={phase === "rolling" ? "spin-small inline-block" : "inline-block"}>
+                ✳
+              </span>
+              {phase === "rolling"
+                ? "Đang bắt tín hiệu…"
+                : phase === "result"
+                ? "Quay lại trong nhóm này"
+                : scope === "group"
+                ? `Quay chọn quán nhóm (${groupLimit} quán)`
+                : "Quay một vòng"}
+              <span aria-hidden="true">↗</span>
+            </button>
 
-        {phase === "result" && scope === "group" && (
-          <button
-            type="button"
-            onClick={() => {
-              setPhase("idle");
-              setResult(null);
-              setIsGroupConfigOpen(true);
-            }}
-            className="mt-3.5 inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-red)] bg-white border border-[var(--color-line)] shadow-xs hover:bg-[#fff9f2] active:scale-95 transition cursor-pointer"
-          >
-            <span>← Đổi danh sách quán đã chọn</span>
-          </button>
-        )}
+            {phase === "result" && scope === "group" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPhase("idle");
+                  setResult(null);
+                  setGroupStep("select");
+                }}
+                className="mt-3.5 inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-red)] bg-white border border-[var(--color-line)] shadow-xs hover:bg-[#fff9f2] active:scale-95 transition cursor-pointer"
+              >
+                <span>← Đổi danh sách quán đã chọn</span>
+              </button>
+            )}
 
-        <p className="mt-3 text-xs text-[var(--color-muted)] text-center">
-          {phase === "result"
-            ? "Hợp duyên thì ghé. Chưa hợp thì quay tiếp."
-            : scope === "group"
-            ? isGroupReady
-              ? "Vũ trụ sẽ chọn công bằng 1 quán duy nhất từ danh sách của nhóm."
-              : `Cần chọn đủ ${groupLimit} quán để mở khóa vòng quay nhóm.`
-            : "Quán thật, món thật. Còn lựa chọn là một bất ngờ."}
-        </p>
-      </div>
+            <p className="mt-3 text-xs text-[var(--color-muted)] text-center">
+              {phase === "result"
+                ? "Hợp duyên thì ghé. Chưa hợp thì quay tiếp."
+                : scope === "group"
+                ? "Vũ trụ sẽ chọn công bằng 1 quán duy nhất từ danh sách của nhóm."
+                : "Quán thật, món thật. Còn lựa chọn là một bất ngờ."}
+            </p>
+          </div>
+        </>
+      )}
 
       <p className="sr-only" role="status" aria-live="polite">
         {phase === "rolling"
