@@ -127,3 +127,15 @@ test('U30 Gacha returns only actual candidates without mutating the list', () =>
   for (let i=0;i<200;i++) assert.ok(choices.includes(pickRandom(choices)));
   assert.deepEqual(choices,[{id:'a'},{id:'b'},{id:'c'}]);
 });
+test('U31 Group Gacha selects strictly from group candidate pool and respects boundaries', () => {
+  const groupCandidates = [
+    { id: 'h1', name: 'Hanu Chicken' },
+    { id: 'h2', name: 'Bún bò Huế 18' },
+    { id: 'h3', name: 'Malatang' },
+  ];
+  for (let i = 0; i < 100; i++) {
+    const picked = pickRandom(groupCandidates);
+    assert.ok(groupCandidates.some((c) => c.id === picked?.id));
+  }
+  assert.equal(pickRandom([]), null);
+});

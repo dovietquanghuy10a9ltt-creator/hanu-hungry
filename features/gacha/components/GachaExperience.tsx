@@ -16,15 +16,19 @@ import {
   Check,
   Loader2,
   ArrowUpRight,
+  User,
+  Users,
 } from "lucide-react";
 import { rollGacha, type GachaResult } from "@/features/gacha/actions";
 import { formatCardPrice, formatPrice, mapsUrl } from "@/features/restaurants/format";
 import { isDrinkDish, pickRandom } from "@/features/gacha/random";
 import { quickCheckIn } from "@/features/history/actions";
+import { GroupGachaSelector } from "./GroupGachaSelector";
 import type { CatalogDish, CatalogRestaurant } from "@/features/restaurants/search";
 import type { RestaurantSummary } from "@/features/restaurants/types";
 
 export type GachaMode = "restaurant" | "food" | "drink";
+export type GachaScope = "solo" | "group";
 
 export function GachaExperience({
   restaurantNames,
@@ -40,7 +44,9 @@ export function GachaExperience({
   catalog?: CatalogRestaurant[];
 }) {
   const router = useRouter();
+  const [scope, setScope] = useState<GachaScope>("solo");
   const [mode, setMode] = useState<GachaMode>(initialMode);
+  const [selectedGroupRestaurants, setSelectedGroupRestaurants] = useState<CatalogRestaurant[]>([]);
   const [phase, setPhase] = useState<"idle" | "rolling" | "result">("idle");
   const [result, setResult] = useState<GachaResult | null>(null);
   const [error, setError] = useState("");
@@ -147,14 +153,51 @@ export function GachaExperience({
     return null;
   }
 
+  const toggleGroupRestaurant = (restaurant: CatalogRestaurant) => {
+    if (phase === "rolling") return;
+    setError("");
+    setSelectedGroupRestaurants((prev) => {
+      const exists = prev.some((r) => r.id === restaurant.id);
+      if (exists) {
+        return prev.filter((r) => r.id !== restaurant.id);
+      }
+      if (prev.length >= 8) {
+        return prev;
+      }
+      return [...prev, restaurant];
+    });
+  };
+
+  const clearGroupRestaurants = () => {
+    if (phase === "rolling") return;
+    setSelectedGroupRestaurants([]);
+    setError("");
+  };
+
   async function roll() {
     if (phase === "rolling") return;
-    console.log("[GachaExperience] Roll initiated for mode:", mode);
+
+    if (scope === "group") {
+      if (selectedGroupRestaurants.length < 2) {
+        setError("Vui lòng chọn ít nhất 2 quán để bắt đầu quay nhóm nhé!");
+        return;
+      }
+    }
+
+    console.log("[GachaExperience] Roll initiated for scope:", scope, "mode:", mode);
     setPhase("rolling");
     setResult(null);
     setError("");
 
-    const names = mode === "drink" ? drinkNames : mode === "food" ? foodNames : restaurantNames;
+    const names =
+      scope === "group"
+        ? selectedGroupRestaurants.map((r) => r.name)
+        : mode === "drink"
+        ? drinkNames
+        : mode === "food"
+        ? foodNames
+        : restaurantNames;
+
     const started = Date.now();
     let index = 0;
 
@@ -170,14 +213,29 @@ export function GachaExperience({
       let chosenResult: GachaResult | null = null;
       let chosenError: string | null = null;
 
-      // Prioritize client in-memory pick for instant reliability and 0 network failures
-      if (catalog && catalog.length > 0) {
+      if (scope === "group") {
+        const winner = pickRandom(selectedGroupRestaurants);
+        if (winner) {
+          const restaurant: RestaurantSummary = {
+            id: winner.id,
+            name: winner.name,
+            area: winner.area,
+            address_text: winner.address_text,
+            image_url: winner.image_url,
+            min_price_vnd: winner.min_price_vnd,
+            max_price_vnd: winner.max_price_vnd,
+            categories: winner.categories,
+          };
+          chosenResult = { restaurant, dish: null };
+        } else {
+          chosenError = "Chưa có quán nào được chọn.";
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1800));
+      } else if (catalog && catalog.length > 0) {
         chosenResult = pickClientResult(mode);
         if (!chosenResult) chosenError = "Chưa có lựa chọn phù hợp. Thử chế độ khác nhé.";
-        // Let the spinning animation run for 1.8 seconds for anticipation
         await new Promise((resolve) => setTimeout(resolve, 1800));
       } else {
-        // Fallback to server action
         const [response] = await Promise.all([
           rollGacha(mode),
           new Promise((resolve) => setTimeout(resolve, 2000)),
@@ -241,79 +299,134 @@ export function GachaExperience({
 
   return (
     <div className="gacha-experience">
-      <div className="flex justify-center mt-6 mb-3 relative" ref={dropdownRef}>
-        <div className="relative inline-block text-left w-64 max-w-full">
+      {/* Scope toggle: Solo vs Group */}
+      <div className="flex justify-center mt-3 mb-4">
+        <div className="inline-flex rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] p-1 shadow-xs">
           <button
             type="button"
-            id="gacha-mode-button"
-            aria-haspopup="listbox"
-            aria-expanded={isDropdownOpen}
             disabled={phase === "rolling"}
-            onClick={() => setIsDropdownOpen((prev) => !prev)}
-            className="w-full flex items-center justify-between gap-3 rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] px-4 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-hidden cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => {
+              setScope("solo");
+              setPhase("idle");
+              setResult(null);
+              setError("");
+            }}
+            className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm font-bold transition cursor-pointer disabled:opacity-50 ${
+              scope === "solo"
+                ? "bg-[var(--color-red)] text-white shadow-xs"
+                : "text-[var(--color-ink)] hover:text-[var(--color-red)]"
+            }`}
           >
-            <span className="flex items-center gap-2.5 min-w-0 text-[var(--color-red)]">
-              {renderModeIcon(mode)}
-              <span className="truncate text-[var(--color-ink)]">
-                {mode === "restaurant"
-                  ? "Gacha theo quán"
-                  : mode === "drink"
-                  ? "Gacha theo đồ uống"
-                  : "Gacha theo đồ ăn"}
-              </span>
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 text-[var(--color-red)] transition-transform duration-200 ${
-                isDropdownOpen ? "rotate-180" : ""
-              }`}
-              aria-hidden="true"
-            />
+            <User className="h-4 w-4" />
+            <span>Quay cá nhân</span>
           </button>
-
-          {isDropdownOpen && (
-            <div
-              role="listbox"
-              aria-labelledby="gacha-mode-button"
-              className="absolute left-0 right-0 top-full mt-2 z-30 rounded-2xl border-2 border-[#d2bca3] bg-[#fffdf8] p-1.5 shadow-xl animate-fadeIn"
-            >
-              {(
-                [
-                  { id: "restaurant", label: "Gacha theo quán" },
-                  { id: "food", label: "Gacha theo đồ ăn" },
-                  { id: "drink", label: "Gacha theo đồ uống" },
-                ] as const
-              ).map((m) => {
-                const isSelected = mode === m.id;
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    onClick={() => {
-                      changeMode(m.id);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition cursor-pointer ${
-                      isSelected
-                        ? "bg-[var(--color-pale)] text-[var(--color-red)]"
-                        : "text-[var(--color-ink)] hover:bg-[#f5ece1]"
-                    }`}
-                  >
-                    <span className={isSelected ? "text-[var(--color-red)]" : "text-[var(--color-muted)]"}>
-                      {renderModeIcon(m.id)}
-                    </span>
-                    <span className="flex-1">{m.label}</span>
-                    {isSelected && (
-                      <Check className="h-4 w-4 text-[var(--color-red)]" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          <button
+            type="button"
+            disabled={phase === "rolling"}
+            onClick={() => {
+              setScope("group");
+              setPhase("idle");
+              setResult(null);
+              setError("");
+            }}
+            className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm font-bold transition cursor-pointer disabled:opacity-50 ${
+              scope === "group"
+                ? "bg-[var(--color-red)] text-white shadow-xs"
+                : "text-[var(--color-ink)] hover:text-[var(--color-red)]"
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            <span>Quay nhóm</span>
+          </button>
         </div>
       </div>
+
+      {scope === "solo" ? (
+        <div className="flex justify-center mb-3 relative" ref={dropdownRef}>
+          <div className="relative inline-block text-left w-64 max-w-full">
+            <button
+              type="button"
+              id="gacha-mode-button"
+              aria-haspopup="listbox"
+              aria-expanded={isDropdownOpen}
+              disabled={phase === "rolling"}
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between gap-3 rounded-full border-2 border-[#d2bca3] bg-[#fffdf8] px-4 py-2.5 font-bold text-sm sm:text-base text-[var(--color-ink)] shadow-xs hover:border-[var(--color-red)] focus:border-[var(--color-red)] focus:outline-hidden cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="flex items-center gap-2.5 min-w-0 text-[var(--color-red)]">
+                {renderModeIcon(mode)}
+                <span className="truncate text-[var(--color-ink)]">
+                  {mode === "restaurant"
+                    ? "Gacha theo quán"
+                    : mode === "drink"
+                    ? "Gacha theo đồ uống"
+                    : "Gacha theo đồ ăn"}
+                </span>
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 text-[var(--color-red)] transition-transform duration-200 ${
+                  isDropdownOpen ? "rotate-180" : ""
+                }`}
+                aria-hidden="true"
+              />
+            </button>
+
+            {isDropdownOpen && (
+              <div
+                role="listbox"
+                aria-labelledby="gacha-mode-button"
+                className="absolute left-0 right-0 top-full mt-2 z-30 rounded-2xl border-2 border-[#d2bca3] bg-[#fffdf8] p-1.5 shadow-xl animate-fadeIn"
+              >
+                {(
+                  [
+                    { id: "restaurant", label: "Gacha theo quán" },
+                    { id: "food", label: "Gacha theo đồ ăn" },
+                    { id: "drink", label: "Gacha theo đồ uống" },
+                  ] as const
+                ).map((m) => {
+                  const isSelected = mode === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      onClick={() => {
+                        changeMode(m.id);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition cursor-pointer ${
+                        isSelected
+                          ? "bg-[var(--color-pale)] text-[var(--color-red)]"
+                          : "text-[var(--color-ink)] hover:bg-[#f5ece1]"
+                      }`}
+                    >
+                      <span className={isSelected ? "text-[var(--color-red)]" : "text-[var(--color-muted)]"}>
+                        {renderModeIcon(m.id)}
+                      </span>
+                      <span className="flex-1">{m.label}</span>
+                      {isSelected && (
+                        <Check className="h-4 w-4 text-[var(--color-red)]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        phase === "idle" && (
+          <div className="mb-6 animate-fadeIn">
+            <GroupGachaSelector
+              catalog={catalog || []}
+              selectedRestaurants={selectedGroupRestaurants}
+              onToggleRestaurant={toggleGroupRestaurant}
+              onClearAll={clearGroupRestaurants}
+            />
+          </div>
+        )
+      )}
 
       <div className={`cosmic-stage ${phase}`} aria-busy={phase === "rolling"}>
         <span className="cosmic-star star-one" aria-hidden="true">✦</span>
@@ -325,7 +438,16 @@ export function GachaExperience({
         <div className="gacha-ticket">
           <div className="ticket-top">
             <span>Hanu Hungry</span>
-            <span>LUCKY PICK / {mode === "restaurant" ? "QUÁN" : mode === "drink" ? "ĐỒ UỐNG" : "ĐỒ ĂN"}</span>
+            <span>
+              LUCKY PICK /{" "}
+              {scope === "group"
+                ? "QUAY NHÓM"
+                : mode === "restaurant"
+                ? "QUÁN"
+                : mode === "drink"
+                ? "ĐỒ UỐNG"
+                : "ĐỒ ĂN"}
+            </span>
           </div>
 
           {phase === "result" && result ? (
@@ -460,17 +582,43 @@ export function GachaExperience({
           type="button"
           className="button button-primary gacha-roll cursor-pointer shadow-md active:translate-y-0.5 select-none"
           onClick={roll}
-          disabled={phase === "rolling"}
+          disabled={phase === "rolling" || (scope === "group" && phase === "idle" && selectedGroupRestaurants.length < 2)}
         >
           <span aria-hidden="true" className={phase === "rolling" ? "spin-small inline-block" : "inline-block"}>
             ✳
           </span>
-          {phase === "rolling" ? "Đang bắt tín hiệu…" : phase === "result" ? "Quay thêm một lần" : "Quay một vòng"}
+          {phase === "rolling"
+            ? "Đang bắt tín hiệu…"
+            : phase === "result"
+            ? scope === "group"
+              ? "Quay lại trong nhóm này"
+              : "Quay thêm một lần"
+            : scope === "group" && selectedGroupRestaurants.length < 2
+            ? `Chọn thêm ${2 - selectedGroupRestaurants.length} quán để quay`
+            : scope === "group"
+            ? `Quay chọn quán nhóm (${selectedGroupRestaurants.length} quán)`
+            : "Quay một vòng"}
           <span aria-hidden="true">↗</span>
         </button>
+
+        {phase === "result" && scope === "group" && (
+          <button
+            type="button"
+            onClick={() => {
+              setPhase("idle");
+              setResult(null);
+            }}
+            className="mt-3 inline-flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--color-red)] hover:underline cursor-pointer"
+          >
+            <span>← Đổi danh sách quán đã chọn</span>
+          </button>
+        )}
+
         <p className="mt-3 text-xs text-[var(--color-muted)]">
           {phase === "result"
             ? "Hợp duyên thì ghé. Chưa hợp thì quay tiếp."
+            : scope === "group"
+            ? "Vũ trụ sẽ chọn công bằng 1 quán duy nhất từ danh sách của nhóm."
             : "Quán thật, món thật. Còn lựa chọn là một bất ngờ."}
         </p>
       </div>
