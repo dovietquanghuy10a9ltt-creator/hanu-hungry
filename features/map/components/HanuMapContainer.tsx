@@ -49,16 +49,12 @@ export function HanuMapContainer({
       })
       .addTo(map);
 
-    // Sử dụng CartoDB Positron hoặc OpenStreetMap tile
-    L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        subdomains: "abcd",
-        maxZoom: 19,
-      }
-    ).addTo(map);
+    // Sử dụng OpenStreetMap standard tile (hoàn toàn miễn phí 100%, không cần API key, không bị watermark)
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(map);
 
     // Ghim đặc biệt: Cổng chính HANU
     const hanuIcon = L.divIcon({
@@ -127,25 +123,6 @@ export function HanuMapContainer({
             <span style="transform:rotate(45deg);font-size:${isSelected ? "16px" : "13px"};line-height:1;">
               🍜
             </span>
-          </div>
-          <div style="
-            position:absolute;
-            bottom:-18px;
-            left:50%;
-            transform:translateX(-50%);
-            background:rgba(255,255,255,0.92);
-            backdrop-filter:blur(4px);
-            color:#292524;
-            font-size:10px;
-            font-weight:700;
-            padding:1px 5px;
-            border-radius:6px;
-            border:1px solid #d2bca3;
-            white-space:nowrap;
-            pointer-events:none;
-            box-shadow:0 1px 3px rgba(0,0,0,0.1);
-          ">
-            ${restaurant.name}
           </div>
         </div>
       `;
@@ -219,6 +196,15 @@ export function HanuMapContainer({
         closeButton: true,
         className: "hanu-custom-popup",
       });
+
+      marker.bindTooltip(
+        `<div style="font-weight:700;font-size:11px;color:#1c1917;white-space:nowrap;padding:1px 3px;">${restaurant.name}</div>`,
+        {
+          direction: "top",
+          offset: [0, -32],
+          className: "hanu-pin-tooltip",
+        }
+      );
 
       marker.on("click", () => {
         onSelectRestaurant(restaurant);

@@ -216,6 +216,18 @@ h1,h2,h3,h4,.brand-display,.section-title { font-family: var(--font-heading), Ge
   background: #fffdf8 !important;
   border-bottom: 2px solid #4A3525 !important;
 }
+.hanu-pin-tooltip {
+  background: #fffdf8 !important;
+  color: var(--color-ink) !important;
+  border: 1.5px solid #4A3525 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(74, 53, 37, 0.15) !important;
+  padding: 3px 6px !important;
+  font-family: var(--font-body, sans-serif) !important;
+}
+.hanu-pin-tooltip::before {
+  border-top-color: #4A3525 !important;
+}
 .hanu-food-pin:hover > div:first-child {
   transform: rotate(-45deg) scale(1.15) !important;
 }
