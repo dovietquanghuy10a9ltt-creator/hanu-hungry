@@ -22,16 +22,19 @@ export const HANU_MAIN_GATE_COORDS: LatLng = {
  * Tọa độ tâm các khu vực ngõ ẩm thực thực tế quanh HANU
  */
 export const HANU_ALLEY_CENTROIDS: Record<string, LatLng> = {
-  "Ngõ 1": { lat: 20.9870, lng: 105.7975 },
-  "Ngõ A4": { lat: 20.9892, lng: 105.7942 },
-  "Ngõ A8": { lat: 20.9905, lng: 105.7938 },
-  "Ngõ A5": { lat: 20.9897, lng: 105.7948 },
+  "Ngõ 1": { lat: 20.9868, lng: 105.7974 },
+  "Ngõ A4": { lat: 20.9897, lng: 105.7976 },
+  "Ngõ A5": { lat: 20.9902, lng: 105.7973 },
+  "Ngõ A6": { lat: 20.9907, lng: 105.7970 },
+  "Ngõ A7": { lat: 20.9912, lng: 105.7967 },
+  "Ngõ A8": { lat: 20.9916, lng: 105.7962 },
+  "Ngõ A3": { lat: 20.9892, lng: 105.7972 },
+  "Ngõ A2": { lat: 20.9886, lng: 105.7970 },
+  "Ngõ A9": { lat: 20.9919, lng: 105.7958 },
+  "Giữa ngõ A4-A5": { lat: 20.9900, lng: 105.7974 },
+  "Giữa ngõ A7-A8": { lat: 20.9914, lng: 105.7965 },
   "Cổng trường": { lat: 20.9878, lng: 105.7963 },
-  "Trước cổng trường": { lat: 20.9877, lng: 105.7966 },
-  "Ngõ A7": { lat: 20.9901, lng: 105.7940 },
-  "Ngõ A3": { lat: 20.9888, lng: 105.7945 },
-  "Ngõ A2": { lat: 20.9883, lng: 105.7948 },
-  "Ngõ A9": { lat: 20.9908, lng: 105.7935 },
+  "Trước cổng trường": { lat: 20.9874, lng: 105.7966 },
   "Trong trường": { lat: 20.9885, lng: 105.7954 },
 };
 
