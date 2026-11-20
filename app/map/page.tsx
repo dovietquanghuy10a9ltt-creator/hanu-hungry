@@ -66,8 +66,8 @@ export default async function MapPage({
         <h1 className="section-title text-2xl sm:text-3xl text-[var(--color-ink)]">
           Bản đồ ẩm thực HANU
         </h1>
-        <p className="text-sm font-bold text-[var(--color-red)] tracking-wider uppercase">
-          Tính năng sắp mở
+        <p className="text-sm font-bold text-[var(--color-red)] tracking-wide">
+          Sắp mở
         </p>
       </div>
       {isAdmin && (
