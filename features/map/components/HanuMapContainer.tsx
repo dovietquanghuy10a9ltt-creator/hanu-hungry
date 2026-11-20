@@ -12,6 +12,10 @@ import {
 } from "../constants";
 import { formatCardPrice } from "@/features/restaurants/format";
 
+const DEFAULT_ZOOM = 17;
+const FOCUS_MAX_ZOOM = 18;
+const MAX_ZOOM = 19;
+
 interface HanuMapContainerProps {
   restaurants: CatalogRestaurant[];
   selectedRestaurantId: string | null;
@@ -35,12 +39,18 @@ export function HanuMapContainer({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    // Khởi tạo map tại trung tâm HANU
-    const map = L.map(containerRef.current, {
+    const container = containerRef.current;
+
+    // Khởi tạo map tại trung tâm HANU.
+    // Chỉ dùng mức zoom nguyên (zoomSnap = 1): zoom lẻ như 16.5 buộc Leaflet phóng to ảnh tile
+    // bằng CSS transform, làm bản đồ bị mờ.
+    const map = L.map(container, {
       center: [HANU_CENTER_COORDS.lat, HANU_CENTER_COORDS.lng],
-      zoom: 16.5,
+      zoom: DEFAULT_ZOOM,
       minZoom: 15,
-      maxZoom: 19,
+      maxZoom: MAX_ZOOM,
+      zoomSnap: 1,
+      zoomDelta: 1,
       zoomControl: false, // Chuyển zoom control sang góc dưới để không che thanh search
     });
 
@@ -51,16 +61,21 @@ export function HanuMapContainer({
       })
       .addTo(map);
 
-    // Sử dụng OpenStreetMap tile với đa subdomain song song và bộ đệm lớn (tránh hiện tượng ô xám)
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      subdomains: ["a", "b", "c"],
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-      maxZoom: 19,
-      maxNativeZoom: 18,
-      keepBuffer: 8,
-      updateWhenIdle: false,
-    }).addTo(map);
+    // Esri World Street Map (CDN ArcGIS, không cần API key).
+    // Không dùng *.openstreetmap.org: DNS của nhiều nhà mạng Việt Nam trả về 127.0.0.1 cho
+    // tile.openstreetmap.org, nên bản đồ bị xám/đen trên Wi-Fi (Chrome, Cốc Cốc) dù 4G vẫn tải được.
+    // Không dùng basemaps.cartocdn.com: CARTO giờ trả ảnh "API KEY REQUIRED" cho mọi tile.
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: MAX_ZOOM,
+        maxNativeZoom: MAX_ZOOM, // Không phóng to ảnh tile của mức zoom thấp hơn (nguyên nhân gây mờ)
+        keepBuffer: 6,
+        updateWhenIdle: false,
+        attribution:
+          'Tiles &copy; <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a> &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+      }
+    ).addTo(map);
 
     // Ghim đặc biệt: Cổng chính HANU
     const hanuIcon = L.divIcon({
@@ -90,7 +105,20 @@ export function HanuMapContainer({
 
     mapRef.current = map;
 
+    // Leaflet đo kích thước container ngay khi khởi tạo; trong Next.js (dynamic import, layout
+    // còn đang ổn định) số đo này thường sai nên vùng giữa không tải tile -> ô xám.
+    // Đo lại sau khi layout ổn định, khi cửa sổ đổi kích thước và khi chính container đổi kích thước.
+    const refreshSize = () => map.invalidateSize();
+    const initialSizeTimer = window.setTimeout(refreshSize, 250);
+    window.addEventListener("resize", refreshSize);
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(refreshSize) : null;
+    resizeObserver?.observe(container);
+
     return () => {
+      window.clearTimeout(initialSizeTimer);
+      window.removeEventListener("resize", refreshSize);
+      resizeObserver?.disconnect();
       map.remove();
       mapRef.current = null;
     };
@@ -224,7 +252,7 @@ export function HanuMapContainer({
   useEffect(() => {
     if (!resetTrigger || !mapRef.current) return;
     mapRef.current.closePopup();
-    mapRef.current.flyTo([HANU_CENTER_COORDS.lat, HANU_CENTER_COORDS.lng], 16.5, {
+    mapRef.current.flyTo([HANU_CENTER_COORDS.lat, HANU_CENTER_COORDS.lng], DEFAULT_ZOOM, {
       animate: true,
       duration: 0.6,
     });
@@ -238,7 +266,7 @@ export function HanuMapContainer({
     if (marker && target) {
       const coords = getRestaurantCoordinates(target);
       const currentZoom = mapRef.current.getZoom();
-      const targetZoom = Math.min(Math.max(currentZoom, 16.5), 17.5);
+      const targetZoom = Math.min(Math.max(Math.round(currentZoom), DEFAULT_ZOOM), FOCUS_MAX_ZOOM);
       mapRef.current.setView([coords.lat, coords.lng], targetZoom, {
         animate: true,
         duration: 0.5,
