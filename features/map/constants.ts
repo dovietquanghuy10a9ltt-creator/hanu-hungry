@@ -22,19 +22,21 @@ export const HANU_MAIN_GATE_COORDS: LatLng = {
  * Tọa độ tâm các khu vực ngõ ẩm thực thực tế quanh HANU
  */
 export const HANU_ALLEY_CENTROIDS: Record<string, LatLng> = {
-  "Ngõ 1": { lat: 20.9868, lng: 105.7974 },
-  "Ngõ A4": { lat: 20.9897, lng: 105.7976 },
-  "Ngõ A5": { lat: 20.9902, lng: 105.7973 },
-  "Ngõ A6": { lat: 20.9907, lng: 105.7970 },
-  "Ngõ A7": { lat: 20.9912, lng: 105.7967 },
-  "Ngõ A8": { lat: 20.9916, lng: 105.7962 },
-  "Ngõ A3": { lat: 20.9892, lng: 105.7972 },
+  // Ngõ 1 nằm bên cạnh cổng chính HANU (phía số 246 Nguyễn Trãi, cùng phía trường)
+  "Ngõ 1": { lat: 20.9875, lng: 105.7969 },
+  // Trục ngõ A kẹp giữa Sân vận động HANU và Đường Lương Thế Vinh
+  "Ngõ A4": { lat: 20.9896, lng: 105.7967 },
+  "Ngõ A5": { lat: 20.9900, lng: 105.7965 },
+  "Ngõ A6": { lat: 20.9904, lng: 105.7963 },
+  "Ngõ A7": { lat: 20.9908, lng: 105.7961 },
+  "Ngõ A8": { lat: 20.9911, lng: 105.7959 },
+  "Ngõ A3": { lat: 20.9891, lng: 105.7969 },
   "Ngõ A2": { lat: 20.9886, lng: 105.7970 },
-  "Ngõ A9": { lat: 20.9919, lng: 105.7958 },
-  "Giữa ngõ A4-A5": { lat: 20.9900, lng: 105.7974 },
-  "Giữa ngõ A7-A8": { lat: 20.9914, lng: 105.7965 },
+  "Ngõ A9": { lat: 20.9913, lng: 105.7957 },
+  "Giữa ngõ A4-A5": { lat: 20.9898, lng: 105.7966 },
+  "Giữa ngõ A7-A8": { lat: 20.9910, lng: 105.7960 },
   "Cổng trường": { lat: 20.9878, lng: 105.7963 },
-  "Trước cổng trường": { lat: 20.9874, lng: 105.7966 },
+  "Trước cổng trường": { lat: 20.9876, lng: 105.7965 },
   "Trong trường": { lat: 20.9885, lng: 105.7954 },
 };
 
@@ -90,10 +92,10 @@ export function getRestaurantCoordinates(restaurant: {
   const areaName = restaurant.area?.trim() || "";
   const baseCoords = HANU_ALLEY_CENTROIDS[areaName] || HANU_CENTER_COORDS;
 
-  // Tính micro-offset theo ID để các quán cùng ngõ hiển thị dàn đều tự nhiên dọc theo ngõ (~15-35m)
+  // Tính micro-offset gọn nhẹ (~5m - 15m) để các ghim tách biệt nhau nhưng vẫn nằm trọn trong lòng ngõ
   const hash = hashString(restaurant.id);
   const angle = (hash % 360) * (Math.PI / 180);
-  const radius = 0.00012 + ((hash % 100) / 100) * 0.00018; // ~15m - 35m theo độ vĩ tuyến
+  const radius = 0.00005 + ((hash % 100) / 100) * 0.00009; // ~5.5m - 15.5m
 
   return {
     lat: baseCoords.lat + radius * Math.cos(angle),
