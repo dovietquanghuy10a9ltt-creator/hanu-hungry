@@ -43,10 +43,45 @@ function NavIcon({
   );
 }
 
+function StarburstBadge({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center justify-center select-none pointer-events-none ${className}`}
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 68 38"
+        className="h-4.5 w-auto overflow-visible drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <polygon
+          points="34,2 40,8 48,4 51,12 60,13 58,21 66,26 59,30 57,37 49,34 43,38 37,33 30,37 25,32 17,35 17,27 8,27 12,19 4,14 13,11 14,4 23,7"
+          fill="#c51f30"
+          stroke="#ffffff"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <text
+          x="34"
+          y="23.5"
+          textAnchor="middle"
+          fill="#ffffff"
+          fontSize="11"
+          fontWeight="900"
+          fontFamily="inherit"
+          letterSpacing="-0.3px"
+        >
+          Sắp mở
+        </text>
+      </svg>
+    </span>
+  );
+}
+
 export function Navigation({
   mobile = false,
   isAdmin = false,
-  signedIn = false,
 }: {
   mobile?: boolean;
   isAdmin?: boolean;
@@ -59,7 +94,6 @@ export function Navigation({
   ];
   const items = [
     ...(isAdmin ? siteConfig.navigation : studentNavItems),
-    ...(mobile && signedIn ? [{ href: "/profile", label: "Cá nhân" }] : []),
     ...(isAdmin ? [{ href: "/admin/analytics", label: "Quản trị" }] : []),
   ];
   return (
@@ -92,8 +126,8 @@ export function Navigation({
               >
                 <NavIcon href={item.href} className="w-5 h-5" />
                 {isMap && (
-                  <span className="absolute -top-1.5 -right-3 whitespace-nowrap rounded-full bg-[var(--color-red)] px-1 py-0.2 text-[8px] font-black text-white leading-none shadow-xs">
-                    Sắp mở
+                  <span className="absolute -top-3 -right-4.5 z-10 rotate-[-10deg]">
+                    <StarburstBadge />
                   </span>
                 )}
               </span>
@@ -107,11 +141,11 @@ export function Navigation({
                 <NavIcon href={item.href} className="w-4 h-4" />
               </span>
             )}
-            <span className="relative z-1 inline-flex items-center gap-1.5">
+            <span className="relative z-1 inline-flex items-center gap-1.5 whitespace-nowrap">
               <span>{item.label}</span>
               {!mobile && isMap && (
-                <span className="rounded-full bg-[#fdf2f2] border border-[#f0c2c6] px-1.5 py-0.2 text-[9px] font-extrabold text-[var(--color-red)] leading-tight tracking-tight">
-                  Sắp mở
+                <span className="rotate-[-6deg]">
+                  <StarburstBadge />
                 </span>
               )}
             </span>

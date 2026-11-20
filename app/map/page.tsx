@@ -58,39 +58,28 @@ export default async function MapPage({
 
   // Màn hình thông báo "Sắp mở" cho toàn bộ người dùng
   return (
-    <div className="mx-auto max-w-2xl py-14 sm:py-24 text-center space-y-6">
-      <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--color-pale)] text-4xl shadow-sm animate-bounce">
+    <div className="mx-auto max-w-md py-20 sm:py-32 text-center space-y-4">
+      <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--color-pale)] text-4xl shadow-xs">
         🗺️
       </div>
-      <div className="space-y-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f0c2c6] bg-[#fdf2f2] px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-[var(--color-red)] shadow-xs">
-          <span className="h-2 w-2 rounded-full bg-[var(--color-red)] animate-ping" />
-          Đang hoàn thiện · Sắp mở
-        </span>
-        <h1 className="section-title text-3xl sm:text-4xl text-[var(--color-ink)]">
+      <div className="space-y-2">
+        <h1 className="section-title text-2xl sm:text-3xl text-[var(--color-ink)]">
           Bản đồ ẩm thực HANU
         </h1>
-        <p className="text-[var(--color-muted)] text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-          Tính năng bản đồ tương tác với toạ độ thực tế và khoảng cách đi bộ của hơn 50+ quán ăn quanh trường đang được đội ngũ hoàn thiện và thử nghiệm kỹ lưỡng. Sẽ sớm ra mắt các bạn Hanuer trong thời gian tới!
+        <p className="text-sm font-bold text-[var(--color-red)] tracking-wider uppercase">
+          Tính năng sắp mở
         </p>
       </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
-        <Link href="/restaurants" className="button button-primary">
-          Khám phá danh sách 50+ quán ăn →
-        </Link>
-        <Link href="/" className="button button-secondary">
-          Về trang chủ
-        </Link>
-        {isAdmin && (
+      {isAdmin && (
+        <div className="pt-4">
           <Link
             href="/map?preview=1"
-            className="button button-outline border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+            className="button button-outline border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-xs"
           >
             🛠️ Xem thử Bản đồ (Admin Test)
           </Link>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

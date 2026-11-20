@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, ty
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Bell } from "lucide-react";
 import { Navigation } from "@/components/layout/navigation";
 import { StreakIndicator, type StreakData } from "@/components/shared/streak-indicator";
 import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
@@ -288,14 +289,7 @@ export function HeaderUserNavActions() {
             aria-label={`Thông báo bài viết từ Admin${unreadNotificationsCount > 0 ? ` (${unreadNotificationsCount} chưa đọc)` : ""}`}
             title="Thông báo bài viết từ Admin"
           >
-            <Image
-              src="/icons/shared/bell.png"
-              alt=""
-              width={24}
-              height={24}
-              unoptimized
-              className="h-5 w-5 sm:h-6 sm:w-6 object-contain transition-transform group-hover:scale-110"
-            />
+            <Bell className="h-5 w-5 sm:h-6 sm:w-6 transition-transform group-hover:scale-110" />
             {unreadNotificationsCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 sm:h-5 sm:min-w-5 items-center justify-center rounded-full bg-[var(--color-red)] px-1 text-[10px] sm:text-[11px] font-black text-white shadow-sm animate-pulse">
                 {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
