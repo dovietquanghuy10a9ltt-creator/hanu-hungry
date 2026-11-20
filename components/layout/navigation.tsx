@@ -73,6 +73,7 @@ export function Navigation({
             ? pathname === "/"
             : pathname === item.href || pathname.startsWith(`${item.href}/`);
         const isGacha = item.href === "/gacha";
+        const isMap = item.href === "/map";
         return (
           <Link
             key={item.href}
@@ -101,7 +102,14 @@ export function Navigation({
                 <NavIcon href={item.href} className="w-4 h-4" />
               </span>
             )}
-            <span className="relative z-1">{item.label}</span>
+            <span className="relative z-1 inline-flex items-center gap-1.5">
+              <span>{item.label}</span>
+              {isMap && (
+                <span className="rounded-full bg-[#fdf2f2] border border-[#f0c2c6] px-1.5 py-0.2 text-[9px] font-extrabold text-[var(--color-red)] leading-tight tracking-tight">
+                  Sắp mở
+                </span>
+              )}
+            </span>
             {isGacha && (
               <span className="gacha-shimmer-beam" aria-hidden="true" />
             )}

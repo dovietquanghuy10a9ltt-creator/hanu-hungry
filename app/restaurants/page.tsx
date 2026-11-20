@@ -36,9 +36,12 @@ export default async function RestaurantsPage() {
         </div>
         <Link
           href="/map"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--color-red)] text-white text-xs sm:text-sm font-bold shadow-md hover:bg-[#831e1c] transition active:translate-y-0.5 shrink-0 self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl bg-[var(--color-red)] text-white text-xs sm:text-sm font-bold shadow-md hover:bg-[#831e1c] transition active:translate-y-0.5 shrink-0 self-start sm:self-auto cursor-pointer"
         >
           <span>🗺️ Xem trên bản đồ</span>
+          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider">
+            Sắp mở
+          </span>
           <span aria-hidden="true">↗</span>
         </Link>
       </header>
