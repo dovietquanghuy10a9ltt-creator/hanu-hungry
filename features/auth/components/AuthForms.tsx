@@ -3,6 +3,8 @@
 import { useActionState, useState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth/auth-context";
 import type { AuthActionState } from "@/features/auth/actions";
 import {
   changePasswordAction,
@@ -171,8 +173,24 @@ function saveRegisteredMssv(code: string) {
 
 export function LoginForm({ next, resetDone }: { next: string; resetDone: boolean }) {
   const [state, action] = useActionState(loginAction, initialState);
+  const router = useRouter();
+  const { refresh } = useAuth();
   const [studentCode, setStudentCode] = useState("");
   const [knownMssvs, setKnownMssvs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (state.status === "success" && state.data?.redirectTo) {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("hanu_auth_cache_v1");
+        } catch {}
+      }
+      refresh().finally(() => {
+        router.push(state.data!.redirectTo);
+        router.refresh();
+      });
+    }
+  }, [state, refresh, router]);
 
   useEffect(() => {
     try {
@@ -194,6 +212,11 @@ export function LoginForm({ next, resetDone }: { next: string; resetDone: boolea
       <h2 className="text-2xl font-black sm:text-3xl">Chào mừng trở lại</h2>
       <p className="mt-2 text-sm leading-relaxed text-[#756561]">Dùng mã sinh viên để mở cuốn sổ ăn uống của bạn.</p>
       {resetDone && <p role="status" className="mt-5 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã đặt lại mật khẩu. Hãy đăng nhập bằng mật khẩu mới.</p>}
+      {state.status === "success" && (
+        <p role="status" className="mt-5 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 animate-pulse">
+          Đăng nhập thành công! Đang chuyển hướng...
+        </p>
+      )}
       <form
         action={action}
         onSubmit={(e) => {
@@ -246,6 +269,22 @@ export function LoginForm({ next, resetDone }: { next: string; resetDone: boolea
 
 export function RegisterForm({ guardToken }: { guardToken?: { timestamp: number; token: string } } = {}) {
   const [state, action] = useActionState(registerAction, initialState);
+  const router = useRouter();
+  const { refresh } = useAuth();
+
+  useEffect(() => {
+    if (state.status === "success" && state.data?.redirectTo) {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("hanu_auth_cache_v1");
+        } catch {}
+      }
+      refresh().finally(() => {
+        router.push(state.data!.redirectTo);
+        router.refresh();
+      });
+    }
+  }, [state, refresh, router]);
   return (
     <>
       <h2 className="text-2xl font-black sm:text-3xl">Tạo tài khoản</h2>

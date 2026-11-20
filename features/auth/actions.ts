@@ -151,7 +151,11 @@ export async function registerAction(
   }
 
   if (shouldRedirect) {
-    redirect("/");
+    return {
+      status: "success",
+      message: "Đăng ký tài khoản thành công!",
+      data: { redirectTo: "/" },
+    };
   }
 
   return {
@@ -203,14 +207,18 @@ export async function loginAction(
     secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/",
     ...(remember ? { maxAge: 60 * 60 * 24 * 365 } : {}),
   });
-  redirect(safeReturnPath(field(form, "next")));
+  return {
+    status: "success",
+    message: "Đăng nhập thành công!",
+    data: { redirectTo: safeReturnPath(field(form, "next")) },
+  };
 }
 
-export async function logoutAction(): Promise<void> {
+export async function logoutAction(): Promise<AuthActionState> {
   const supabase = await createClient();
   await supabase.auth.signOut({ scope: "local" });
   (await cookies()).delete("hanu_remember");
-  redirect("/login");
+  return { status: "success", message: "Đã đăng xuất" };
 }
 
 export async function forgotPasswordAction(

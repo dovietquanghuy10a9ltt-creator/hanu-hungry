@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Navigation } from "@/components/layout/navigation";
 import { StreakIndicator, type StreakData } from "@/components/shared/streak-indicator";
 import { SmartCheckInRecall } from "@/components/shared/smart-checkin-recall";
@@ -20,6 +21,7 @@ export type AuthState = {
   unreadNotificationsCount: number;
   streakData: StreakData;
   refresh: () => Promise<void>;
+  clearAuth: () => void;
 };
 
 const defaultStreakData: StreakData = {
@@ -38,12 +40,15 @@ const AuthContext = createContext<AuthState>({
   unreadNotificationsCount: 0,
   streakData: defaultStreakData,
   refresh: async () => {},
+  clearAuth: () => {},
 });
 
 const AUTH_CACHE_KEY = "hanu_auth_cache_v1";
 const AUTH_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const prevPathnameRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -80,6 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const clearAuth = useCallback(() => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem(AUTH_CACHE_KEY);
+      } catch {}
+    }
+    applyData({ authenticated: false });
+    setLoading(false);
+  }, [applyData]);
+
   const fetchSession = useCallback(
     async (force = false) => {
       try {
@@ -101,8 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const res = await fetch("/api/me", { cache: "no-store" });
         if (!res.ok) {
-          applyData({ authenticated: false });
-          if (typeof window !== "undefined") sessionStorage.removeItem(AUTH_CACHE_KEY);
+          clearAuth();
           return;
         }
         const data = await res.json();
@@ -115,13 +129,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch {
-        applyData({ authenticated: false });
+        clearAuth();
       } finally {
         setLoading(false);
       }
     },
-    [applyData]
+    [applyData, clearAuth]
   );
+
+  const refresh = useCallback(async () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem(AUTH_CACHE_KEY);
+      } catch {}
+    }
+    await fetchSession(true);
+  }, [fetchSession]);
 
   useEffect(() => {
     let active = true;
@@ -132,12 +155,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         typeof document !== "undefined" &&
         document.cookie.split(";").some((c) => {
           const name = c.trim().split("=")[0];
-          return name.startsWith("sb-") && name.includes("auth-token");
+          return name.startsWith("sb-") && !name.includes("code-verifier");
         });
 
       if (!hasCookie) {
         // Guest or bot: do not call /api/me at all!
-        if (active) setLoading(false);
+        if (active) {
+          clearAuth();
+        }
         return;
       }
 
@@ -175,9 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (typeof window !== "undefined") sessionStorage.removeItem(AUTH_CACHE_KEY);
         fetchSession(true);
       } else if (event === "SIGNED_OUT") {
-        if (typeof window !== "undefined") sessionStorage.removeItem(AUTH_CACHE_KEY);
-        applyData({ authenticated: false });
-        setLoading(false);
+        clearAuth();
       }
     });
 
@@ -185,7 +208,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       active = false;
       subscription.unsubscribe();
     };
-  }, [applyData, fetchSession]);
+  }, [applyData, clearAuth, fetchSession]);
+
+  const authenticatedRef = useRef(authenticated);
+  useEffect(() => {
+    authenticatedRef.current = authenticated;
+  }, [authenticated]);
+
+  // Watch route changes: auto-synchronize auth state on SPA transitions
+  useEffect(() => {
+    if (prevPathnameRef.current === null) {
+      prevPathnameRef.current = pathname;
+      return;
+    }
+
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+
+      queueMicrotask(() => {
+        const hasCookie =
+          typeof document !== "undefined" &&
+          document.cookie.split(";").some((c) => {
+            const name = c.trim().split("=")[0];
+            return name.startsWith("sb-") && !name.includes("code-verifier");
+          });
+
+        if (!hasCookie && authenticatedRef.current) {
+          clearAuth();
+        } else if (hasCookie && !authenticatedRef.current) {
+          refresh();
+        }
+      });
+    }
+  }, [pathname, clearAuth, refresh]);
 
   return (
     <AuthContext.Provider
@@ -197,7 +252,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin,
         unreadNotificationsCount: unreadCount,
         streakData,
-        refresh: fetchSession,
+        refresh,
+        clearAuth,
       }}
     >
       {children}
