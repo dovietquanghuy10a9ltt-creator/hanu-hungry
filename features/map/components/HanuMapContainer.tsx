@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { maplibreGL } from "@maplibre/maplibre-gl-leaflet";
+import "maplibre-gl/dist/maplibre-gl.css";
 import type { CatalogRestaurant } from "@/features/restaurants/catalog";
 import {
   HANU_CENTER_COORDS,
@@ -14,7 +16,29 @@ import { formatCardPrice } from "@/features/restaurants/format";
 
 const DEFAULT_ZOOM = 17;
 const FOCUS_MAX_ZOOM = 18;
-const MAX_ZOOM = 19;
+const MAX_ZOOM = 20;
+
+// OpenFreeMap: bản đồ vector dữ liệu OpenStreetMap đầy đủ (kể cả ngõ, ngách, đường đi bộ),
+// miễn phí, không cần API key, phục vụ qua Cloudflare. Vector được vẽ bằng WebGL nên luôn nét
+// trên mọi màn hình và mọi mức zoom. Tên miền này không bị DNS nhà mạng VN chặn như *.openstreetmap.org.
+const OPENFREEMAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+const OPENFREEMAP_ATTRIBUTION =
+  '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors';
+
+// Dự phòng cho thiết bị không hỗ trợ WebGL: ảnh raster Esri (ít chi tiết hơn nhưng luôn tải được).
+const ESRI_FALLBACK_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}";
+const ESRI_ATTRIBUTION =
+  'Tiles &copy; <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a> &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors';
+
+function supportsWebGL(): boolean {
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
 
 interface HanuMapContainerProps {
   restaurants: CatalogRestaurant[];
@@ -61,21 +85,40 @@ export function HanuMapContainer({
       })
       .addTo(map);
 
-    // Esri World Street Map (CDN ArcGIS, không cần API key).
-    // Không dùng *.openstreetmap.org: DNS của nhiều nhà mạng Việt Nam trả về 127.0.0.1 cho
-    // tile.openstreetmap.org, nên bản đồ bị xám/đen trên Wi-Fi (Chrome, Cốc Cốc) dù 4G vẫn tải được.
-    // Không dùng basemaps.cartocdn.com: CARTO giờ trả ảnh "API KEY REQUIRED" cho mọi tile.
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-      {
+    // Không dùng tile.openstreetmap.org: DNS của nhiều nhà mạng VN trả về 127.0.0.1 cho tên miền này,
+    // khiến bản đồ xám/đen trên Wi-Fi. CARTO giờ bắt buộc API key.
+    if (supportsWebGL()) {
+      const glLayer = maplibreGL({
+        style: OPENFREEMAP_STYLE_URL,
+        attributionControl: false, // Dùng ô ghi nguồn của Leaflet để không bị lặp hai dòng
+      }).addTo(map);
+      map.attributionControl.addAttribution(OPENFREEMAP_ATTRIBUTION);
+
+      // Style "liberty" ưu tiên tên tiếng Anh ("Lương Thế Vinh Road", "Hanoi University").
+      // Đổi mọi nhãn tên sang tên gốc tiếng Việt trong OSM (trường "name"), giữ nguyên nhãn số hiệu đường.
+      const glMap = glLayer.getMaplibreMap();
+      glMap.once("load", () => {
+        for (const layer of glMap.getStyle().layers ?? []) {
+          if (layer.type !== "symbol") continue;
+          const textField = glMap.getLayoutProperty(layer.id, "text-field");
+          if (textField && JSON.stringify(textField).includes("name")) {
+            glMap.setLayoutProperty(layer.id, "text-field", [
+              "coalesce",
+              ["get", "name"],
+              ["get", "name:latin"],
+            ]);
+          }
+        }
+      });
+    } else {
+      L.tileLayer(ESRI_FALLBACK_URL, {
         maxZoom: MAX_ZOOM,
-        maxNativeZoom: MAX_ZOOM, // Không phóng to ảnh tile của mức zoom thấp hơn (nguyên nhân gây mờ)
+        maxNativeZoom: 19,
         keepBuffer: 6,
         updateWhenIdle: false,
-        attribution:
-          'Tiles &copy; <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a> &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-      }
-    ).addTo(map);
+        attribution: ESRI_ATTRIBUTION,
+      }).addTo(map);
+    }
 
     // Ghim đặc biệt: Cổng chính HANU
     const hanuIcon = L.divIcon({

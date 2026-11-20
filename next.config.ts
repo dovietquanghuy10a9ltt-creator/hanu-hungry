@@ -33,7 +33,9 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' blob: data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' ws: wss: https://*.supabase.co https://va.vercel-scripts.com https://*.vercel-insights.com",
+      "connect-src 'self' ws: wss: https://*.supabase.co https://va.vercel-scripts.com https://*.vercel-insights.com https://tiles.openfreemap.org",
+      // MapLibre (bản đồ vector) chạy phần giải mã tile trong Web Worker tạo từ blob URL
+      "worker-src 'self' blob:",
       "frame-ancestors 'none'",
     ].join("; "),
   },
