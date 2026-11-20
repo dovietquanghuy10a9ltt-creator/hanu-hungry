@@ -92,3 +92,28 @@ test("M06: POPULAR_ALLEY_FILTERS contains standard HANU alley clusters", () => {
   assert.ok(POPULAR_ALLEY_FILTERS.includes("Ngõ 1"));
   assert.ok(POPULAR_ALLEY_FILTERS.includes("Cổng trường"));
 });
+
+test("M07: Ngõ A4 restaurants stay strictly between stadium and Đường Lương Thế Vinh", () => {
+  const sampleIds = ["a4-1", "a4-2", "a4-3", "5563cd1a-0659-4514-bfa5-5b917891236c"];
+  for (const id of sampleIds) {
+    const coords = getRestaurantCoordinates({ id, area: "Ngõ A4" });
+    assert.ok(coords.lng >= 105.7962 && coords.lng <= 105.7971);
+    assert.ok(coords.lat >= 20.9890 && coords.lat <= 20.9902);
+  }
+});
+
+test("M08: Ngõ 1 restaurants stay on the north HANU side of Nguyễn Trãi", () => {
+  const sampleIds = ["n1-1", "n1-2", "n1-3"];
+  for (const id of sampleIds) {
+    const coords = getRestaurantCoordinates({ id, area: "Ngõ 1" });
+    assert.ok(coords.lat >= 20.9873);
+  }
+});
+
+test("M09: Ngõ A8 restaurants stay within HANU boundary", () => {
+  const sampleIds = ["a8-1", "a8-2", "a8-3"];
+  for (const id of sampleIds) {
+    const coords = getRestaurantCoordinates({ id, area: "Ngõ A8" });
+    assert.ok(coords.lat <= 20.9914);
+  }
+});
