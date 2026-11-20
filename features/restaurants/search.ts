@@ -5,6 +5,10 @@ export type CatalogRestaurant = RestaurantSummary & {
   category_slugs: string[];
   dishes: CatalogDish[];
   check_in_count?: number;
+  /** Dữ liệu vị trí thật để bản đồ đặt ghim trùng với nút "Mở trên Google Maps". */
+  plus_code?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export function normalizeSearch(value: string): string {

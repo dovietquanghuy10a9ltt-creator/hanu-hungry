@@ -117,3 +117,68 @@ test("M09: Ngõ A8 restaurants stay within HANU boundary", () => {
     assert.ok(coords.lat <= 20.9914);
   }
 });
+
+import { decodePlusCode, extractPlusCode } from "../features/map/plus-code.ts";
+import { getRealRestaurantCoordinates, spreadOverlappingCoordinates } from "../features/map/constants.ts";
+
+test("M10: decodePlusCode decodes a full Open Location Code to the cell centre", () => {
+  // Ô 8FVC9G8F+6X bắt đầu tại (47.3655, 8.524875), kích thước 0.000125°
+  const area = decodePlusCode("8FVC9G8F+6X", HANU_CENTER_COORDS);
+  assert.ok(area);
+  assert.ok(Math.abs(area.lat - 47.3655625) < 1e-9);
+  assert.ok(Math.abs(area.lng - 8.5249375) < 1e-9);
+});
+
+test("M11: decodePlusCode recovers short codes from the nearest reference point", () => {
+  const short = decodePlusCode("9G8F+6X", { lat: 47.4, lng: 8.6 });
+  const full = decodePlusCode("8FVC9G8F+6X", HANU_CENTER_COORDS);
+  assert.deepEqual(short, full);
+
+  // Mã rút gọn quanh HANU phải rơi trong bán kính ~500m quanh trường
+  const gate = decodePlusCode("XQQW+6F", HANU_CENTER_COORDS);
+  assert.ok(gate);
+  assert.ok(Math.abs(gate.lat - HANU_CENTER_COORDS.lat) < 0.005);
+  assert.ok(Math.abs(gate.lng - HANU_CENTER_COORDS.lng) < 0.005);
+});
+
+test("M12: extractPlusCode finds the code inside an address and rejects invalid input", () => {
+  assert.equal(extractPlusCode("XQQW+6F Đại Mỗ, Hà Nội"), "XQQW+6F");
+  assert.equal(extractPlusCode("XQQW+VFR Dai Mo, Ha Noi"), "XQQW+VFR");
+  assert.equal(extractPlusCode("Số 9 Nguyễn Trãi"), null);
+  assert.equal(extractPlusCode(null), null);
+  assert.equal(decodePlusCode("NOT+CODE", HANU_CENTER_COORDS), null);
+});
+
+test("M13: restaurants with a Plus Code are pinned where Google Maps opens them, not on alley estimates", () => {
+  const restaurant = { id: "r-plus", area: "Ngõ A5", plus_code: "XQQW+VFR", address_text: "XQQW+VFR Dai Mo, Ha Noi" };
+  const expected = decodePlusCode("XQQW+VFR", HANU_CENTER_COORDS);
+  assert.deepEqual(getRestaurantCoordinates(restaurant), { lat: expected.lat, lng: expected.lng });
+
+  // Plus Code chỉ nằm trong địa chỉ vẫn được dùng
+  const fromAddress = getRealRestaurantCoordinates({ address_text: "XQQW+VFR Dai Mo, Ha Noi" });
+  assert.deepEqual(fromAddress, { lat: expected.lat, lng: expected.lng });
+
+  // Toạ độ DB vẫn được ưu tiên hơn Plus Code
+  const withLatLng = getRestaurantCoordinates({ ...restaurant, latitude: 20.99, longitude: 105.79 });
+  assert.deepEqual(withLatLng, { lat: 20.99, lng: 105.79 });
+
+  assert.equal(getRealRestaurantCoordinates({ area: "Ngõ A5" }), null);
+});
+
+test("M14: spreadOverlappingCoordinates separates pins sharing a location and keeps unique pins", () => {
+  const shared = { lat: 20.9880625, lng: 105.7961875 };
+  const unique = { lat: 20.9897, lng: 105.7961 };
+  const result = spreadOverlappingCoordinates([
+    { id: "a", coords: shared },
+    { id: "b", coords: shared },
+    { id: "c", coords: unique },
+  ]);
+  assert.deepEqual(result.get("c"), unique);
+  const a = result.get("a");
+  const b = result.get("b");
+  assert.notDeepEqual(a, b);
+  for (const p of [a, b]) {
+    const meters = calculateWalkingDistance(p, shared).distanceMeters;
+    assert.ok(meters <= 30, `pin moved too far: ${meters}m`);
+  }
+});

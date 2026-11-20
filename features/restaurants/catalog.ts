@@ -24,7 +24,7 @@ export const listCatalog = cache(async function listCatalog(): Promise<CatalogRe
   const { data, error } = await supabase
     .from("restaurants")
     .select(
-      "id,name,area,address_text,image_url,dishes(id,name,price_text,price_min_vnd,price_max_vnd,is_active),restaurant_categories(categories(name,slug))"
+      "id,name,area,address_text,plus_code,latitude,longitude,image_url,dishes(id,name,price_text,price_min_vnd,price_max_vnd,is_active),restaurant_categories(categories(name,slug))"
     )
     .eq("is_active", true)
     .order("name");
@@ -83,6 +83,9 @@ export const listCatalog = cache(async function listCatalog(): Promise<CatalogRe
       name: restaurant.name,
       area: restaurant.area,
       address_text: restaurant.address_text,
+      plus_code: restaurant.plus_code,
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude,
       image_url: restaurant.image_url,
       dishes: activeDishes,
       min_price_vnd: minPrices.length ? Math.min(...minPrices) : null,

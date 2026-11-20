@@ -8,11 +8,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { CatalogRestaurant } from "@/features/restaurants/catalog";
 import {
   HANU_CENTER_COORDS,
-  HANU_MAIN_GATE_COORDS,
+  HANU_CAMPUS_OUTLINE,
   getRestaurantCoordinates,
   calculateWalkingDistance,
+  spreadOverlappingCoordinates,
 } from "../constants";
-import { formatCardPrice } from "@/features/restaurants/format";
+import { formatCardPrice, mapsUrl } from "@/features/restaurants/format";
 
 const DEFAULT_ZOOM = 17;
 const FOCUS_MAX_ZOOM = 18;
@@ -120,31 +121,26 @@ export function HanuMapContainer({
       }).addTo(map);
     }
 
-    // Ghim đặc biệt: Cổng chính HANU
-    const hanuIcon = L.divIcon({
-      className: "hanu-gate-marker",
-      html: `
-        <div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);">
-          <div style="background:#9c2826;color:#ffffff;font-size:11px;font-weight:900;padding:3px 8px;border-radius:12px;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;display:flex;align-items:center;gap:4px;">
-            <span>🎓</span> <span>CỔNG HANU</span>
-          </div>
-          <div style="width:2px;height:6px;background:#9c2826;"></div>
-          <div style="width:8px;height:8px;background:#9c2826;border-radius:50%;border:2px solid #fff;"></div>
-        </div>
-      `,
-      iconSize: [0, 0],
-      iconAnchor: [0, 0],
-    });
-
-    L.marker([HANU_MAIN_GATE_COORDS.lat, HANU_MAIN_GATE_COORDS.lng], {
-      icon: hanuIcon,
-      zIndexOffset: 1000,
-    })
-      .addTo(map)
-      .bindTooltip("Cổng trường Đại học Hà Nội (HANU)", {
-        direction: "top",
-        offset: [0, -25],
-      });
+    // Khoanh vùng nổi bật khuôn viên Trường Đại học Hà Nội: viền sáng mờ bên ngoài + nét đứt đỏ
+    // + nền đỏ nhạt. interactive: false để không chặn click vào ghim quán và kéo bản đồ.
+    L.polygon(HANU_CAMPUS_OUTLINE, {
+      color: "#9c2826",
+      weight: 12,
+      opacity: 0.12,
+      fill: false,
+      lineJoin: "round",
+      interactive: false,
+    }).addTo(map);
+    L.polygon(HANU_CAMPUS_OUTLINE, {
+      color: "#9c2826",
+      weight: 3,
+      opacity: 0.9,
+      dashArray: "10 6",
+      lineJoin: "round",
+      fillColor: "#e0473f",
+      fillOpacity: 0.1,
+      interactive: false,
+    }).addTo(map);
 
     mapRef.current = map;
 
@@ -176,10 +172,20 @@ export function HanuMapContainer({
     markersMapRef.current.forEach((marker) => marker.remove());
     markersMapRef.current.clear();
 
+    // Nhiều quán dùng chung một Plus Code (vd. các quán "Cổng trường" cùng mã XQQW+6F):
+    // xếp các ghim trùng vị trí thành vòng nhỏ quanh điểm thật để không đè lên nhau.
+    const pinPositions = spreadOverlappingCoordinates(
+      restaurants.map((restaurant) => ({
+        id: restaurant.id,
+        coords: getRestaurantCoordinates(restaurant),
+      }))
+    );
+
     restaurants.forEach((restaurant) => {
-      const coords = getRestaurantCoordinates(restaurant);
+      const realCoords = getRestaurantCoordinates(restaurant);
+      const coords = pinPositions.get(restaurant.id) ?? realCoords;
       const isSelected = restaurant.id === selectedRestaurantId;
-      const walking = calculateWalkingDistance(coords);
+      const walking = calculateWalkingDistance(realCoords);
 
       const markerHtml = `
         <div class="hanu-food-pin group" style="transform:translate(-50%,-100%);cursor:pointer;">
@@ -226,7 +232,10 @@ export function HanuMapContainer({
         .slice(0, 2)
         .map((d: { name: string }) => d.name)
         .join(", ");
-      const mapsLink = `https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`;
+      // Cùng link với nút "Mở trên Google Maps" ở trang chi tiết quán (toạ độ DB, hoặc địa chỉ/Plus Code)
+      const mapsLink =
+        mapsUrl(restaurant) ??
+        `https://www.google.com/maps/search/?api=1&query=${realCoords.lat},${realCoords.lng}`;
 
       const popupContent = `
         <div style="font-family:var(--font-body,sans-serif);min-width:220px;max-width:260px;padding:2px;">
@@ -307,10 +316,9 @@ export function HanuMapContainer({
     const marker = markersMapRef.current.get(selectedRestaurantId);
     const target = restaurants.find((r) => r.id === selectedRestaurantId);
     if (marker && target) {
-      const coords = getRestaurantCoordinates(target);
       const currentZoom = mapRef.current.getZoom();
       const targetZoom = Math.min(Math.max(Math.round(currentZoom), DEFAULT_ZOOM), FOCUS_MAX_ZOOM);
-      mapRef.current.setView([coords.lat, coords.lng], targetZoom, {
+      mapRef.current.setView(marker.getLatLng(), targetZoom, {
         animate: true,
         duration: 0.5,
       });

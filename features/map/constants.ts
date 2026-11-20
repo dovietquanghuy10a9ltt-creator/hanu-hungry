@@ -3,6 +3,8 @@
  * Tọa độ gốc HANU: Km9 Đường Nguyễn Trãi, Trung Văn, Nam Từ Liêm, Hà Nội
  */
 
+import { decodePlusCode, extractPlusCode } from "./plus-code.ts";
+
 export interface LatLng {
   lat: number;
   lng: number;
@@ -13,10 +15,39 @@ export const HANU_CENTER_COORDS: LatLng = {
   lng: 105.7954,
 };
 
+/**
+ * Cổng chính HANU — mốc tính khoảng cách đi bộ. Lấy từ Plus Code "XQQW+6F", mã mà các quán
+ * khu "Cổng trường" dùng trên Google Maps (nằm đúng mép đông nam khuôn viên).
+ */
 export const HANU_MAIN_GATE_COORDS: LatLng = {
-  lat: 20.9878,
-  lng: 105.7963,
+  lat: 20.9880625,
+  lng: 105.7961875,
 };
+
+/**
+ * Đường bao khuôn viên Trường Đại học Hà Nội, lấy từ OpenStreetMap
+ * (way 829266414, amenity=university, "Trường Đại học Hà Nội"). Thứ tự điểm theo [lat, lng].
+ */
+export const HANU_CAMPUS_OUTLINE: [number, number][] = [
+  [20.987853, 105.795218],
+  [20.987658, 105.795368],
+  [20.988152, 105.796079],
+  [20.989169, 105.797509],
+  [20.989334, 105.797353],
+  [20.989168, 105.797144],
+  [20.989247, 105.797073],
+  [20.988969, 105.796724],
+  [20.990314, 105.795603],
+  [20.990446, 105.795759],
+  [20.990483, 105.795784],
+  [20.990901, 105.795458],
+  [20.99057, 105.794986],
+  [20.990144, 105.794412],
+  [20.989966, 105.794229],
+  [20.989461, 105.793906],
+  [20.988985, 105.794308],
+  [20.988542, 105.794658],
+];
 
 export interface AlleyCorridor {
   start: LatLng;
@@ -142,12 +173,17 @@ function hashString(str: string): number {
  * 1. Nếu quán đã có tọa độ thật trong DB -> Ưu tiên 100%
  * 2. Nếu chưa có -> Dùng tọa độ ngõ + vi dịch chuyển tự nhiên (micro-offset) để các ghim không đè lên nhau
  */
-export function getRestaurantCoordinates(restaurant: {
-  id: string;
-  area?: string | null;
+/**
+ * Toạ độ thật của quán, theo đúng thứ tự mà nút "Mở trên Google Maps" (mapsUrl) dùng:
+ * 1. latitude/longitude trong DB  2. Plus Code (cột plus_code, hoặc nằm trong address_text).
+ * Trả về null nếu quán chưa có dữ liệu vị trí thật.
+ */
+export function getRealRestaurantCoordinates(restaurant: {
   latitude?: number | null;
   longitude?: number | null;
-}): LatLng {
+  plus_code?: string | null;
+  address_text?: string | null;
+}): LatLng | null {
   if (
     typeof restaurant.latitude === "number" &&
     typeof restaurant.longitude === "number" &&
@@ -158,6 +194,28 @@ export function getRestaurantCoordinates(restaurant: {
   ) {
     return { lat: restaurant.latitude, lng: restaurant.longitude };
   }
+
+  const plusCode = extractPlusCode(restaurant.plus_code) ?? extractPlusCode(restaurant.address_text);
+  if (plusCode) {
+    const area = decodePlusCode(plusCode, HANU_CENTER_COORDS);
+    if (area) return { lat: area.lat, lng: area.lng };
+  }
+
+  return null;
+}
+
+export function getRestaurantCoordinates(restaurant: {
+  id: string;
+  area?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  plus_code?: string | null;
+  address_text?: string | null;
+}): LatLng {
+  const real = getRealRestaurantCoordinates(restaurant);
+  if (real) return real;
+
+  // Quán chưa có vị trí thật: ước lượng theo ngõ để vẫn hiện trên bản đồ.
 
   const areaName = restaurant.area?.trim() || "";
   const corridor = HANU_ALLEY_CORRIDORS[areaName];
@@ -234,4 +292,40 @@ export function calculateWalkingDistance(target: LatLng, from: LatLng = HANU_MAI
     walkingMinutes,
     formattedText: `~${distanceText} • ${walkingMinutes} phút đi bộ`,
   };
+}
+
+/**
+ * Xếp các ghim trùng đúng một vị trí (nhiều quán chung Plus Code) thành vòng tròn bán kính ~5m
+ * quanh điểm thật để có thể bấm từng ghim. Ghim không trùng giữ nguyên vị trí.
+ */
+export function spreadOverlappingCoordinates(
+  items: { id: string; coords: LatLng }[],
+  radiusDegrees = 0.000045
+): Map<string, LatLng> {
+  const groups = new Map<string, { id: string; coords: LatLng }[]>();
+  for (const item of items) {
+    const key = `${item.coords.lat.toFixed(6)},${item.coords.lng.toFixed(6)}`;
+    const group = groups.get(key);
+    if (group) group.push(item);
+    else groups.set(key, [item]);
+  }
+
+  const result = new Map<string, LatLng>();
+  for (const group of groups.values()) {
+    if (group.length === 1) {
+      result.set(group[0].id, group[0].coords);
+      continue;
+    }
+    // Sắp theo id để vị trí của từng quán ổn định giữa các lần render
+    const sorted = [...group].sort((a, b) => a.id.localeCompare(b.id));
+    const lngScale = 1 / Math.cos((sorted[0].coords.lat * Math.PI) / 180);
+    sorted.forEach((item, index) => {
+      const angle = (2 * Math.PI * index) / sorted.length - Math.PI / 2;
+      result.set(item.id, {
+        lat: item.coords.lat + radiusDegrees * Math.sin(angle),
+        lng: item.coords.lng + radiusDegrees * Math.cos(angle) * lngScale,
+      });
+    });
+  }
+  return result;
 }
