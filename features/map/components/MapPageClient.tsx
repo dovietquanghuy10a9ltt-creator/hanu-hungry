@@ -14,6 +14,7 @@ export function MapPageClient({ initialCatalog }: MapPageClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeAlley, setActiveAlley] = useState("Tất cả");
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
+  const [resetTrigger, setResetTrigger] = useState(0);
 
   // Lọc quán theo tìm kiếm và ngõ
   const filteredRestaurants = useMemo(() => {
@@ -57,6 +58,7 @@ export function MapPageClient({ initialCatalog }: MapPageClientProps) {
     setSearchQuery("");
     setActiveAlley("Tất cả");
     setSelectedRestaurantId(null);
+    setResetTrigger((prev) => prev + 1);
   };
 
   return (
@@ -78,6 +80,7 @@ export function MapPageClient({ initialCatalog }: MapPageClientProps) {
         restaurants={filteredRestaurants}
         selectedRestaurantId={selectedRestaurantId}
         onSelectRestaurant={handleSelectRestaurant}
+        resetTrigger={resetTrigger}
         className="w-full h-full"
       />
 

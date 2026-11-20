@@ -16,6 +16,7 @@ interface HanuMapContainerProps {
   restaurants: CatalogRestaurant[];
   selectedRestaurantId: string | null;
   onSelectRestaurant: (restaurant: CatalogRestaurant) => void;
+  resetTrigger?: number;
   className?: string;
 }
 
@@ -23,6 +24,7 @@ export function HanuMapContainer({
   restaurants,
   selectedRestaurantId,
   onSelectRestaurant,
+  resetTrigger,
   className = "",
 }: HanuMapContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,11 +51,15 @@ export function HanuMapContainer({
       })
       .addTo(map);
 
-    // Sử dụng OpenStreetMap standard tile (hoàn toàn miễn phí 100%, không cần API key, không bị watermark)
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    // Sử dụng OpenStreetMap tile với đa subdomain song song và bộ đệm lớn (tránh hiện tượng ô xám)
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      subdomains: ["a", "b", "c"],
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
       maxZoom: 19,
+      maxNativeZoom: 18,
+      keepBuffer: 8,
+      updateWhenIdle: false,
     }).addTo(map);
 
     // Ghim đặc biệt: Cổng chính HANU
@@ -214,25 +220,37 @@ export function HanuMapContainer({
     });
   }, [restaurants, selectedRestaurantId, onSelectRestaurant]);
 
-  // Khi selectedRestaurantId thay đổi, tự động flyTo và mở popup
+  // Khi resetTrigger thay đổi (người dùng bấm "Về HANU"), lướt góc nhìn về cổng trường
+  useEffect(() => {
+    if (!resetTrigger || !mapRef.current) return;
+    mapRef.current.closePopup();
+    mapRef.current.flyTo([HANU_CENTER_COORDS.lat, HANU_CENTER_COORDS.lng], 16.5, {
+      animate: true,
+      duration: 0.6,
+    });
+  }, [resetTrigger]);
+
+  // Khi selectedRestaurantId thay đổi, lướt êm dịu tới quán và mở popup (không đổi zoom đột ngột để không mất tile)
   useEffect(() => {
     if (!selectedRestaurantId || !mapRef.current) return;
     const marker = markersMapRef.current.get(selectedRestaurantId);
     const target = restaurants.find((r) => r.id === selectedRestaurantId);
     if (marker && target) {
       const coords = getRestaurantCoordinates(target);
-      mapRef.current.flyTo([coords.lat, coords.lng], 18, {
+      const currentZoom = mapRef.current.getZoom();
+      const targetZoom = Math.min(Math.max(currentZoom, 16.5), 17.5);
+      mapRef.current.setView([coords.lat, coords.lng], targetZoom, {
         animate: true,
-        duration: 0.8,
+        duration: 0.5,
       });
       setTimeout(() => {
         marker.openPopup();
-      }, 350);
+      }, 250);
     }
   }, [selectedRestaurantId, restaurants]);
 
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
+    <div className={`relative w-full h-full overflow-hidden bg-[#e8e0d8] ${className}`}>
       <div ref={containerRef} className="w-full h-full z-0" />
     </div>
   );
