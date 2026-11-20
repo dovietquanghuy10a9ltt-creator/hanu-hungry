@@ -86,11 +86,16 @@ export function Navigation({
             {mobile ? (
               <span
                 aria-hidden="true"
-                className={`flex items-center justify-center leading-none mobile-nav-icon ${
+                className={`relative flex items-center justify-center leading-none mobile-nav-icon ${
                   isGacha ? "gacha-sparkle-icon" : ""
                 }`}
               >
                 <NavIcon href={item.href} className="w-5 h-5" />
+                {isMap && (
+                  <span className="absolute -top-1.5 -right-3 whitespace-nowrap rounded-full bg-[var(--color-red)] px-1 py-0.2 text-[8px] font-black text-white leading-none shadow-xs">
+                    Sắp mở
+                  </span>
+                )}
               </span>
             ) : (
               <span
@@ -104,7 +109,7 @@ export function Navigation({
             )}
             <span className="relative z-1 inline-flex items-center gap-1.5">
               <span>{item.label}</span>
-              {isMap && (
+              {!mobile && isMap && (
                 <span className="rounded-full bg-[#fdf2f2] border border-[#f0c2c6] px-1.5 py-0.2 text-[9px] font-extrabold text-[var(--color-red)] leading-tight tracking-tight">
                   Sắp mở
                 </span>
